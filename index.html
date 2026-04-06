@@ -685,6 +685,62 @@
     .form-textarea:focus { border-color: var(--accent); }
     .form-textarea::placeholder { color: var(--muted); }
 
+    /* ── GLOBAL EFFECTS SHEET ──────────────────────────── */
+    .global-row {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 10px 0; border-bottom: 1px solid var(--border); gap: 12px;
+    }
+    .global-row:last-of-type { border-bottom: none; }
+    .global-row-label { font-size: .88rem; flex: 1; min-width: 0; }
+    .global-row-sub   { font-size: .72rem; color: var(--muted); margin-top: 2px; }
+    .global-controls  { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
+    .global-num-btn {
+      background: var(--surface2); border: 1px solid var(--border);
+      color: var(--text); border-radius: 6px;
+      width: 28px; height: 28px; font-size: 1rem;
+      cursor: pointer; display: flex; align-items: center;
+      justify-content: center; transition: background .15s;
+    }
+    .global-num-btn:hover { background: var(--border); }
+    .global-num-val {
+      min-width: 28px; text-align: center;
+      font-size: .9rem; font-weight: 700;
+    }
+    .global-apply-btn {
+      background: var(--accent); color: #fff; border: none;
+      border-radius: 7px; padding: 5px 12px;
+      font-size: .78rem; font-weight: 700; cursor: pointer;
+      transition: background .15s;
+    }
+    .global-apply-btn:hover { background: var(--accent-h); }
+
+    /* Prowess button */
+    .prowess-btn {
+      background: #2a1a4a; border: 1px solid #7a50bb;
+      color: #c0a0ff; border-radius: 8px;
+      padding: 6px 14px; font-size: .82rem; font-weight: 700;
+      cursor: pointer; transition: background .15s, transform .1s;
+    }
+    .prowess-btn:hover  { background: #3a2a5a; }
+    .prowess-btn:active { transform: scale(.95); }
+    .prowess-count {
+      font-size: .88rem; font-weight: 700; color: #c0a0ff;
+      min-width: 28px; text-align: center;
+    }
+
+    /* Card P/T modified (EOT buff) */
+    .card-pt.pt-modified {
+      color: var(--tap-color); border-color: var(--tap-color);
+    }
+
+    /* EOT badge strip on card */
+    .eot-badge {
+      font-size: .65rem; font-weight: 700;
+      color: var(--tap-color); background: rgba(232,160,69,.15);
+      border: 1px solid var(--tap-color); border-radius: 4px;
+      padding: 1px 5px; white-space: nowrap;
+    }
+
     /* ── UPDATE BANNER ─────────────────────────────────── */
     .update-banner {
       position: fixed;
@@ -780,26 +836,71 @@
       border: 1px solid var(--border);
       border-radius: 9px;
       margin-top: 5px;
-      max-height: 260px;
+      max-height: 280px;
       overflow-y: auto;
       display: none;
+      padding: 8px;
+      /* grid is set when open — keeps display:none working */
     }
-    .art-dropdown-list.open { display: block; }
+    .art-dropdown-list.open {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 6px;
+    }
     .art-drop-item {
-      display: flex; align-items: center; gap: 10px;
-      padding: 8px 12px; cursor: pointer;
-      border-bottom: 1px solid var(--border);
-      transition: background .12s;
+      position: relative;
+      aspect-ratio: 5 / 7;
+      border-radius: 6px;
+      overflow: hidden;
+      cursor: pointer;
+      border: 2px solid transparent;
+      transition: border-color .15s, transform .12s;
+      flex-shrink: 0;
     }
-    .art-drop-item:last-child { border-bottom: none; }
-    .art-drop-item:hover { background: var(--border); }
-    .art-drop-item.selected { background: rgba(200,75,49,.12); }
+    .art-drop-item:hover  { transform: scale(1.05); z-index: 1; }
+    .art-drop-item.selected { border-color: var(--accent); }
     .art-drop-item img {
-      width: 32px; height: 44px;
-      object-fit: cover; border-radius: 3px; flex-shrink: 0;
+      width: 100%; height: 100%;
+      object-fit: cover; display: block;
     }
-    .art-drop-item-set  { font-size: .85rem; font-weight: 600; }
-    .art-drop-item-code { font-size: .72rem; color: var(--muted); margin-top: 1px; }
+    .art-drop-item-code {
+      position: absolute; bottom: 0; left: 0; right: 0;
+      background: rgba(0,0,0,.68);
+      font-size: .56rem; font-weight: 600;
+      color: #ccc; text-align: center;
+      padding: 2px 0; text-transform: uppercase;
+      letter-spacing: .3px;
+    }
+
+    /* ── ART PREVIEW POPUP ─────────────────────────────── */
+    .art-preview-popup {
+      position: fixed;
+      z-index: 500;
+      pointer-events: none;
+      border-radius: 10px;
+      overflow: hidden;
+      box-shadow: 0 8px 48px rgba(0,0,0,.85);
+      border: 1px solid var(--border);
+      width: 210px;
+      opacity: 0;
+      transition: opacity .15s;
+      /* hidden by default */
+      display: none;
+    }
+    .art-preview-popup.visible {
+      display: block;
+      opacity: 1;
+    }
+    .art-preview-popup img { width: 100%; display: block; }
+
+    /* Mobile: centred overlay */
+    .art-preview-popup.mobile-preview {
+      left: 50% !important;
+      top:  50% !important;
+      transform: translate(-50%, -50%) !important;
+      width: min(260px, 70vw);
+      pointer-events: all;  /* allow tap-to-dismiss */
+    }
 
     /* ── +1/+1 QUICK COUNTER ───────────────────────────── */
     .plus-row {
@@ -1003,14 +1104,31 @@
       Token Tracker
     </div>
     <div class="header-actions">
-      <button class="btn-icon" id="untapAllBtn" onclick="untapAllTokens()" title="Untap all tokens">
+      <button class="btn-icon" onclick="untapAllTokens()" title="Untap all tokens">
         <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
           <path d="M8 2V8L12 12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
           <circle cx="8" cy="8" r="6" stroke="currentColor" stroke-width="1.5"/>
         </svg>
       </button>
+      <button class="btn-icon" onclick="openGlobal()" title="Battlefield effects" id="globalBtn">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+          <path d="M8 1L10 6H15L11 9.5L12.5 15L8 12L3.5 15L5 9.5L1 6H6L8 1Z" fill="currentColor"/>
+        </svg>
+      </button>
+      <button class="btn-icon" onclick="clearEOTEffects()" title="End turn — clear all EOT effects" id="eotBtn">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+          <circle cx="8" cy="8" r="6" stroke="currentColor" stroke-width="1.5"/>
+          <path d="M8 4V8.5L11 10.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M2.5 2.5L13.5 13.5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" opacity="0.45"/>
+        </svg>
+      </button>
     </div>
   </header>
+
+  <!-- Art full-size preview popup -->
+  <div class="art-preview-popup" id="artPreviewPopup" onclick="hideArtPreview()">
+    <img id="artPreviewImg" src="" alt="Card art preview">
+  </div>
 
   <!-- Update available banner -->
   <div class="update-banner" id="updateBanner">
@@ -1278,6 +1396,79 @@
     </div>
   </div>
 
+  <!-- ── GLOBAL EFFECTS SHEET ──────────────────────────────── -->
+  <div class="modal-overlay" id="globalOverlay" onclick="handleGlobalOverlay(event)">
+    <div class="modal" id="globalModal">
+      <div class="modal-drag"></div>
+      <div class="modal-header">
+        <span class="modal-title">Battlefield Effects</span>
+        <button class="modal-close" onclick="closeGlobal()">✕</button>
+      </div>
+      <div class="modal-body">
+
+        <!-- ─ Buffs ───────────────────────────────── -->
+        <div class="detail-section-title">Buffs (Until End of Turn)</div>
+
+        <div class="global-row">
+          <div class="global-row-label">
+            Add +1/+1 to All Creatures
+            <div class="global-row-sub">Adds permanent +1/+1 counters</div>
+          </div>
+          <div class="global-controls">
+            <button class="global-num-btn" onclick="adjustGlobalAmt('plus',-1)">−</button>
+            <span class="global-num-val" id="globalPlusAmt">1</span>
+            <button class="global-num-btn" onclick="adjustGlobalAmt('plus',1)">+</button>
+            <button class="global-apply-btn" onclick="applyPlusToAll()">Apply</button>
+          </div>
+        </div>
+
+        <div class="global-row">
+          <div class="global-row-label">
+            Power / Toughness Modifier
+            <div class="global-row-sub">Temporary bonus until end of turn</div>
+          </div>
+          <div class="global-controls" style="gap:4px">
+            <input id="globalPMod" type="number" class="detail-edit" value="0" style="width:50px" placeholder="P">
+            <span style="color:var(--muted)">/</span>
+            <input id="globalTMod" type="number" class="detail-edit" value="0" style="width:50px" placeholder="T">
+            <button class="global-apply-btn" onclick="applyPTMod()">Apply</button>
+          </div>
+        </div>
+
+        <div class="global-row">
+          <div class="global-row-label">
+            Prowess Trigger
+            <div class="global-row-sub">+1/+1 to all creatures per trigger (EOT)</div>
+          </div>
+          <div class="global-controls">
+            <span class="prowess-count" id="prowessCount">×0</span>
+            <button class="prowess-btn" onclick="triggerProwess()">⚡ Trigger</button>
+          </div>
+        </div>
+
+        <button class="detail-action-btn" onclick="clearEOTEffects()"
+                style="width:100%;margin-top:4px;border-color:#e8a04588;color:var(--tap-color)">
+          Clear All EOT Effects
+        </button>
+
+        <!-- ─ Destroy ─────────────────────────────── -->
+        <div class="detail-section-title">Destroy</div>
+        <div class="detail-action-grid">
+          <button class="detail-action-btn danger" onclick="destroyType('Creature')">All Creatures</button>
+          <button class="detail-action-btn danger" onclick="destroyType('Artifact')">All Artifacts</button>
+          <button class="detail-action-btn danger" onclick="destroyType('Enchantment')">All Enchantments</button>
+          <button class="detail-action-btn danger" onclick="destroyAllPermanents()">All Permanents</button>
+        </div>
+
+        <!-- ─ Utilities ───────────────────────────── -->
+        <div class="detail-section-title">Utilities</div>
+        <button class="detail-action-btn" onclick="consolidateAll();closeGlobal()"
+                style="width:100%">Consolidate All Like Tokens</button>
+
+      </div>
+    </div>
+  </div>
+
   <!-- ── CARD DETAIL SHEET ──────────────────────────────── -->
   <div class="modal-overlay" id="detailOverlay" onclick="handleDetailOverlay(event)">
     <div class="modal" id="detailModal">
@@ -1473,13 +1664,41 @@
         selectTokenByName(item.dataset.name);
       });
 
-      // Art dropdown list
+      // ── Art dropdown: select on mousedown ──────────────
       document.getElementById('artDropdownList').addEventListener('mousedown', function(e) {
         const item = e.target.closest('.art-drop-item[data-art-idx]');
         if (!item) return;
         e.preventDefault();
         pickArt(parseInt(item.dataset.artIdx));
       });
+
+      // ── Art preview: desktop hover ───────────────────────
+      document.getElementById('artDropdownList').addEventListener('mouseenter', function(e) {
+        const item = e.target.closest('.art-drop-item[data-full-img]');
+        if (!item) return;
+        showArtPreview(item.dataset.fullImg, item);
+      }, true);
+
+      document.getElementById('artDropdownList').addEventListener('mouseleave', function(e) {
+        // Only hide if leaving the list entirely
+        if (!e.relatedTarget || !e.relatedTarget.closest('#artDropdownList')) {
+          hideArtPreview();
+        }
+      }, true);
+
+      // ── Art preview: mobile long-press ───────────────────
+      let _lpTimer = null;
+      document.getElementById('artDropdownList').addEventListener('touchstart', function(e) {
+        const item = e.target.closest('.art-drop-item[data-full-img]');
+        if (!item) return;
+        _lpTimer = setTimeout(() => {
+          e.preventDefault();
+          showArtPreviewMobile(item.dataset.fullImg);
+        }, 450);
+      }, { passive: true });
+
+      document.getElementById('artDropdownList').addEventListener('touchend',  () => clearTimeout(_lpTimer));
+      document.getElementById('artDropdownList').addEventListener('touchmove', () => clearTimeout(_lpTimer));
     });
 
     // ══════════════════════════════════════════════════════
@@ -1649,18 +1868,15 @@
       document.getElementById('artSection').style.display = show ? 'block' : 'none';
       if (!show) return;
 
-      // Populate the scrollable list — ALL printings, no cap
+      // Populate the grid — ALL printings, no cap
       document.getElementById('artDropdownList').innerHTML = withImg.map((card, i) => {
-        const img  = getSmallImg(card) || getNormalImg(card);
-        const name = card.set_name || card.set || 'Unknown Set';
-        const code = (card.set || '').toUpperCase();
-        const num  = card.collector_number ? ` · #${card.collector_number}` : '';
-        return `<div class="art-drop-item ${i === selectedArtIdx ? 'selected' : ''}" data-art-idx="${i}">
-          <img src="${img}" alt="" loading="lazy">
-          <div>
-            <div class="art-drop-item-set">${esc(name)}</div>
-            <div class="art-drop-item-code">${esc(code)}${esc(num)}</div>
-          </div>
+        const thumb = getSmallImg(card) || getNormalImg(card);
+        const full  = getNormalImg(card);   // stored for hover/long-press preview
+        const code  = (card.set || '').toUpperCase();
+        return `<div class="art-drop-item ${i === selectedArtIdx ? 'selected' : ''}"
+                     data-art-idx="${i}" data-full-img="${esc(full)}" title="${esc(card.set_name||code)}">
+          <img src="${esc(thumb)}" alt="" loading="lazy">
+          <div class="art-drop-item-code">${esc(code)}</div>
         </div>`;
       }).join('');
 
@@ -1760,6 +1976,7 @@
           copiedFrom: copiedCardData || null,
           modifiers: modKws, counters,
           entersTapped: entersTap, isManual: true,
+          eotPower: 0, eotToughness: 0,
         };
       } else {
         if (!selectedCardData) return;
@@ -1779,6 +1996,7 @@
           copiedFrom: copiedCardData || null,
           modifiers: modKws, counters,
           entersTapped: entersTap, isManual: false,
+          eotPower: 0, eotToughness: 0,
         };
       }
 
@@ -1813,8 +2031,20 @@
       return el;
     }
 
+    function effectivePT(token) {
+      if (!token.isCreature || token.power == null) return { str: '', modified: false };
+      const ep = parseInt(token.power)    + (token.eotPower     || 0);
+      const et = parseInt(token.toughness) + (token.eotToughness || 0);
+      const pStr = isNaN(ep) ? token.power     : ep;
+      const tStr = isNaN(et) ? token.toughness : et;
+      return {
+        str:      `${pStr}/${tStr}`,
+        modified: (token.eotPower || 0) !== 0 || (token.eotToughness || 0) !== 0
+      };
+    }
+
     function cardHTML(token) {
-      const ptStr  = token.isCreature && token.power != null ? `${token.power}/${token.toughness}` : '';
+      const { str: ptStr, modified: ptMod } = effectivePT(token);
       const dotsN  = Math.min(token.quantity, 30);
       const dots   = Array.from({length: dotsN}, (_, i) =>
         `<div class="dot ${i < token.tapped ? 'tapped' : ''}"></div>`).join('');
@@ -1840,7 +2070,7 @@
 
         <div class="card-info">
           <span class="card-name">${esc(token.name)}</span>
-          ${ptStr ? `<span class="card-pt" id="pt-${token.id}">${esc(ptStr)}</span>` : ''}
+          ${ptStr ? `<span class="card-pt ${ptMod ? 'pt-modified' : ''}" id="pt-${token.id}">${esc(ptStr)}</span>` : ''}
         </div>
 
         <div class="card-counters" id="cbadges-${token.id}">${ctrBadges}${modBadges}</div>
@@ -1848,7 +2078,6 @@
         <div class="plus-row">
           <button class="plus-btn" onclick="quickCounter(${token.id}, -1)">−</button>
           <span class="plus-label">+1/+1</span>
-          <span class="plus-count" id="pcv-${token.id}">${getPlusCount(token)}</span>
           <button class="plus-btn" onclick="quickCounter(${token.id},  1)">+</button>
         </div>
 
@@ -1959,16 +2188,57 @@
         cb.innerHTML = counterBadgesHTML(token) + modBadges;
       }
 
-      // +1/+1 quick counter display
-      const pcv = document.getElementById(`pcv-${token.id}`);
-      if (pcv) pcv.textContent = getPlusCount(token);
-
-      // P/T badge (may have been edited)
+      // P/T badge (with EOT modifier tint)
       const pt = document.getElementById(`pt-${token.id}`);
-      if (pt && token.isCreature) pt.textContent = `${token.power}/${token.toughness}`;
+      if (pt && token.isCreature) {
+        const { str, modified } = effectivePT(token);
+        pt.textContent = str;
+        pt.classList.toggle('pt-modified', modified);
+      }
 
       // All-tapped highlight
       el.classList.toggle('all-tapped', token.tapped >= token.quantity && token.quantity > 0);
+    }
+
+    // ══════════════════════════════════════════════════════
+    //  ART PREVIEW POPUP
+    // ══════════════════════════════════════════════════════
+    function showArtPreview(imgUrl, targetEl) {
+      if (!imgUrl) return;
+      const popup = document.getElementById('artPreviewPopup');
+      document.getElementById('artPreviewImg').src = imgUrl;
+      popup.classList.remove('mobile-preview');
+
+      // Position: try right of modal, fall back to left
+      const modal = document.getElementById('modal').getBoundingClientRect();
+      const popW  = 210;
+      const popH  = popW * 1.4;  // approx 5:7 ratio
+      let left    = modal.right + 12;
+      if (left + popW > window.innerWidth - 8) left = modal.left - popW - 12;
+      left = Math.max(8, left);
+
+      // Align vertically with the hovered item, clamped to viewport
+      const rect = targetEl.getBoundingClientRect();
+      let top = rect.top - popH / 2 + rect.height / 2;
+      top = Math.max(8, Math.min(top, window.innerHeight - popH - 8));
+
+      popup.style.left      = left + 'px';
+      popup.style.top       = top  + 'px';
+      popup.style.transform = 'none';
+      popup.classList.add('visible');
+    }
+
+    function showArtPreviewMobile(imgUrl) {
+      if (!imgUrl) return;
+      const popup = document.getElementById('artPreviewPopup');
+      document.getElementById('artPreviewImg').src = imgUrl;
+      popup.classList.add('mobile-preview', 'visible');
+      // Tap the popup itself (pointer-events:all on mobile class) to dismiss
+    }
+
+    function hideArtPreview() {
+      const popup = document.getElementById('artPreviewPopup');
+      popup.classList.remove('visible', 'mobile-preview');
     }
 
     // ══════════════════════════════════════════════════════
@@ -2176,6 +2446,123 @@
                      modifiers: [...t.modifiers] };
       tokens.push(copy);
       appendTokenCard(copy);
+      updateEmptyState();
+    }
+
+    // ══════════════════════════════════════════════════════
+    //  GLOBAL EFFECTS
+    // ══════════════════════════════════════════════════════
+    let prowessCount   = 0;
+    let globalPlusAmtV = 1;
+
+    function openGlobal() {
+      document.getElementById('globalOverlay').classList.add('open');
+      // Sync UI state
+      document.getElementById('globalPlusAmt').textContent = globalPlusAmtV;
+      document.getElementById('prowessCount').textContent  = `×${prowessCount}`;
+    }
+    function closeGlobal() {
+      document.getElementById('globalOverlay').classList.remove('open');
+    }
+    function handleGlobalOverlay(e) {
+      if (e.target === e.currentTarget) closeGlobal();
+    }
+
+    function adjustGlobalAmt(key, delta) {
+      if (key === 'plus') {
+        globalPlusAmtV = Math.max(1, globalPlusAmtV + delta);
+        document.getElementById('globalPlusAmt').textContent = globalPlusAmtV;
+      }
+    }
+
+    // Add +1/+1 counters to every creature token
+    function applyPlusToAll() {
+      const amt = globalPlusAmtV;
+      tokens.filter(t => t.isCreature).forEach(t => {
+        let c = (t.counters = t.counters || []).find(c => c.type === '+1/+1');
+        if (!c) { c = { type: '+1/+1', count: 0 }; t.counters.push(c); }
+        c.count += amt;
+        refreshCard(t);
+      });
+      closeGlobal();
+    }
+
+    // Apply temporary P/T modifier (EOT) to all creature tokens
+    function applyPTMod() {
+      const p = parseInt(document.getElementById('globalPMod').value) || 0;
+      const t = parseInt(document.getElementById('globalTMod').value) || 0;
+      if (p === 0 && t === 0) return;
+      tokens.filter(tk => tk.isCreature).forEach(tk => {
+        tk.eotPower    = (tk.eotPower    || 0) + p;
+        tk.eotToughness = (tk.eotToughness || 0) + t;
+        refreshCard(tk);
+      });
+      document.getElementById('globalPMod').value = '0';
+      document.getElementById('globalTMod').value = '0';
+      closeGlobal();
+    }
+
+    // Prowess: +1/+1 EOT to all creatures, increment counter
+    function triggerProwess() {
+      prowessCount++;
+      document.getElementById('prowessCount').textContent = `×${prowessCount}`;
+      tokens.filter(tk => tk.isCreature).forEach(tk => {
+        tk.eotPower     = (tk.eotPower     || 0) + 1;
+        tk.eotToughness = (tk.eotToughness || 0) + 1;
+        refreshCard(tk);
+      });
+    }
+
+    // Clear all EOT power/toughness modifiers
+    function clearEOTEffects() {
+      prowessCount = 0;
+      document.getElementById('prowessCount').textContent = '×0';
+      tokens.forEach(t => {
+        t.eotPower     = 0;
+        t.eotToughness = 0;
+        refreshCard(t);
+      });
+      closeGlobal();
+    }
+
+    // Destroy all tokens of a given type keyword
+    function destroyType(typeKeyword) {
+      const targets = tokens.filter(t => (t.typeLine || '').includes(typeKeyword));
+      targets.forEach(t => removeToken(t.id));
+      closeGlobal();
+    }
+
+    function destroyAllPermanents() {
+      [...tokens].forEach(t => removeToken(t.id));
+      closeGlobal();
+    }
+
+    // Consolidate all same-name token groups into one card
+    function consolidateAll() {
+      const grouped = {};
+      tokens.forEach(t => {
+        const key = t.name.toLowerCase();
+        if (!grouped[key]) grouped[key] = [];
+        grouped[key].push(t);
+      });
+      Object.values(grouped).forEach(group => {
+        if (group.length < 2) return;
+        const [primary, ...rest] = group;
+        rest.forEach(t => {
+          primary.quantity += t.quantity;
+          primary.tapped   += t.tapped;
+          // Merge +1/+1 counters
+          (t.counters || []).forEach(c => {
+            let pc = (primary.counters = primary.counters||[]).find(x => x.type === c.type);
+            if (pc) pc.count += c.count;
+            else primary.counters.push({...c});
+          });
+          const el = document.getElementById(`tc-${t.id}`);
+          if (el) { el.style.opacity='0'; el.style.transform='scale(.9)'; el.style.transition='all .2s'; setTimeout(()=>el.remove(),200); }
+        });
+        tokens = tokens.filter(t => !rest.includes(t));
+        refreshCard(primary);
+      });
       updateEmptyState();
     }
 
