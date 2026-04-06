@@ -617,6 +617,74 @@
       #canvas { grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); padding: 20px; gap: 16px; }
     }
 
+    /* Manual toggle link */
+    .manual-toggle-row {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      margin-top: 6px;
+    }
+    .btn-manual-toggle {
+      background: none;
+      border: none;
+      color: var(--muted);
+      font-size: 0.78rem;
+      cursor: pointer;
+      padding: 2px 0;
+      transition: color .15s;
+      text-decoration: underline;
+      text-underline-offset: 2px;
+    }
+    .btn-manual-toggle:hover { color: var(--text); }
+
+    /* Color chips */
+    .color-chips {
+      display: flex;
+      gap: 7px;
+      flex-wrap: wrap;
+    }
+    .color-chip {
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      border: 2px solid transparent;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.8rem;
+      font-weight: 700;
+      transition: border-color .15s, transform .1s;
+      user-select: none;
+    }
+    .color-chip:hover { transform: scale(1.1); }
+    .color-chip.active { border-color: #fff; box-shadow: 0 0 0 1px rgba(255,255,255,.3); }
+    .chip-w { background: #f9faf4; color: #333; }
+    .chip-u { background: #0e68ab; color: #fff; }
+    .chip-b { background: #21160f; color: #ccc; border: 2px solid #555; }
+    .chip-r { background: #d3202a; color: #fff; }
+    .chip-g { background: #00733e; color: #fff; }
+    .chip-c { background: #b0b0b0; color: #333; }
+
+    /* Ability textarea */
+    .form-textarea {
+      width: 100%;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 9px;
+      padding: 10px 12px;
+      color: var(--text);
+      font-size: 0.88rem;
+      outline: none;
+      resize: vertical;
+      min-height: 72px;
+      font-family: inherit;
+      line-height: 1.5;
+      transition: border-color .15s;
+    }
+    .form-textarea:focus { border-color: var(--accent); }
+    .form-textarea::placeholder { color: var(--muted); }
+
     /* Tap all button */
     .btn-tap-all {
       background: var(--surface2);
@@ -685,7 +753,7 @@
         </div>
 
         <!-- Token search -->
-        <div class="form-group">
+        <div class="form-group" id="searchSection">
           <label class="form-label">Token Name</label>
           <input
             type="text"
@@ -697,6 +765,11 @@
             oninput="onSearchInput()"
           >
           <div class="search-drop" id="searchDrop"></div>
+          <div class="manual-toggle-row">
+            <button class="btn-manual-toggle" type="button" onmousedown="event.preventDefault();enableManual()">
+              ✏️ Create manually instead
+            </button>
+          </div>
         </div>
 
         <!-- Art selection (shown when >1 printing) -->
@@ -708,7 +781,7 @@
           </div>
         </div>
 
-        <!-- Power / Toughness (creatures only) -->
+        <!-- Power / Toughness (creatures only, or manual creature) -->
         <div id="ptSection" style="display:none">
           <div class="section-divider"></div>
           <div class="pt-row">
@@ -720,6 +793,68 @@
               <label class="form-label">Toughness</label>
               <input type="text" id="tokenToughness" class="form-input" value="1" inputmode="decimal">
             </div>
+          </div>
+        </div>
+
+        <!-- ── MANUAL CREATION FORM ─────────────────────────── -->
+        <div id="manualSection" style="display:none">
+          <div class="section-divider"></div>
+
+          <div class="form-group">
+            <label class="form-label">Token Name</label>
+            <input type="text" id="manualName" class="form-input" placeholder="e.g. Goblin, Spirit, Copy…"
+                   oninput="onManualNameInput()">
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Type</label>
+            <select id="manualType" class="form-input" onchange="onManualTypeChange()">
+              <option value="Creature">Creature Token</option>
+              <option value="Artifact">Artifact Token</option>
+              <option value="Enchantment">Enchantment Token</option>
+              <option value="Instant">Instant (Copy)</option>
+              <option value="Sorcery">Sorcery (Copy)</option>
+              <option value="Other">Other / Custom</option>
+            </select>
+          </div>
+
+          <div class="form-group" id="manualSubtypeRow">
+            <label class="form-label">Subtype / Creature Type</label>
+            <input type="text" id="manualSubtype" class="form-input" placeholder="e.g. Goblin Warrior, Human, Treasure">
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Colors</label>
+            <div class="color-chips">
+              <div class="color-chip chip-w" title="White"   data-color="W" onclick="toggleColor(this)">W</div>
+              <div class="color-chip chip-u" title="Blue"    data-color="U" onclick="toggleColor(this)">U</div>
+              <div class="color-chip chip-b" title="Black"   data-color="B" onclick="toggleColor(this)">B</div>
+              <div class="color-chip chip-r" title="Red"     data-color="R" onclick="toggleColor(this)">R</div>
+              <div class="color-chip chip-g" title="Green"   data-color="G" onclick="toggleColor(this)">G</div>
+              <div class="color-chip chip-c" title="Colorless" data-color="C" onclick="toggleColor(this)">∅</div>
+            </div>
+          </div>
+
+          <div id="manualPtRow" class="pt-row" style="display:none">
+            <div class="form-group">
+              <label class="form-label">Power</label>
+              <input type="text" id="manualPower" class="form-input" value="1" inputmode="decimal">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Toughness</label>
+              <input type="text" id="manualToughness" class="form-input" value="1" inputmode="decimal">
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Abilities <span style="font-weight:400;text-transform:none;font-size:.75rem">(optional)</span></label>
+            <textarea id="manualAbilities" class="form-textarea" placeholder="Flying&#10;Deathtouch&#10;When this token enters, draw a card…"></textarea>
+          </div>
+
+          <div class="manual-toggle-row" style="justify-content:flex-start">
+            <button class="btn-manual-toggle" type="button" onclick="disableManual()">
+              ← Back to search
+            </button>
           </div>
         </div>
 
@@ -786,14 +921,30 @@
       selectedCardData = null;
       selectedArtIdx   = 0;
       artOptions       = [];
-      document.getElementById('tokenSearch').value = '';
-      document.getElementById('tokenQty').value    = 1;
-      document.getElementById('searchDrop').className = 'search-drop';
-      document.getElementById('searchDrop').innerHTML = '';
+      isManualMode     = false;
+      manualColors     = new Set();
+
+      // Scryfall section
+      document.getElementById('tokenSearch').value      = '';
+      document.getElementById('tokenQty').value         = 1;
+      document.getElementById('searchDrop').className   = 'search-drop';
+      document.getElementById('searchDrop').innerHTML   = '';
       document.getElementById('previewStrip').className = 'preview-strip';
-      document.getElementById('artSection').style.display  = 'none';
-      document.getElementById('ptSection').style.display   = 'none';
-      document.getElementById('generateBtn').disabled = true;
+      document.getElementById('searchSection').style.display  = 'block';
+      document.getElementById('artSection').style.display     = 'none';
+      document.getElementById('ptSection').style.display      = 'none';
+      document.getElementById('generateBtn').disabled         = true;
+
+      // Manual section
+      document.getElementById('manualSection').style.display  = 'none';
+      document.getElementById('manualName').value             = '';
+      document.getElementById('manualSubtype').value          = '';
+      document.getElementById('manualAbilities').value        = '';
+      document.getElementById('manualPower').value            = '1';
+      document.getElementById('manualToughness').value        = '1';
+      document.getElementById('manualType').value             = 'Creature';
+      document.querySelectorAll('.color-chip').forEach(c => c.classList.remove('active'));
+      onManualTypeChange();
     }
 
     // ══════════════════════════════════════════════════════
@@ -806,7 +957,7 @@
         closeDrop();
         return;
       }
-      searchTimer = setTimeout(() => doSearch(q), 380);
+      searchTimer = setTimeout(() => doSearch(q), 180);
     }
 
     async function doSearch(q) {
@@ -815,14 +966,19 @@
       drop.innerHTML = '<div class="spinner"></div>';
 
       try {
-        // Primary: layout:token + name match
-        let cards = await scryfallSearch(`layout:token name:/${q}/i`, 'prints');
+        // Primary: layout:token + name substring match
+        let cards = await scryfallSearch(`layout:token name:${q}`, 'prints');
         if (!cards.length) {
-          // Fallback: broader type-line token search
-          cards = await scryfallSearch(`t:token ${q}`, 'prints');
+          // Fallback: type-line token search
+          cards = await scryfallSearch(`t:token name:${q}`, 'prints');
         }
         if (!cards.length) {
-          drop.innerHTML = '<div style="padding:12px 14px;color:var(--muted);font-size:.85rem">No tokens found — try another name</div>';
+          drop.innerHTML = `
+            <div style="padding:12px 14px;color:var(--muted);font-size:.85rem">
+              No tokens found for "<strong style="color:var(--text)">${esc(q)}</strong>"
+              — <span class="drop-manual-link" style="color:var(--accent);cursor:pointer;text-decoration:underline"
+                      onmousedown="event.preventDefault();enableManual()">create manually instead</span>
+            </div>`;
           return;
         }
         renderDrop(cards);
@@ -855,10 +1011,9 @@
         const img  = getSmallImg(card);
         const pt   = card.power != null ? `${card.power}/${card.toughness}` : '';
         const type = card.type_line || '';
+        // Use data-name + mousedown delegation — avoids the double-quote-in-onclick bug
         return `
-          <div class="search-item" tabindex="0"
-               onclick="selectTokenByName(${JSON.stringify(card.name)})"
-               onkeydown="if(event.key==='Enter')selectTokenByName(${JSON.stringify(card.name)})">
+          <div class="search-item" tabindex="0" data-name="${esc(card.name)}">
             ${img
               ? `<img class="search-item-img" src="${img}" alt="" loading="lazy">`
               : `<div class="search-item-img-ph"></div>`
@@ -874,6 +1029,69 @@
     function closeDrop() {
       const drop = document.getElementById('searchDrop');
       drop.className = 'search-drop';
+    }
+
+    // Delegated listener — mousedown fires before blur so the item is still in the DOM
+    document.addEventListener('DOMContentLoaded', () => {
+      document.getElementById('searchDrop').addEventListener('mousedown', function(e) {
+        const item = e.target.closest('.search-item[data-name]');
+        if (!item) return;
+        e.preventDefault(); // prevent input losing focus before we read the value
+        selectTokenByName(item.dataset.name);
+      });
+    });
+
+    // ══════════════════════════════════════════════════════
+    //  MANUAL MODE
+    // ══════════════════════════════════════════════════════
+    let isManualMode = false;
+    let manualColors = new Set();
+
+    function enableManual() {
+      isManualMode = true;
+      closeDrop();
+      document.getElementById('searchSection').style.display   = 'none';
+      document.getElementById('artSection').style.display      = 'none';
+      document.getElementById('ptSection').style.display       = 'none';
+      document.getElementById('previewStrip').className        = 'preview-strip';
+      document.getElementById('manualSection').style.display   = 'block';
+      // Pre-fill name from whatever was typed in the search box
+      const typed = document.getElementById('tokenSearch').value.trim();
+      if (typed) document.getElementById('manualName').value = typed;
+      onManualTypeChange();
+      onManualNameInput();
+      document.getElementById('manualName').focus();
+    }
+
+    function disableManual() {
+      isManualMode = false;
+      document.getElementById('manualSection').style.display   = 'none';
+      document.getElementById('searchSection').style.display   = 'block';
+      document.getElementById('generateBtn').disabled = !selectedCardData;
+      document.getElementById('tokenSearch').focus();
+    }
+
+    function onManualNameInput() {
+      const name = document.getElementById('manualName').value.trim();
+      document.getElementById('generateBtn').disabled = name.length === 0;
+    }
+
+    function onManualTypeChange() {
+      const type = document.getElementById('manualType').value;
+      const isCreature = type === 'Creature';
+      document.getElementById('manualPtRow').style.display      = isCreature ? 'flex' : 'none';
+      document.getElementById('manualSubtypeRow').style.display = (type === 'Other') ? 'block' : 'block'; // always shown
+    }
+
+    function toggleColor(chip) {
+      const c = chip.dataset.color;
+      if (manualColors.has(c)) {
+        manualColors.delete(c);
+        chip.classList.remove('active');
+      } else {
+        manualColors.add(c);
+        chip.classList.add('active');
+      }
     }
 
     // ══════════════════════════════════════════════════════
@@ -958,23 +1176,57 @@
     //  GENERATE → ADD TOKEN TO BATTLEFIELD
     // ══════════════════════════════════════════════════════
     function generateToken() {
-      if (!selectedCardData) return;
+      const qty = Math.max(1, parseInt(document.getElementById('tokenQty').value) || 1);
+      let token;
 
-      const qty        = Math.max(1, parseInt(document.getElementById('tokenQty').value) || 1);
-      const isCreature = (selectedCardData.type_line || '').includes('Creature');
+      if (isManualMode) {
+        // ── Manual token ──────────────────────────────────
+        const name      = document.getElementById('manualName').value.trim();
+        if (!name) return;
+        const typeVal   = document.getElementById('manualType').value;
+        const subtype   = document.getElementById('manualSubtype').value.trim();
+        const isCreature = typeVal === 'Creature';
+        const colors    = [...manualColors].join('');
+        const abilities = document.getElementById('manualAbilities').value.trim();
+        const typeLine  = isCreature
+          ? `Token Creature${subtype ? ' — ' + subtype : ''}`
+          : `Token ${typeVal}${subtype ? ' — ' + subtype : ''}`;
 
-      const token = {
-        id:        nextId++,
-        name:      selectedCardData.name,
-        typeLine:  selectedCardData.type_line || 'Token',
-        isCreature,
-        power:     isCreature ? (document.getElementById('tokenPower').value || '*') : null,
-        toughness: isCreature ? (document.getElementById('tokenToughness').value || '*') : null,
-        quantity:  qty,
-        tapped:    0,
-        imageUri:  getNormalImg(selectedCardData),
-        smallUri:  getSmallImg(selectedCardData),
-      };
+        token = {
+          id:        nextId++,
+          name,
+          typeLine,
+          isCreature,
+          power:     isCreature ? (document.getElementById('manualPower').value || '1') : null,
+          toughness: isCreature ? (document.getElementById('manualToughness').value || '1') : null,
+          colors,
+          abilities,
+          quantity:  qty,
+          tapped:    0,
+          imageUri:  '',   // no Scryfall art for manual tokens
+          smallUri:  '',
+          isManual:  true,
+        };
+      } else {
+        // ── Scryfall token ────────────────────────────────
+        if (!selectedCardData) return;
+        const isCreature = (selectedCardData.type_line || '').includes('Creature');
+        token = {
+          id:        nextId++,
+          name:      selectedCardData.name,
+          typeLine:  selectedCardData.type_line || 'Token',
+          isCreature,
+          power:     isCreature ? (document.getElementById('tokenPower').value || '*') : null,
+          toughness: isCreature ? (document.getElementById('tokenToughness').value || '*') : null,
+          colors:    (selectedCardData.colors || []).join(''),
+          abilities: (selectedCardData.oracle_text || ''),
+          quantity:  qty,
+          tapped:    0,
+          imageUri:  getNormalImg(selectedCardData),
+          smallUri:  getSmallImg(selectedCardData),
+          isManual:  false,
+        };
+      }
 
       tokens.push(token);
       closeModal();
