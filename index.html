@@ -685,6 +685,46 @@
     .form-textarea:focus { border-color: var(--accent); }
     .form-textarea::placeholder { color: var(--muted); }
 
+    /* ── UPDATE BANNER ─────────────────────────────────── */
+    .update-banner {
+      position: fixed;
+      bottom: 76px;        /* sits just above the FAB */
+      left: 50%;
+      transform: translateX(-50%) translateY(20px);
+      z-index: 50;
+      background: #1e3a2e;
+      border: 1px solid #4aaa7a;
+      color: #c8f0d8;
+      border-radius: 12px;
+      padding: 10px 16px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 0.85rem;
+      box-shadow: 0 4px 20px rgba(0,0,0,.5);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity .3s, transform .3s;
+      white-space: nowrap;
+    }
+    .update-banner.visible {
+      opacity: 1;
+      pointer-events: all;
+      transform: translateX(-50%) translateY(0);
+    }
+    .update-banner-btn {
+      background: #4aaa7a;
+      color: #fff;
+      border: none;
+      border-radius: 7px;
+      padding: 5px 12px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background .15s;
+    }
+    .update-banner-btn:hover { background: #5abf8a; }
+
     /* ── FAB (Generate Token) ──────────────────────────── */
     .fab-generate {
       position: fixed;
@@ -971,6 +1011,12 @@
       </button>
     </div>
   </header>
+
+  <!-- Update available banner -->
+  <div class="update-banner" id="updateBanner">
+    ✨ Update available
+    <button class="update-banner-btn" onclick="applyUpdate()">Refresh</button>
+  </div>
 
   <!-- Floating Action Button -->
   <button class="fab-generate" onclick="openModal()">
@@ -2134,11 +2180,43 @@
     }
 
     // ══════════════════════════════════════════════════════
-    //  PWA — SERVICE WORKER
+    //  PWA — SERVICE WORKER + UPDATE DETECTION
     // ══════════════════════════════════════════════════════
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
-        navigator.serviceWorker.register('sw.js').catch(() => {});
+        navigator.serviceWorker.register('sw.js').then(reg => {
+
+          // A new SW was found while the page is open
+          reg.addEventListener('updatefound', () => {
+            const incoming = reg.installing;
+            incoming.addEventListener('statechange', () => {
+              // Only show banner when the new SW is ready AND an old one is
+              // already controlling the page (i.e. this is an actual update)
+              if (incoming.state === 'installed' && navigator.serviceWorker.controller) {
+                document.getElementById('updateBanner').classList.add('visible');
+              }
+            });
+          });
+
+          // Also check if there's already a waiting SW on load (e.g. user
+          // had the tab open across a deploy)
+          if (reg.waiting && navigator.serviceWorker.controller) {
+            document.getElementById('updateBanner').classList.add('visible');
+          }
+
+        }).catch(() => {});
+
+        // When the SW changes (after skip waiting), reload to pick up new code
+        navigator.serviceWorker.addEventListener('controllerchange', () => {
+          window.location.reload();
+        });
+      });
+    }
+
+    function applyUpdate() {
+      document.getElementById('updateBanner').classList.remove('visible');
+      navigator.serviceWorker.getRegistration().then(reg => {
+        if (reg && reg.waiting) reg.waiting.postMessage({ type: 'SKIP_WAITING' });
       });
     }
   </script>

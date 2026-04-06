@@ -11,6 +11,11 @@ self.addEventListener('install', e => {
   );
 });
 
+// Message: allow the page to trigger immediate activation
+self.addEventListener('message', event => {
+  if (event.data && event.data.type === 'SKIP_WAITING') self.skipWaiting();
+});
+
 // Activate: remove ALL old caches so updates are never blocked
 self.addEventListener('activate', e => {
   e.waitUntil(
