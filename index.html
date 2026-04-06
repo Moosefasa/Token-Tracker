@@ -1,0 +1,1167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>MTG Token Tracker</title>
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#0d0d14">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Token Tracker">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:        #0d0d14;
+      --surface:   #161622;
+      --surface2:  #1e1e2e;
+      --border:    #2a2a3e;
+      --accent:    #c84b31;
+      --accent-h:  #e05a3d;
+      --tap-color: #e8a045;
+      --text:      #dddde8;
+      --muted:     #787890;
+      --green:     #3a7a3a;
+      --green-t:   #80c080;
+      --radius:    12px;
+    }
+
+    html, body {
+      height: 100%;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      overflow-x: hidden;
+    }
+
+    /* ── HEADER ────────────────────────────────────────────── */
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 10px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .app-title {
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: var(--text);
+      letter-spacing: 0.3px;
+      display: flex;
+      align-items: center;
+      gap: 7px;
+    }
+
+    .app-title svg { flex-shrink: 0; }
+
+    .header-actions { display: flex; gap: 8px; align-items: center; }
+
+    .btn-icon {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      color: var(--muted);
+      border-radius: 8px;
+      width: 36px;
+      height: 36px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: color .15s, border-color .15s;
+      flex-shrink: 0;
+    }
+    .btn-icon:hover { color: var(--text); border-color: var(--muted); }
+
+    .btn-generate {
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      border-radius: 9px;
+      padding: 8px 15px;
+      font-size: 0.875rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      white-space: nowrap;
+      transition: background .15s;
+    }
+    .btn-generate:hover { background: var(--accent-h); }
+    .btn-generate:active { transform: scale(0.97); }
+
+    /* ── CANVAS ────────────────────────────────────────────── */
+    #canvas {
+      min-height: calc(100vh - 57px);
+      padding: 16px;
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(148px, 1fr));
+      gap: 14px;
+      align-content: start;
+    }
+
+    /* ── EMPTY STATE ───────────────────────────────────────── */
+    #emptyState {
+      grid-column: 1 / -1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 72px 24px;
+      text-align: center;
+      color: var(--muted);
+      gap: 14px;
+    }
+    #emptyState .empty-icon { opacity: .25; }
+    #emptyState .empty-title { font-size: 1rem; font-weight: 600; color: var(--text); opacity: .35; }
+    #emptyState .empty-sub { font-size: 0.82rem; line-height: 1.5; max-width: 240px; }
+
+    /* ── TOKEN CARD ────────────────────────────────────────── */
+    .token-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      transition: box-shadow .2s;
+      touch-action: manipulation;
+    }
+    .token-card:hover { box-shadow: 0 4px 20px rgba(0,0,0,.4); }
+
+    /* Card art area */
+    .card-art-wrap {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 5/4;
+      overflow: hidden;
+      background: var(--surface2);
+      flex-shrink: 0;
+    }
+    .card-art {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: top;
+      display: block;
+      transition: opacity .3s;
+    }
+    .card-art-placeholder {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.75rem;
+      color: var(--muted);
+      padding: 8px;
+      text-align: center;
+    }
+
+    /* Tapped state */
+    .token-card.all-tapped .card-art-wrap::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: rgba(232, 160, 69, 0.15);
+      pointer-events: none;
+    }
+
+    /* Quantity badge */
+    .qty-badge {
+      position: absolute;
+      top: 6px;
+      right: 6px;
+      background: var(--accent);
+      color: #fff;
+      font-size: 0.75rem;
+      font-weight: 700;
+      border-radius: 20px;
+      min-width: 22px;
+      height: 22px;
+      padding: 0 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      line-height: 1;
+      box-shadow: 0 1px 4px rgba(0,0,0,.5);
+    }
+
+    /* Tapped badge */
+    .tap-badge {
+      position: absolute;
+      top: 6px;
+      left: 6px;
+      background: rgba(0,0,0,.72);
+      color: var(--tap-color);
+      font-size: 0.68rem;
+      font-weight: 600;
+      border-radius: 6px;
+      padding: 2px 5px;
+      display: none;
+      align-items: center;
+      gap: 3px;
+    }
+    .tap-badge.visible { display: flex; }
+
+    /* Remove btn */
+    .btn-remove {
+      position: absolute;
+      bottom: 6px;
+      right: 6px;
+      background: rgba(0,0,0,.6);
+      color: #ff7070;
+      border: none;
+      border-radius: 50%;
+      width: 20px;
+      height: 20px;
+      font-size: 0.75rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      transition: opacity .2s;
+      z-index: 2;
+    }
+    .card-art-wrap:hover .btn-remove { opacity: 1; }
+
+    /* Card info bar */
+    .card-info {
+      padding: 7px 9px 4px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 4px;
+    }
+    .card-name {
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--text);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      flex: 1;
+    }
+    .card-pt {
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: var(--text);
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 5px;
+      padding: 1px 5px;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+    /* Tap indicator dots */
+    .tap-dots {
+      padding: 0 9px 6px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 3px;
+      min-height: 16px;
+    }
+    .dot {
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      background: var(--border);
+      transition: background .15s, transform .15s;
+    }
+    .dot.tapped {
+      background: var(--tap-color);
+      transform: rotate(90deg) scale(1.1);
+    }
+
+    /* Controls */
+    .card-controls {
+      display: flex;
+      gap: 5px;
+      padding: 0 8px 5px;
+    }
+    .ctrl-btn {
+      flex: 1;
+      border: none;
+      border-radius: 7px;
+      padding: 6px 0;
+      font-size: 0.72rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background .15s, transform .1s;
+      line-height: 1;
+    }
+    .ctrl-btn:active { transform: scale(0.95); }
+
+    .btn-tap-one {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      color: var(--tap-color);
+    }
+    .btn-tap-one:hover { background: #2a2a20; border-color: var(--tap-color); }
+
+    .btn-untap {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      color: var(--green-t);
+    }
+    .btn-untap:hover { background: #1a2a1a; border-color: var(--green-t); }
+
+    .qty-row {
+      display: flex;
+      align-items: center;
+      padding: 0 8px 8px;
+      gap: 4px;
+    }
+    .qty-adj {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      color: var(--text);
+      border-radius: 6px;
+      width: 26px;
+      height: 26px;
+      font-size: 1.1rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      transition: background .15s;
+    }
+    .qty-adj:hover { background: var(--border); }
+    .qty-label {
+      flex: 1;
+      text-align: center;
+      font-size: 0.72rem;
+      color: var(--muted);
+    }
+
+    /* ── MODAL ─────────────────────────────────────────────── */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,.75);
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      z-index: 100;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity .25s;
+    }
+    .modal-overlay.open {
+      opacity: 1;
+      pointer-events: all;
+    }
+    .modal {
+      background: var(--surface);
+      border-radius: 20px 20px 0 0;
+      width: 100%;
+      max-width: 520px;
+      max-height: 92vh;
+      overflow-y: auto;
+      transform: translateY(40px);
+      transition: transform .25s cubic-bezier(.2,.8,.4,1);
+      overscroll-behavior: contain;
+    }
+    .modal-overlay.open .modal { transform: translateY(0); }
+
+    .modal-drag {
+      width: 36px;
+      height: 4px;
+      background: var(--border);
+      border-radius: 2px;
+      margin: 10px auto 0;
+    }
+    .modal-header {
+      padding: 16px 20px 0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .modal-title {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--text);
+    }
+    .modal-close {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      color: var(--muted);
+      border-radius: 8px;
+      width: 32px;
+      height: 32px;
+      cursor: pointer;
+      font-size: 1.1rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: color .15s;
+    }
+    .modal-close:hover { color: var(--text); }
+
+    .modal-body { padding: 16px 20px 32px; }
+
+    /* Selected preview strip */
+    .preview-strip {
+      display: none;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 12px;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      margin-bottom: 16px;
+    }
+    .preview-strip.visible { display: flex; }
+    .preview-thumb {
+      width: 36px;
+      height: 50px;
+      object-fit: cover;
+      border-radius: 4px;
+      flex-shrink: 0;
+    }
+    .preview-info { flex: 1; min-width: 0; }
+    .preview-name {
+      font-size: 0.9rem;
+      font-weight: 600;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .preview-type { font-size: 0.75rem; color: var(--muted); margin-top: 1px; }
+
+    /* Form */
+    .form-group { margin-bottom: 14px; }
+    .form-label {
+      display: block;
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--muted);
+      margin-bottom: 5px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .form-input {
+      width: 100%;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 9px;
+      padding: 10px 12px;
+      color: var(--text);
+      font-size: 0.95rem;
+      outline: none;
+      transition: border-color .15s;
+      -webkit-appearance: none;
+    }
+    .form-input:focus { border-color: var(--accent); }
+    .form-input::placeholder { color: var(--muted); }
+
+    /* Search results */
+    .search-drop {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 9px;
+      margin-top: 5px;
+      overflow: hidden;
+      max-height: 220px;
+      overflow-y: auto;
+      display: none;
+    }
+    .search-drop.open { display: block; }
+
+    .search-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 9px 12px;
+      cursor: pointer;
+      border-bottom: 1px solid var(--border);
+      transition: background .12s;
+    }
+    .search-item:last-child { border-bottom: none; }
+    .search-item:hover, .search-item:focus { background: var(--border); outline: none; }
+    .search-item-img {
+      width: 28px;
+      height: 39px;
+      object-fit: cover;
+      border-radius: 3px;
+      flex-shrink: 0;
+      background: var(--bg);
+    }
+    .search-item-img-ph {
+      width: 28px;
+      height: 39px;
+      border-radius: 3px;
+      background: var(--border);
+      flex-shrink: 0;
+    }
+    .search-item-name { font-size: 0.875rem; font-weight: 600; }
+    .search-item-type { font-size: 0.73rem; color: var(--muted); margin-top: 1px; }
+
+    /* Art grid */
+    .art-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 7px;
+    }
+    .art-opt {
+      aspect-ratio: 5/7;
+      border-radius: 6px;
+      overflow: hidden;
+      cursor: pointer;
+      border: 2px solid transparent;
+      transition: border-color .15s, transform .15s;
+      position: relative;
+    }
+    .art-opt:hover { transform: scale(1.03); }
+    .art-opt.selected { border-color: var(--accent); }
+    .art-opt img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .art-set-label {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: rgba(0,0,0,.7);
+      font-size: 0.55rem;
+      color: #ccc;
+      text-align: center;
+      padding: 2px;
+      text-transform: uppercase;
+    }
+
+    /* P/T row */
+    .pt-row { display: flex; gap: 10px; }
+    .pt-row .form-group { flex: 1; }
+
+    /* Quantity row in modal */
+    .modal-qty-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .modal-qty-btn {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      color: var(--text);
+      border-radius: 8px;
+      width: 40px;
+      height: 40px;
+      font-size: 1.3rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      transition: background .15s;
+    }
+    .modal-qty-btn:hover { background: var(--border); }
+    .modal-qty-input { text-align: center; flex: 1; }
+
+    /* Submit */
+    .btn-submit {
+      width: 100%;
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      border-radius: 11px;
+      padding: 14px;
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+      margin-top: 4px;
+      transition: background .15s, transform .1s;
+    }
+    .btn-submit:hover { background: var(--accent-h); }
+    .btn-submit:active { transform: scale(0.98); }
+    .btn-submit:disabled {
+      background: var(--border);
+      color: var(--muted);
+      cursor: not-allowed;
+    }
+
+    /* Spinner */
+    .spinner {
+      width: 22px;
+      height: 22px;
+      border: 2px solid var(--border);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin .55s linear infinite;
+      margin: 14px auto;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* Divider */
+    .section-divider {
+      height: 1px;
+      background: var(--border);
+      margin: 14px 0;
+    }
+
+    /* ── RESPONSIVE ────────────────────────────────────────── */
+    @media (min-width: 480px) {
+      #canvas { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); }
+      .art-grid { grid-template-columns: repeat(5, 1fr); }
+    }
+    @media (min-width: 768px) {
+      #canvas { grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); padding: 20px; gap: 16px; }
+    }
+
+    /* Tap all button */
+    .btn-tap-all {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      color: var(--tap-color);
+    }
+    .btn-tap-all:hover { background: #2a2a20; border-color: var(--tap-color); }
+  </style>
+</head>
+<body>
+
+  <!-- HEADER -->
+  <header>
+    <div class="app-title">
+      <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+        <path d="M10 2L12.5 7.5H18L13.5 11L15.5 17L10 13.5L4.5 17L6.5 11L2 7.5H7.5L10 2Z" fill="#c84b31"/>
+      </svg>
+      Token Tracker
+    </div>
+    <div class="header-actions">
+      <button class="btn-icon" id="untapAllBtn" onclick="untapAllTokens()" title="Untap all tokens">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+          <path d="M8 2V8L12 12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+          <circle cx="8" cy="8" r="6" stroke="currentColor" stroke-width="1.5"/>
+        </svg>
+      </button>
+      <button class="btn-generate" onclick="openModal()">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+          <path d="M7 1V13M1 7H13" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+        Generate Token
+      </button>
+    </div>
+  </header>
+
+  <!-- BATTLEFIELD CANVAS -->
+  <div id="canvas">
+    <div id="emptyState">
+      <svg class="empty-icon" width="72" height="72" viewBox="0 0 72 72" fill="none">
+        <rect x="8" y="8" width="56" height="56" rx="10" stroke="#dddde8" stroke-width="2"/>
+        <rect x="16" y="16" width="40" height="28" rx="4" stroke="#dddde8" stroke-width="1.5" stroke-dasharray="4 3"/>
+        <path d="M24 52 L36 44 L48 52" stroke="#dddde8" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      <div class="empty-title">Battlefield is empty</div>
+      <div class="empty-sub">Tap "Generate Token" to create your first token permanent</div>
+    </div>
+  </div>
+
+  <!-- GENERATE TOKEN MODAL -->
+  <div class="modal-overlay" id="modalOverlay" onclick="handleOverlayClick(event)">
+    <div class="modal" id="modal">
+      <div class="modal-drag"></div>
+      <div class="modal-header">
+        <span class="modal-title">Generate Token</span>
+        <button class="modal-close" onclick="closeModal()">✕</button>
+      </div>
+      <div class="modal-body">
+
+        <!-- Selected preview -->
+        <div class="preview-strip" id="previewStrip">
+          <img class="preview-thumb" id="previewThumb" src="" alt="">
+          <div class="preview-info">
+            <div class="preview-name" id="previewName">—</div>
+            <div class="preview-type" id="previewType">—</div>
+          </div>
+        </div>
+
+        <!-- Token search -->
+        <div class="form-group">
+          <label class="form-label">Token Name</label>
+          <input
+            type="text"
+            id="tokenSearch"
+            class="form-input"
+            placeholder="Saproling, Treasure, Food, Copy…"
+            autocomplete="off"
+            spellcheck="false"
+            oninput="onSearchInput()"
+          >
+          <div class="search-drop" id="searchDrop"></div>
+        </div>
+
+        <!-- Art selection (shown when >1 printing) -->
+        <div id="artSection" style="display:none">
+          <div class="section-divider"></div>
+          <div class="form-group">
+            <label class="form-label">Art Version</label>
+            <div class="art-grid" id="artGrid"></div>
+          </div>
+        </div>
+
+        <!-- Power / Toughness (creatures only) -->
+        <div id="ptSection" style="display:none">
+          <div class="section-divider"></div>
+          <div class="pt-row">
+            <div class="form-group">
+              <label class="form-label">Power</label>
+              <input type="text" id="tokenPower" class="form-input" value="1" inputmode="decimal">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Toughness</label>
+              <input type="text" id="tokenToughness" class="form-input" value="1" inputmode="decimal">
+            </div>
+          </div>
+        </div>
+
+        <div class="section-divider"></div>
+
+        <!-- Quantity -->
+        <div class="form-group">
+          <label class="form-label">Quantity</label>
+          <div class="modal-qty-row">
+            <button class="modal-qty-btn" onclick="adjustModalQty(-1)">−</button>
+            <input
+              type="number"
+              id="tokenQty"
+              class="form-input modal-qty-input"
+              value="1"
+              min="1"
+              max="99"
+              inputmode="numeric"
+            >
+            <button class="modal-qty-btn" onclick="adjustModalQty(1)">+</button>
+          </div>
+        </div>
+
+        <button class="btn-submit" id="generateBtn" onclick="generateToken()" disabled>
+          Add to Battlefield
+        </button>
+
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ══════════════════════════════════════════════════════
+    //  STATE
+    // ══════════════════════════════════════════════════════
+    let tokens     = [];
+    let nextId     = 1;
+
+    // Modal state
+    let artOptions       = [];
+    let selectedArtIdx   = 0;
+    let selectedCardData = null;
+    let searchTimer      = null;
+    let _nameCache       = {};   // name → first card hit
+
+    // ══════════════════════════════════════════════════════
+    //  MODAL OPEN / CLOSE
+    // ══════════════════════════════════════════════════════
+    function openModal() {
+      resetModal();
+      document.getElementById('modalOverlay').classList.add('open');
+      setTimeout(() => document.getElementById('tokenSearch').focus(), 280);
+    }
+
+    function closeModal() {
+      document.getElementById('modalOverlay').classList.remove('open');
+    }
+
+    function handleOverlayClick(e) {
+      if (e.target === e.currentTarget) closeModal();
+    }
+
+    function resetModal() {
+      selectedCardData = null;
+      selectedArtIdx   = 0;
+      artOptions       = [];
+      document.getElementById('tokenSearch').value = '';
+      document.getElementById('tokenQty').value    = 1;
+      document.getElementById('searchDrop').className = 'search-drop';
+      document.getElementById('searchDrop').innerHTML = '';
+      document.getElementById('previewStrip').className = 'preview-strip';
+      document.getElementById('artSection').style.display  = 'none';
+      document.getElementById('ptSection').style.display   = 'none';
+      document.getElementById('generateBtn').disabled = true;
+    }
+
+    // ══════════════════════════════════════════════════════
+    //  SEARCH
+    // ══════════════════════════════════════════════════════
+    function onSearchInput() {
+      const q = document.getElementById('tokenSearch').value.trim();
+      clearTimeout(searchTimer);
+      if (q.length < 2) {
+        closeDrop();
+        return;
+      }
+      searchTimer = setTimeout(() => doSearch(q), 380);
+    }
+
+    async function doSearch(q) {
+      const drop = document.getElementById('searchDrop');
+      drop.className = 'search-drop open';
+      drop.innerHTML = '<div class="spinner"></div>';
+
+      try {
+        // Primary: layout:token + name match
+        let cards = await scryfallSearch(`layout:token name:/${q}/i`, 'prints');
+        if (!cards.length) {
+          // Fallback: broader type-line token search
+          cards = await scryfallSearch(`t:token ${q}`, 'prints');
+        }
+        if (!cards.length) {
+          drop.innerHTML = '<div style="padding:12px 14px;color:var(--muted);font-size:.85rem">No tokens found — try another name</div>';
+          return;
+        }
+        renderDrop(cards);
+      } catch (err) {
+        drop.innerHTML = '<div style="padding:12px 14px;color:var(--muted);font-size:.85rem">Search failed. Check your connection.</div>';
+      }
+    }
+
+    async function scryfallSearch(q, unique = 'cards') {
+      const url = `https://api.scryfall.com/cards/search?q=${encodeURIComponent(q)}&order=name&unique=${unique}`;
+      const res = await fetch(url);
+      if (!res.ok) return [];
+      const data = await res.json();
+      return data.data || [];
+    }
+
+    function renderDrop(cards) {
+      const drop = document.getElementById('searchDrop');
+
+      // Dedupe by name (keep first per name)
+      const seen = new Set();
+      const unique = cards.filter(c => {
+        if (seen.has(c.name)) return false;
+        seen.add(c.name);
+        _nameCache[c.name] = c;
+        return true;
+      }).slice(0, 12);
+
+      drop.innerHTML = unique.map(card => {
+        const img  = getSmallImg(card);
+        const pt   = card.power != null ? `${card.power}/${card.toughness}` : '';
+        const type = card.type_line || '';
+        return `
+          <div class="search-item" tabindex="0"
+               onclick="selectTokenByName(${JSON.stringify(card.name)})"
+               onkeydown="if(event.key==='Enter')selectTokenByName(${JSON.stringify(card.name)})">
+            ${img
+              ? `<img class="search-item-img" src="${img}" alt="" loading="lazy">`
+              : `<div class="search-item-img-ph"></div>`
+            }
+            <div>
+              <div class="search-item-name">${esc(card.name)}${pt ? ` <span style="color:var(--muted);font-weight:400">${esc(pt)}</span>` : ''}</div>
+              <div class="search-item-type">${esc(type)}</div>
+            </div>
+          </div>`;
+      }).join('');
+    }
+
+    function closeDrop() {
+      const drop = document.getElementById('searchDrop');
+      drop.className = 'search-drop';
+    }
+
+    // ══════════════════════════════════════════════════════
+    //  TOKEN SELECTION & ART
+    // ══════════════════════════════════════════════════════
+    async function selectTokenByName(name) {
+      closeDrop();
+      document.getElementById('tokenSearch').value = name;
+
+      // Fetch all art printings
+      try {
+        const prints = await scryfallSearch(`layout:token !"${name}"`, 'prints');
+        artOptions = prints.length ? prints : (_nameCache[name] ? [_nameCache[name]] : []);
+      } catch {
+        artOptions = _nameCache[name] ? [_nameCache[name]] : [];
+      }
+
+      if (!artOptions.length) return;
+
+      selectedArtIdx   = 0;
+      selectedCardData = artOptions[0];
+
+      updatePreview();
+      renderArtGrid();
+
+      // Show P/T for creature tokens
+      const isCreature = (selectedCardData.type_line || '').includes('Creature');
+      document.getElementById('ptSection').style.display = isCreature ? 'block' : 'none';
+      if (isCreature && selectedCardData.power != null) {
+        document.getElementById('tokenPower').value     = selectedCardData.power;
+        document.getElementById('tokenToughness').value = selectedCardData.toughness;
+      }
+
+      document.getElementById('generateBtn').disabled = false;
+    }
+
+    function renderArtGrid() {
+      const withImg = artOptions.filter(c => getNormalImg(c));
+      const show    = withImg.length > 1;
+      document.getElementById('artSection').style.display = show ? 'block' : 'none';
+      if (!show) return;
+
+      document.getElementById('artGrid').innerHTML = withImg.slice(0, 12).map((card, i) => {
+        const img = getNormalImg(card);
+        return `
+          <div class="art-opt ${i === selectedArtIdx ? 'selected' : ''}"
+               title="${esc(card.set_name || card.set || '')}"
+               onclick="pickArt(${i})">
+            <img src="${img}" alt="" loading="lazy">
+            <div class="art-set-label">${esc((card.set || '').toUpperCase())}</div>
+          </div>`;
+      }).join('');
+    }
+
+    function pickArt(idx) {
+      selectedArtIdx   = idx;
+      selectedCardData = artOptions.filter(c => getNormalImg(c))[idx];
+      document.querySelectorAll('.art-opt').forEach((el, i) => el.classList.toggle('selected', i === idx));
+      updatePreview();
+    }
+
+    function updatePreview() {
+      if (!selectedCardData) return;
+      const img = getSmallImg(selectedCardData) || getNormalImg(selectedCardData);
+      if (img) {
+        document.getElementById('previewThumb').src = img;
+        document.getElementById('previewStrip').className = 'preview-strip visible';
+      }
+      document.getElementById('previewName').textContent = selectedCardData.name || '—';
+      document.getElementById('previewType').textContent = selectedCardData.type_line || '—';
+    }
+
+    // ══════════════════════════════════════════════════════
+    //  MODAL QUANTITY
+    // ══════════════════════════════════════════════════════
+    function adjustModalQty(delta) {
+      const inp = document.getElementById('tokenQty');
+      inp.value = Math.max(1, Math.min(99, (parseInt(inp.value) || 1) + delta));
+    }
+
+    // ══════════════════════════════════════════════════════
+    //  GENERATE → ADD TOKEN TO BATTLEFIELD
+    // ══════════════════════════════════════════════════════
+    function generateToken() {
+      if (!selectedCardData) return;
+
+      const qty        = Math.max(1, parseInt(document.getElementById('tokenQty').value) || 1);
+      const isCreature = (selectedCardData.type_line || '').includes('Creature');
+
+      const token = {
+        id:        nextId++,
+        name:      selectedCardData.name,
+        typeLine:  selectedCardData.type_line || 'Token',
+        isCreature,
+        power:     isCreature ? (document.getElementById('tokenPower').value || '*') : null,
+        toughness: isCreature ? (document.getElementById('tokenToughness').value || '*') : null,
+        quantity:  qty,
+        tapped:    0,
+        imageUri:  getNormalImg(selectedCardData),
+        smallUri:  getSmallImg(selectedCardData),
+      };
+
+      tokens.push(token);
+      closeModal();
+      appendTokenCard(token);
+      updateEmptyState();
+    }
+
+    // ══════════════════════════════════════════════════════
+    //  CANVAS RENDERING
+    // ══════════════════════════════════════════════════════
+    function appendTokenCard(token) {
+      const canvas = document.getElementById('canvas');
+      canvas.appendChild(buildCard(token));
+    }
+
+    function buildCard(token) {
+      const el = document.createElement('div');
+      el.className  = 'token-card';
+      el.id         = `tc-${token.id}`;
+      el.innerHTML  = cardHTML(token);
+      return el;
+    }
+
+    function cardHTML(token) {
+      const ptStr   = token.isCreature && token.power != null
+                      ? `${token.power}/${token.toughness}` : '';
+      const dotsN   = Math.min(token.quantity, 30);
+      const dotsMkp = Array.from({length: dotsN}, (_, i) =>
+        `<div class="dot ${i < token.tapped ? 'tapped' : ''}"></div>`).join('');
+
+      return `
+        <!-- Art wrap -->
+        <div class="card-art-wrap">
+          ${token.imageUri
+            ? `<img class="card-art" src="${esc(token.imageUri)}" alt="${esc(token.name)}" loading="lazy">`
+            : `<div class="card-art-placeholder">${esc(token.name)}</div>`
+          }
+          <div class="qty-badge" id="qb-${token.id}">${token.quantity}</div>
+          <div class="tap-badge ${token.tapped > 0 ? 'visible' : ''}" id="tpb-${token.id}">
+            <svg width="10" height="10" viewBox="0 0 10 10">
+              <path d="M5 1V5L8 8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+            </svg>
+            ${token.tapped}
+          </div>
+          <button class="btn-remove" onclick="removeToken(${token.id})" title="Remove token">✕</button>
+        </div>
+
+        <!-- Name / P/T bar -->
+        <div class="card-info">
+          <span class="card-name">${esc(token.name)}</span>
+          ${ptStr ? `<span class="card-pt" id="pt-${token.id}">${esc(ptStr)}</span>` : ''}
+        </div>
+
+        <!-- Tap dots -->
+        <div class="tap-dots" id="dots-${token.id}">${dotsMkp}</div>
+
+        <!-- Action buttons -->
+        <div class="card-controls">
+          <button class="ctrl-btn btn-tap-one" onclick="tapOne(${token.id})">Tap +1</button>
+          <button class="ctrl-btn btn-untap"   onclick="untapToken(${token.id})">Untap</button>
+        </div>
+
+        <!-- Quantity row -->
+        <div class="qty-row">
+          <button class="qty-adj" onclick="changeQty(${token.id}, -1)">−</button>
+          <span class="qty-label" id="ql-${token.id}">${token.quantity} in play</span>
+          <button class="qty-adj" onclick="changeQty(${token.id}, 1)">+</button>
+        </div>`;
+    }
+
+    function updateEmptyState() {
+      document.getElementById('emptyState').style.display = tokens.length ? 'none' : 'flex';
+    }
+
+    // ══════════════════════════════════════════════════════
+    //  TOKEN ACTIONS
+    // ══════════════════════════════════════════════════════
+    function tapOne(id) {
+      const t = tokenById(id);
+      if (!t || t.tapped >= t.quantity) return;
+      t.tapped++;
+      refreshCard(t);
+    }
+
+    function untapToken(id) {
+      const t = tokenById(id);
+      if (!t) return;
+      t.tapped = 0;
+      refreshCard(t);
+    }
+
+    function changeQty(id, delta) {
+      const t = tokenById(id);
+      if (!t) return;
+      t.quantity = Math.max(1, t.quantity + delta);
+      t.tapped   = Math.min(t.tapped, t.quantity);
+      refreshCard(t);
+    }
+
+    function removeToken(id) {
+      tokens = tokens.filter(t => t.id !== id);
+      const el = document.getElementById(`tc-${id}`);
+      if (el) {
+        el.style.opacity = '0';
+        el.style.transform = 'scale(.92)';
+        el.style.transition = 'opacity .2s, transform .2s';
+        setTimeout(() => el.remove(), 200);
+      }
+      setTimeout(updateEmptyState, 210);
+    }
+
+    function untapAllTokens() {
+      tokens.forEach(t => { t.tapped = 0; refreshCard(t); });
+    }
+
+    // ══════════════════════════════════════════════════════
+    //  CARD REFRESH (in-place DOM update — no full re-render)
+    // ══════════════════════════════════════════════════════
+    function refreshCard(token) {
+      const el = document.getElementById(`tc-${token.id}`);
+      if (!el) return;
+
+      // Qty badge
+      const qb = document.getElementById(`qb-${token.id}`);
+      if (qb) qb.textContent = token.quantity;
+
+      // Tap badge
+      const tpb = document.getElementById(`tpb-${token.id}`);
+      if (tpb) {
+        tpb.innerHTML = `
+          <svg width="10" height="10" viewBox="0 0 10 10">
+            <path d="M5 1V5L8 8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+          </svg>
+          ${token.tapped}`;
+        tpb.classList.toggle('visible', token.tapped > 0);
+      }
+
+      // Dots
+      const dots = document.getElementById(`dots-${token.id}`);
+      if (dots) {
+        const n = Math.min(token.quantity, 30);
+        dots.innerHTML = Array.from({length: n}, (_, i) =>
+          `<div class="dot ${i < token.tapped ? 'tapped' : ''}"></div>`).join('');
+      }
+
+      // Qty label
+      const ql = document.getElementById(`ql-${token.id}`);
+      if (ql) ql.textContent = `${token.quantity} in play`;
+
+      // All-tapped highlight
+      el.classList.toggle('all-tapped', token.tapped >= token.quantity && token.quantity > 0);
+    }
+
+    // ══════════════════════════════════════════════════════
+    //  HELPERS
+    // ══════════════════════════════════════════════════════
+    function tokenById(id) { return tokens.find(t => t.id === id); }
+
+    function getNormalImg(card) {
+      return card?.image_uris?.normal
+          || card?.image_uris?.large
+          || card?.card_faces?.[0]?.image_uris?.normal
+          || card?.card_faces?.[0]?.image_uris?.large
+          || '';
+    }
+
+    function getSmallImg(card) {
+      return card?.image_uris?.small
+          || card?.card_faces?.[0]?.image_uris?.small
+          || '';
+    }
+
+    function esc(str) {
+      if (!str) return '';
+      return String(str)
+        .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+        .replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+    }
+
+    // ══════════════════════════════════════════════════════
+    //  PWA — SERVICE WORKER
+    // ══════════════════════════════════════════════════════
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('sw.js').catch(() => {});
+      });
+    }
+  </script>
+</body>
+</html>

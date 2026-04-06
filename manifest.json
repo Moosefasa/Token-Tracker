@@ -1,0 +1,25 @@
+{
+  "name": "MTG Token Tracker",
+  "short_name": "Tokens",
+  "description": "Track Magic: The Gathering token permanents on the battlefield",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#0d0d14",
+  "theme_color": "#0d0d14",
+  "orientation": "portrait-primary",
+  "categories": ["games", "utilities"],
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
