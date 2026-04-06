@@ -1586,10 +1586,19 @@
         };
       }
 
-      tokens.push(token);
-      closeModal();
-      appendTokenCard(token);
-      updateEmptyState();
+      // Bundle into existing card if same name is already on the battlefield
+      const existing = tokens.find(t => t.name.toLowerCase() === token.name.toLowerCase());
+      if (existing) {
+        existing.quantity += token.quantity;
+        existing.tapped   += token.tapped;          // preserve the newly-tapped ones
+        closeModal();
+        refreshCard(existing);
+      } else {
+        tokens.push(token);
+        closeModal();
+        appendTokenCard(token);
+        updateEmptyState();
+      }
     }
 
     // ══════════════════════════════════════════════════════
