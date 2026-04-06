@@ -692,6 +692,164 @@
       color: var(--tap-color);
     }
     .btn-tap-all:hover { background: #2a2a20; border-color: var(--tap-color); }
+
+    /* ── TOGGLE SWITCH ─────────────────────────────────── */
+    .toggle-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 6px 0;
+    }
+    .toggle-label { font-size: 0.88rem; color: var(--text); }
+    .toggle-sub   { font-size: 0.75rem; color: var(--muted); margin-top: 1px; }
+    .toggle-switch { position: relative; width: 44px; height: 24px; flex-shrink: 0; }
+    .toggle-switch input { opacity: 0; width: 0; height: 0; position: absolute; }
+    .toggle-knob {
+      position: absolute; inset: 0;
+      background: var(--border); border-radius: 12px;
+      cursor: pointer; transition: background .2s;
+    }
+    .toggle-knob::before {
+      content: ''; position: absolute;
+      width: 18px; height: 18px; left: 3px; top: 3px;
+      background: #fff; border-radius: 50%;
+      transition: transform .2s;
+    }
+    .toggle-switch input:checked + .toggle-knob { background: var(--accent); }
+    .toggle-switch input:checked + .toggle-knob::before { transform: translateX(20px); }
+
+    /* ── MODIFIER CHIPS ────────────────────────────────── */
+    .modifier-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+    .mod-chip {
+      background: var(--surface2); border: 1px solid var(--border);
+      color: var(--muted); border-radius: 20px;
+      padding: 4px 10px; font-size: 0.75rem; font-weight: 600;
+      cursor: pointer; transition: all .15s; user-select: none;
+    }
+    .mod-chip:hover { color: var(--text); border-color: var(--muted); }
+    .mod-chip.active { border-color: var(--accent); color: var(--accent); background: rgba(200,75,49,.1); }
+
+    /* ── COUNTER INPUTS (modal) ────────────────────────── */
+    .counter-row { display: flex; gap: 8px; align-items: stretch; flex-wrap: wrap; }
+    .counter-group {
+      display: flex; align-items: center; gap: 5px;
+      background: var(--surface2); border: 1px solid var(--border);
+      border-radius: 8px; padding: 6px 10px;
+    }
+    .counter-label { font-size: 0.72rem; font-weight: 700; min-width: 30px; }
+    .counter-num {
+      background: var(--bg); border: 1px solid var(--border);
+      border-radius: 5px; color: var(--text);
+      width: 46px; text-align: center; padding: 4px;
+      font-size: 0.85rem; outline: none; -webkit-appearance: none;
+    }
+    .counter-num:focus { border-color: var(--accent); }
+
+    /* ── COUNTER BADGES (on card) ──────────────────────── */
+    .card-counters {
+      display: flex; flex-wrap: wrap; gap: 3px;
+      padding: 0 8px 5px; min-height: 0;
+    }
+    .ctr-badge {
+      background: var(--surface2); border: 1px solid var(--border);
+      border-radius: 20px; padding: 1px 7px;
+      font-size: 0.67rem; font-weight: 700; white-space: nowrap;
+    }
+    .ctr-badge.plus   { border-color: #4aaa7a; color: #4aaa7a; }
+    .ctr-badge.minus  { border-color: #aa4455; color: #aa4455; }
+    .ctr-badge.charge { border-color: var(--tap-color); color: var(--tap-color); }
+    .ctr-badge.kw     { border-color: #7a9abb; color: #7a9abb; }
+
+    /* ── CARD MENU BUTTON ──────────────────────────────── */
+    .card-menu-btn {
+      position: absolute; bottom: 6px; left: 6px;
+      background: rgba(0,0,0,.65); color: var(--muted);
+      border: none; border-radius: 6px;
+      width: 22px; height: 22px; font-size: 1rem;
+      cursor: pointer; display: flex; align-items: center; justify-content: center;
+      opacity: 0; transition: opacity .2s, color .15s; z-index: 2;
+    }
+    .card-art-wrap:hover .card-menu-btn { opacity: 1; }
+    .card-menu-btn:hover { color: var(--text); }
+
+    /* Enters-tapped badge on card */
+    .etap-badge {
+      position: absolute; top: 32px; left: 6px;
+      background: rgba(0,0,0,.7); color: var(--tap-color);
+      border: 1px solid var(--tap-color); border-radius: 4px;
+      font-size: 0.58rem; font-weight: 700; padding: 1px 4px;
+      display: none;
+    }
+    .etap-badge.visible { display: block; }
+
+    /* ── DETAIL SHEET ──────────────────────────────────── */
+    .detail-art-banner {
+      width: 100%; height: 150px; object-fit: cover;
+      object-position: top; border-radius: 10px;
+      display: block; margin-bottom: 12px;
+    }
+    .detail-art-ph {
+      width: 100%; height: 70px; background: var(--surface2);
+      border-radius: 10px; display: flex; align-items: center;
+      justify-content: center; color: var(--muted); font-size: 0.85rem;
+      margin-bottom: 12px;
+    }
+    .detail-section-title {
+      font-size: 0.75rem; font-weight: 700; color: var(--muted);
+      text-transform: uppercase; letter-spacing: .5px;
+      margin: 14px 0 8px;
+    }
+    .detail-row {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 8px 0; border-bottom: 1px solid var(--border); gap: 12px;
+    }
+    .detail-row:last-of-type { border-bottom: none; }
+    .detail-key {
+      font-size: 0.75rem; font-weight: 600; color: var(--muted);
+      text-transform: uppercase; letter-spacing: .4px;
+      flex-shrink: 0; min-width: 72px;
+    }
+    .detail-val { font-size: 0.88rem; color: var(--text); text-align: right; flex: 1; }
+    .detail-edit {
+      background: var(--surface2); border: 1px solid var(--border);
+      border-radius: 6px; padding: 4px 8px; color: var(--text);
+      font-size: 0.88rem; text-align: center; outline: none;
+      width: 60px; transition: border-color .15s;
+    }
+    .detail-edit:focus { border-color: var(--accent); }
+    .detail-edit.wide { width: 100%; text-align: left; }
+    .detail-abilities {
+      font-size: 0.82rem; color: var(--text); line-height: 1.6;
+      white-space: pre-wrap; background: var(--surface2);
+      border-radius: 8px; padding: 10px 12px; width: 100%; margin-top: 4px;
+      font-family: inherit; border: 1px solid var(--border); outline: none;
+      resize: vertical; min-height: 60px; transition: border-color .15s;
+    }
+    .detail-abilities:focus { border-color: var(--accent); }
+    .detail-ctr-row {
+      display: flex; align-items: center; gap: 8px;
+      padding: 7px 0; border-bottom: 1px solid var(--border);
+    }
+    .detail-ctr-row:last-child { border-bottom: none; }
+    .detail-ctr-name { flex: 1; font-size: 0.85rem; }
+    .detail-ctr-btn {
+      background: var(--surface2); border: 1px solid var(--border);
+      color: var(--text); border-radius: 6px; width: 28px; height: 28px;
+      font-size: 1rem; cursor: pointer; display: flex;
+      align-items: center; justify-content: center; transition: background .15s;
+    }
+    .detail-ctr-btn:hover { background: var(--border); }
+    .detail-ctr-count { min-width: 28px; text-align: center; font-size: 0.9rem; font-weight: 700; }
+    .detail-action-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 4px; }
+    .detail-action-btn {
+      background: var(--surface2); border: 1px solid var(--border);
+      color: var(--text); border-radius: 9px; padding: 10px 8px;
+      font-size: 0.8rem; font-weight: 600; cursor: pointer;
+      transition: background .15s; text-align: center;
+    }
+    .detail-action-btn:hover { background: var(--border); }
+    .detail-action-btn.danger { color: #ff7070; border-color: #ff707055; }
+    .detail-action-btn.danger:hover { background: rgba(255,112,112,.1); }
   </style>
 </head>
 <body>
@@ -781,6 +939,25 @@
           </div>
         </div>
 
+        <!-- Copy card search (shown for Copy tokens) -->
+        <div id="copySection" style="display:none">
+          <div class="section-divider"></div>
+          <div class="form-group">
+            <label class="form-label">Card Being Copied</label>
+            <input type="text" id="copySearch" class="form-input"
+              placeholder="Search any permanent (creature, artifact…)"
+              autocomplete="off" spellcheck="false" oninput="onCopyInput()">
+            <div class="search-drop" id="copyDrop"></div>
+            <div class="preview-strip" id="copyPreviewStrip" style="margin-top:8px;display:none">
+              <img class="preview-thumb" id="copyThumb" src="" alt="">
+              <div class="preview-info">
+                <div class="preview-name" id="copyCardName">—</div>
+                <div class="preview-type" id="copyCardType">—</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
         <!-- Power / Toughness (creatures only, or manual creature) -->
         <div id="ptSection" style="display:none">
           <div class="section-divider"></div>
@@ -858,6 +1035,65 @@
           </div>
         </div>
 
+        <!-- ── MODIFIERS (collapsible) ──────────────────────── -->
+        <div class="section-divider"></div>
+        <details id="modifiersDetails">
+          <summary style="list-style:none;cursor:pointer;display:flex;align-items:center;justify-content:space-between;padding:2px 0 8px">
+            <span class="form-label" style="margin:0">Modifiers</span>
+            <span style="font-size:0.75rem;color:var(--muted)">optional ▾</span>
+          </summary>
+
+          <div class="form-group">
+            <label class="form-label">Keywords</label>
+            <div class="modifier-chips">
+              <div class="mod-chip" data-kw="Flying"        onclick="toggleModChip(this)">Flying</div>
+              <div class="mod-chip" data-kw="Trample"       onclick="toggleModChip(this)">Trample</div>
+              <div class="mod-chip" data-kw="Haste"         onclick="toggleModChip(this)">Haste</div>
+              <div class="mod-chip" data-kw="Vigilance"     onclick="toggleModChip(this)">Vigilance</div>
+              <div class="mod-chip" data-kw="Deathtouch"    onclick="toggleModChip(this)">Deathtouch</div>
+              <div class="mod-chip" data-kw="Lifelink"      onclick="toggleModChip(this)">Lifelink</div>
+              <div class="mod-chip" data-kw="Menace"        onclick="toggleModChip(this)">Menace</div>
+              <div class="mod-chip" data-kw="Reach"         onclick="toggleModChip(this)">Reach</div>
+              <div class="mod-chip" data-kw="First Strike"  onclick="toggleModChip(this)">First Strike</div>
+              <div class="mod-chip" data-kw="Double Strike" onclick="toggleModChip(this)">Double Strike</div>
+              <div class="mod-chip" data-kw="Hexproof"      onclick="toggleModChip(this)">Hexproof</div>
+              <div class="mod-chip" data-kw="Indestructible" onclick="toggleModChip(this)">Indestructible</div>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Starting Counters</label>
+            <div class="counter-row">
+              <div class="counter-group">
+                <span class="counter-label" style="color:#4aaa7a">+1/+1</span>
+                <input type="number" class="counter-num" id="ctrPlus" value="0" min="0" max="99" inputmode="numeric">
+              </div>
+              <div class="counter-group">
+                <span class="counter-label" style="color:#aa4455">−1/−1</span>
+                <input type="number" class="counter-num" id="ctrMinus" value="0" min="0" max="99" inputmode="numeric">
+              </div>
+              <div class="counter-group" style="gap:6px">
+                <input type="text"   class="counter-num" id="ctrCustomName" placeholder="name" style="width:52px;font-size:.75rem">
+                <input type="number" class="counter-num" id="ctrCustomVal"  value="0" min="0" max="99" inputmode="numeric">
+              </div>
+            </div>
+          </div>
+        </details>
+
+        <div class="section-divider"></div>
+
+        <!-- Enters Tapped toggle -->
+        <div class="toggle-row">
+          <div>
+            <div class="toggle-label">Enters Tapped</div>
+            <div class="toggle-sub">All tokens enter the battlefield already tapped</div>
+          </div>
+          <label class="toggle-switch">
+            <input type="checkbox" id="entersTapped">
+            <span class="toggle-knob"></span>
+          </label>
+        </div>
+
         <div class="section-divider"></div>
 
         <!-- Quantity -->
@@ -886,6 +1122,20 @@
     </div>
   </div>
 
+  <!-- ── CARD DETAIL SHEET ──────────────────────────────── -->
+  <div class="modal-overlay" id="detailOverlay" onclick="handleDetailOverlay(event)">
+    <div class="modal" id="detailModal">
+      <div class="modal-drag"></div>
+      <div class="modal-header">
+        <span class="modal-title" id="detailTitle">Token Details</span>
+        <button class="modal-close" onclick="closeDetail()">✕</button>
+      </div>
+      <div class="modal-body" id="detailBody">
+        <!-- populated by openDetail(id) -->
+      </div>
+    </div>
+  </div>
+
   <script>
     // ══════════════════════════════════════════════════════
     //  STATE
@@ -898,7 +1148,11 @@
     let selectedArtIdx   = 0;
     let selectedCardData = null;
     let searchTimer      = null;
+    let copyTimer        = null;
+    let copiedCardData   = null;
     let _nameCache       = {};   // name → first card hit
+    let activeModKws     = new Set();  // selected keyword modifiers
+    let activeDetailId   = null;       // which token the detail sheet is open for
 
     // ══════════════════════════════════════════════════════
     //  MODAL OPEN / CLOSE
@@ -945,6 +1199,27 @@
       document.getElementById('manualType').value             = 'Creature';
       document.querySelectorAll('.color-chip').forEach(c => c.classList.remove('active'));
       onManualTypeChange();
+
+      // Copy section
+      copiedCardData = null;
+      document.getElementById('copySection').style.display       = 'none';
+      document.getElementById('copySearch').value                = '';
+      document.getElementById('copyDrop').className              = 'search-drop';
+      document.getElementById('copyDrop').innerHTML              = '';
+      document.getElementById('copyPreviewStrip').style.display  = 'none';
+
+      // Modifiers
+      activeModKws = new Set();
+      document.querySelectorAll('.mod-chip').forEach(c => c.classList.remove('active'));
+      document.getElementById('ctrPlus').value       = '0';
+      document.getElementById('ctrMinus').value      = '0';
+      document.getElementById('ctrCustomName').value = '';
+      document.getElementById('ctrCustomVal').value  = '0';
+      const det = document.getElementById('modifiersDetails');
+      if (det && det.open) det.open = false;
+
+      // Enters tapped
+      document.getElementById('entersTapped').checked = false;
     }
 
     // ══════════════════════════════════════════════════════
@@ -1042,6 +1317,67 @@
     });
 
     // ══════════════════════════════════════════════════════
+    //  COPY CARD SEARCH
+    // ══════════════════════════════════════════════════════
+    function showCopySection(visible) {
+      document.getElementById('copySection').style.display = visible ? 'block' : 'none';
+      if (!visible) { copiedCardData = null; }
+    }
+
+    function onCopyInput() {
+      const q = document.getElementById('copySearch').value.trim();
+      clearTimeout(copyTimer);
+      const drop = document.getElementById('copyDrop');
+      if (q.length < 2) { drop.className = 'search-drop'; return; }
+      copyTimer = setTimeout(() => doCopySearch(q), 180);
+    }
+
+    async function doCopySearch(q) {
+      const drop = document.getElementById('copyDrop');
+      drop.className = 'search-drop open';
+      drop.innerHTML = '<div class="spinner"></div>';
+      try {
+        // Search non-token permanents by name
+        const cards = await scryfallSearch(`not:token (t:creature OR t:artifact OR t:enchantment OR t:planeswalker OR t:land) name:${q}`, 'cards');
+        if (!cards.length) {
+          drop.innerHTML = '<div style="padding:10px 14px;color:var(--muted);font-size:.85rem">No cards found</div>';
+          return;
+        }
+        const seen = new Set();
+        const uniq = cards.filter(c => { if (seen.has(c.name)) return false; seen.add(c.name); return true; }).slice(0, 10);
+        drop.innerHTML = uniq.map(card => {
+          const img  = getSmallImg(card);
+          const pt   = card.power != null ? ` ${card.power}/${card.toughness}` : '';
+          return `<div class="search-item" data-copy-name="${esc(card.name)}" data-img="${esc(getNormalImg(card))}" data-type="${esc(card.type_line||'')}" data-pt="${esc(pt.trim())}">
+            ${img ? `<img class="search-item-img" src="${img}" alt="" loading="lazy">` : '<div class="search-item-img-ph"></div>'}
+            <div>
+              <div class="search-item-name">${esc(card.name)}${pt ? `<span style="color:var(--muted);font-weight:400"> ${esc(pt.trim())}</span>` : ''}</div>
+              <div class="search-item-type">${esc(card.type_line||'')}</div>
+            </div>
+          </div>`;
+        }).join('');
+      } catch { drop.innerHTML = '<div style="padding:10px 14px;color:var(--muted);font-size:.85rem">Search failed.</div>'; }
+    }
+
+    // Delegated mousedown for copy drop
+    document.addEventListener('DOMContentLoaded', () => {
+      document.getElementById('copyDrop').addEventListener('mousedown', function(e) {
+        const item = e.target.closest('.search-item[data-copy-name]');
+        if (!item) return;
+        e.preventDefault();
+        copiedCardData = { name: item.dataset.copyName, imageUri: item.dataset.img, type: item.dataset.type };
+        document.getElementById('copySearch').value = item.dataset.copyName;
+        document.getElementById('copyDrop').className = 'search-drop';
+        // Show preview
+        const strip = document.getElementById('copyPreviewStrip');
+        document.getElementById('copyThumb').src      = item.dataset.img || '';
+        document.getElementById('copyCardName').textContent = item.dataset.copyName;
+        document.getElementById('copyCardType').textContent = item.dataset.type;
+        strip.style.display = item.dataset.img ? 'flex' : 'none';
+      });
+    });
+
+    // ══════════════════════════════════════════════════════
     //  MANUAL MODE
     // ══════════════════════════════════════════════════════
     let isManualMode = false;
@@ -1079,8 +1415,18 @@
     function onManualTypeChange() {
       const type = document.getElementById('manualType').value;
       const isCreature = type === 'Creature';
-      document.getElementById('manualPtRow').style.display      = isCreature ? 'flex' : 'none';
-      document.getElementById('manualSubtypeRow').style.display = (type === 'Other') ? 'block' : 'block'; // always shown
+      const isCopy     = type === 'Instant' || type === 'Sorcery';
+      document.getElementById('manualPtRow').style.display = isCreature ? 'flex' : 'none';
+      // Always show subtype row
+      document.getElementById('manualSubtypeRow').style.display = 'block';
+      // Show copy search for spell copies
+      showCopySection(isCopy);
+    }
+
+    function toggleModChip(chip) {
+      const kw = chip.dataset.kw;
+      if (activeModKws.has(kw)) { activeModKws.delete(kw); chip.classList.remove('active'); }
+      else                       { activeModKws.add(kw);    chip.classList.add('active');    }
     }
 
     function toggleColor(chip) {
@@ -1124,6 +1470,9 @@
         document.getElementById('tokenPower').value     = selectedCardData.power;
         document.getElementById('tokenToughness').value = selectedCardData.toughness;
       }
+
+      // Show copy section for "Copy" tokens
+      showCopySection(/copy/i.test(selectedCardData.name));
 
       document.getElementById('generateBtn').disabled = false;
     }
@@ -1176,55 +1525,64 @@
     //  GENERATE → ADD TOKEN TO BATTLEFIELD
     // ══════════════════════════════════════════════════════
     function generateToken() {
-      const qty = Math.max(1, parseInt(document.getElementById('tokenQty').value) || 1);
+      const qty         = Math.max(1, parseInt(document.getElementById('tokenQty').value) || 1);
+      const entersTap   = document.getElementById('entersTapped').checked;
+      const modKws      = [...activeModKws];
+      const ctrPlus     = parseInt(document.getElementById('ctrPlus').value)  || 0;
+      const ctrMinus    = parseInt(document.getElementById('ctrMinus').value) || 0;
+      const ctrCustName = document.getElementById('ctrCustomName').value.trim();
+      const ctrCustVal  = parseInt(document.getElementById('ctrCustomVal').value) || 0;
+
+      // Build counters array
+      const counters = [];
+      if (ctrPlus  > 0) counters.push({ type: '+1/+1', count: ctrPlus });
+      if (ctrMinus > 0) counters.push({ type: '−1/−1', count: ctrMinus });
+      if (ctrCustName && ctrCustVal > 0) counters.push({ type: ctrCustName, count: ctrCustVal });
+
       let token;
 
       if (isManualMode) {
-        // ── Manual token ──────────────────────────────────
-        const name      = document.getElementById('manualName').value.trim();
+        const name       = document.getElementById('manualName').value.trim();
         if (!name) return;
-        const typeVal   = document.getElementById('manualType').value;
-        const subtype   = document.getElementById('manualSubtype').value.trim();
+        const typeVal    = document.getElementById('manualType').value;
+        const subtype    = document.getElementById('manualSubtype').value.trim();
         const isCreature = typeVal === 'Creature';
-        const colors    = [...manualColors].join('');
-        const abilities = document.getElementById('manualAbilities').value.trim();
-        const typeLine  = isCreature
+        const colors     = [...manualColors].join('');
+        const abilities  = document.getElementById('manualAbilities').value.trim();
+        const typeLine   = isCreature
           ? `Token Creature${subtype ? ' — ' + subtype : ''}`
           : `Token ${typeVal}${subtype ? ' — ' + subtype : ''}`;
 
         token = {
-          id:        nextId++,
-          name,
-          typeLine,
-          isCreature,
+          id: nextId++, name, typeLine, isCreature,
           power:     isCreature ? (document.getElementById('manualPower').value || '1') : null,
           toughness: isCreature ? (document.getElementById('manualToughness').value || '1') : null,
-          colors,
-          abilities,
-          quantity:  qty,
-          tapped:    0,
-          imageUri:  '',   // no Scryfall art for manual tokens
-          smallUri:  '',
-          isManual:  true,
+          colors, abilities,
+          quantity: qty, tapped: entersTap ? qty : 0,
+          imageUri: copiedCardData?.imageUri || '',
+          smallUri: '',
+          copiedFrom: copiedCardData || null,
+          modifiers: modKws, counters,
+          entersTapped: entersTap, isManual: true,
         };
       } else {
-        // ── Scryfall token ────────────────────────────────
         if (!selectedCardData) return;
         const isCreature = (selectedCardData.type_line || '').includes('Creature');
         token = {
-          id:        nextId++,
-          name:      selectedCardData.name,
+          id: nextId++,
+          name:      copiedCardData?.name || selectedCardData.name,
           typeLine:  selectedCardData.type_line || 'Token',
           isCreature,
           power:     isCreature ? (document.getElementById('tokenPower').value || '*') : null,
           toughness: isCreature ? (document.getElementById('tokenToughness').value || '*') : null,
           colors:    (selectedCardData.colors || []).join(''),
-          abilities: (selectedCardData.oracle_text || ''),
-          quantity:  qty,
-          tapped:    0,
-          imageUri:  getNormalImg(selectedCardData),
+          abilities: selectedCardData.oracle_text || '',
+          quantity:  qty, tapped: entersTap ? qty : 0,
+          imageUri:  copiedCardData?.imageUri || getNormalImg(selectedCardData),
           smallUri:  getSmallImg(selectedCardData),
-          isManual:  false,
+          copiedFrom: copiedCardData || null,
+          modifiers: modKws, counters,
+          entersTapped: entersTap, isManual: false,
         };
       }
 
@@ -1251,50 +1609,56 @@
     }
 
     function cardHTML(token) {
-      const ptStr   = token.isCreature && token.power != null
-                      ? `${token.power}/${token.toughness}` : '';
-      const dotsN   = Math.min(token.quantity, 30);
-      const dotsMkp = Array.from({length: dotsN}, (_, i) =>
+      const ptStr  = token.isCreature && token.power != null ? `${token.power}/${token.toughness}` : '';
+      const dotsN  = Math.min(token.quantity, 30);
+      const dots   = Array.from({length: dotsN}, (_, i) =>
         `<div class="dot ${i < token.tapped ? 'tapped' : ''}"></div>`).join('');
+      const ctrBadges = counterBadgesHTML(token);
+      const modBadges = (token.modifiers || []).map(k =>
+        `<span class="ctr-badge kw">${esc(k)}</span>`).join('');
 
       return `
-        <!-- Art wrap -->
         <div class="card-art-wrap">
           ${token.imageUri
             ? `<img class="card-art" src="${esc(token.imageUri)}" alt="${esc(token.name)}" loading="lazy">`
-            : `<div class="card-art-placeholder">${esc(token.name)}</div>`
-          }
+            : `<div class="card-art-placeholder">${esc(token.name)}</div>`}
           <div class="qty-badge" id="qb-${token.id}">${token.quantity}</div>
           <div class="tap-badge ${token.tapped > 0 ? 'visible' : ''}" id="tpb-${token.id}">
             <svg width="10" height="10" viewBox="0 0 10 10">
               <path d="M5 1V5L8 8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-            </svg>
-            ${token.tapped}
+            </svg> ${token.tapped}
           </div>
-          <button class="btn-remove" onclick="removeToken(${token.id})" title="Remove token">✕</button>
+          <div class="etap-badge ${token.entersTapped ? 'visible' : ''}" id="etb-${token.id}">ETap</div>
+          <button class="card-menu-btn" onclick="openDetail(${token.id})" title="View / Edit">⋮</button>
+          <button class="btn-remove"    onclick="removeToken(${token.id})" title="Remove">✕</button>
         </div>
 
-        <!-- Name / P/T bar -->
         <div class="card-info">
           <span class="card-name">${esc(token.name)}</span>
           ${ptStr ? `<span class="card-pt" id="pt-${token.id}">${esc(ptStr)}</span>` : ''}
         </div>
 
-        <!-- Tap dots -->
-        <div class="tap-dots" id="dots-${token.id}">${dotsMkp}</div>
+        <div class="card-counters" id="cbadges-${token.id}">${ctrBadges}${modBadges}</div>
 
-        <!-- Action buttons -->
+        <div class="tap-dots" id="dots-${token.id}">${dots}</div>
+
         <div class="card-controls">
           <button class="ctrl-btn btn-tap-one" onclick="tapOne(${token.id})">Tap +1</button>
           <button class="ctrl-btn btn-untap"   onclick="untapToken(${token.id})">Untap</button>
         </div>
 
-        <!-- Quantity row -->
         <div class="qty-row">
           <button class="qty-adj" onclick="changeQty(${token.id}, -1)">−</button>
           <span class="qty-label" id="ql-${token.id}">${token.quantity} in play</span>
           <button class="qty-adj" onclick="changeQty(${token.id}, 1)">+</button>
         </div>`;
+    }
+
+    function counterBadgesHTML(token) {
+      return (token.counters || []).map(c => {
+        const cls = c.type === '+1/+1' ? 'plus' : c.type === '−1/−1' ? 'minus' : 'charge';
+        return `<span class="ctr-badge ${cls}">${esc(c.type)} ×${c.count}</span>`;
+      }).join('');
     }
 
     function updateEmptyState() {
@@ -1376,6 +1740,17 @@
       const ql = document.getElementById(`ql-${token.id}`);
       if (ql) ql.textContent = `${token.quantity} in play`;
 
+      // Counter + modifier badges
+      const cb = document.getElementById(`cbadges-${token.id}`);
+      if (cb) {
+        const modBadges = (token.modifiers || []).map(k => `<span class="ctr-badge kw">${esc(k)}</span>`).join('');
+        cb.innerHTML = counterBadgesHTML(token) + modBadges;
+      }
+
+      // P/T badge (may have been edited)
+      const pt = document.getElementById(`pt-${token.id}`);
+      if (pt && token.isCreature) pt.textContent = `${token.power}/${token.toughness}`;
+
       // All-tapped highlight
       el.classList.toggle('all-tapped', token.tapped >= token.quantity && token.quantity > 0);
     }
@@ -1404,6 +1779,167 @@
       return String(str)
         .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
         .replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+    }
+
+    // ══════════════════════════════════════════════════════
+    //  CARD DETAIL SHEET
+    // ══════════════════════════════════════════════════════
+    function openDetail(id) {
+      const t = tokenById(id);
+      if (!t) return;
+      activeDetailId = id;
+      document.getElementById('detailTitle').textContent = t.name;
+      document.getElementById('detailBody').innerHTML = buildDetailHTML(t);
+      document.getElementById('detailOverlay').classList.add('open');
+    }
+
+    function closeDetail() {
+      document.getElementById('detailOverlay').classList.remove('open');
+      activeDetailId = null;
+    }
+
+    function handleDetailOverlay(e) {
+      if (e.target === e.currentTarget) closeDetail();
+    }
+
+    function buildDetailHTML(t) {
+      const ptEditable = t.isCreature ? `
+        <div class="detail-row">
+          <span class="detail-key">Power</span>
+          <input class="detail-edit" id="dp-${t.id}" value="${esc(t.power||'')}" onchange="editPT(${t.id})">
+        </div>
+        <div class="detail-row">
+          <span class="detail-key">Toughness</span>
+          <input class="detail-edit" id="dt-${t.id}" value="${esc(t.toughness||'')}" onchange="editPT(${t.id})">
+        </div>` : '';
+
+      const colorsDisplay = t.colors
+        ? t.colors.split('').map(c => ({W:'⚪',U:'🔵',B:'⚫',R:'🔴',G:'🟢',C:'◇'}[c] || c)).join(' ')
+        : '—';
+
+      const counterRows = (t.counters && t.counters.length)
+        ? t.counters.map((c, i) => `
+          <div class="detail-ctr-row">
+            <span class="detail-ctr-name">${esc(c.type)}</span>
+            <button class="detail-ctr-btn" onclick="adjustCounter(${t.id},${i},-1)">−</button>
+            <span class="detail-ctr-count" id="ctrc-${t.id}-${i}">${c.count}</span>
+            <button class="detail-ctr-btn" onclick="adjustCounter(${t.id},${i},1)">+</button>
+          </div>`).join('')
+        : `<div style="color:var(--muted);font-size:.82rem;padding:6px 0">No counters</div>`;
+
+      const addCtrRow = `
+        <div class="detail-ctr-row" style="gap:6px;flex-wrap:wrap">
+          <input type="text"   class="detail-edit" id="newCtrName-${t.id}" placeholder="counter name" style="flex:1;min-width:80px;text-align:left">
+          <input type="number" class="detail-edit" id="newCtrVal-${t.id}"  placeholder="0" style="width:52px" value="1" min="1">
+          <button class="detail-ctr-btn" onclick="addCounter(${t.id})" style="width:auto;padding:0 10px;font-size:.75rem;font-weight:600">Add</button>
+        </div>`;
+
+      const modSection = (t.modifiers && t.modifiers.length)
+        ? `<div style="display:flex;flex-wrap:wrap;gap:5px">${t.modifiers.map(k => `<span class="ctr-badge kw">${esc(k)}</span>`).join('')}</div>`
+        : `<div style="color:var(--muted);font-size:.82rem">None</div>`;
+
+      const copiedSection = t.copiedFrom
+        ? `<div class="detail-row"><span class="detail-key">Copying</span><span class="detail-val">${esc(t.copiedFrom.name)}</span></div>`
+        : '';
+
+      return `
+        ${t.imageUri
+          ? `<img class="detail-art-banner" src="${esc(t.imageUri)}" alt="${esc(t.name)}">`
+          : `<div class="detail-art-ph">${esc(t.name)}</div>`}
+
+        <div class="detail-section-title">Characteristics</div>
+        <div class="detail-row">
+          <span class="detail-key">Name</span>
+          <input class="detail-edit wide" id="dn-${t.id}" value="${esc(t.name)}" onchange="editName(${t.id})">
+        </div>
+        <div class="detail-row">
+          <span class="detail-key">Type</span>
+          <span class="detail-val">${esc(t.typeLine)}</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-key">Colors</span>
+          <span class="detail-val">${colorsDisplay}</span>
+        </div>
+        ${ptEditable}
+        ${copiedSection}
+        <div class="detail-row" style="flex-direction:column;align-items:flex-start;gap:4px">
+          <span class="detail-key">Abilities</span>
+          <textarea class="detail-abilities" id="da-${t.id}" onchange="editAbilities(${t.id})">${esc(t.abilities||'')}</textarea>
+        </div>
+
+        <div class="detail-section-title">Counters</div>
+        ${counterRows}
+        ${addCtrRow}
+
+        <div class="detail-section-title">Modifiers</div>
+        ${modSection}
+
+        <div class="detail-section-title">Actions</div>
+        <div class="detail-action-grid">
+          <button class="detail-action-btn" onclick="tapOne(${t.id});closeDetail()">Tap +1</button>
+          <button class="detail-action-btn" onclick="untapToken(${t.id});closeDetail()">Untap All</button>
+          <button class="detail-action-btn" onclick="changeQty(${t.id},1);openDetail(${t.id})">Add Token</button>
+          <button class="detail-action-btn" onclick="changeQty(${t.id},-1);openDetail(${t.id})">Remove Token</button>
+          <button class="detail-action-btn" onclick="duplicateToken(${t.id});closeDetail()">Duplicate Group</button>
+          <button class="detail-action-btn danger" onclick="removeToken(${t.id});closeDetail()">Remove All</button>
+        </div>`;
+    }
+
+    // ── Detail edit actions ──
+    function editName(id) {
+      const t = tokenById(id);
+      if (!t) return;
+      const v = document.getElementById(`dn-${id}`)?.value.trim();
+      if (v) { t.name = v; refreshCard(t); document.getElementById('detailTitle').textContent = v; }
+    }
+
+    function editPT(id) {
+      const t = tokenById(id);
+      if (!t) return;
+      const p = document.getElementById(`dp-${id}`)?.value.trim();
+      const th = document.getElementById(`dt-${id}`)?.value.trim();
+      if (p !== undefined) t.power     = p;
+      if (th !== undefined) t.toughness = th;
+      refreshCard(t);
+    }
+
+    function editAbilities(id) {
+      const t = tokenById(id);
+      if (!t) return;
+      t.abilities = document.getElementById(`da-${id}`)?.value || '';
+    }
+
+    function adjustCounter(id, idx, delta) {
+      const t = tokenById(id);
+      if (!t || !t.counters[idx]) return;
+      t.counters[idx].count = Math.max(0, t.counters[idx].count + delta);
+      const el = document.getElementById(`ctrc-${id}-${idx}`);
+      if (el) el.textContent = t.counters[idx].count;
+      refreshCard(t);
+    }
+
+    function addCounter(id) {
+      const t    = tokenById(id);
+      const name = document.getElementById(`newCtrName-${id}`)?.value.trim();
+      const val  = parseInt(document.getElementById(`newCtrVal-${id}`)?.value) || 1;
+      if (!t || !name) return;
+      // Merge if same type already exists
+      const existing = t.counters.find(c => c.type === name);
+      if (existing) existing.count += val;
+      else t.counters.push({ type: name, count: val });
+      refreshCard(t);
+      openDetail(id);  // re-render the sheet
+    }
+
+    function duplicateToken(id) {
+      const t = tokenById(id);
+      if (!t) return;
+      const copy = { ...t, id: nextId++, tapped: t.entersTapped ? t.quantity : 0,
+                     counters: t.counters.map(c => ({...c})),
+                     modifiers: [...t.modifiers] };
+      tokens.push(copy);
+      appendTokenCard(copy);
+      updateEmptyState();
     }
 
     // ══════════════════════════════════════════════════════
