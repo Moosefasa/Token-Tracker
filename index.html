@@ -685,6 +685,106 @@
     .form-textarea:focus { border-color: var(--accent); }
     .form-textarea::placeholder { color: var(--muted); }
 
+    /* ── FAB (Generate Token) ──────────────────────────── */
+    .fab-generate {
+      position: fixed;
+      bottom: 22px;
+      right: 22px;
+      z-index: 30;
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      border-radius: 50px;
+      padding: 14px 22px;
+      font-size: 0.95rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      box-shadow: 0 4px 24px rgba(0,0,0,.55);
+      transition: background .15s, transform .1s, box-shadow .15s;
+    }
+    .fab-generate:hover  { background: var(--accent-h); transform: scale(1.04); }
+    .fab-generate:active { transform: scale(0.97); }
+
+    /* ── ART DROPDOWN ──────────────────────────────────── */
+    .art-dropdown-trigger {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 9px;
+      padding: 8px 12px;
+      cursor: pointer;
+      width: 100%;
+      transition: border-color .15s;
+      user-select: none;
+    }
+    .art-dropdown-trigger:hover { border-color: var(--muted); }
+    .art-dropdown-trigger.open  { border-color: var(--accent); }
+    .art-drop-thumb {
+      width: 32px; height: 44px;
+      object-fit: cover; border-radius: 3px; flex-shrink: 0;
+      background: var(--bg);
+    }
+    .art-drop-label { flex: 1; min-width: 0; }
+    .art-drop-name { font-size: .88rem; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .art-drop-set  { font-size: .72rem; color: var(--muted); margin-top: 1px; }
+    .art-drop-arrow { color: var(--muted); font-size: .75rem; flex-shrink: 0; transition: transform .2s; }
+    .art-dropdown-trigger.open .art-drop-arrow { transform: rotate(180deg); }
+
+    .art-dropdown-list {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 9px;
+      margin-top: 5px;
+      max-height: 260px;
+      overflow-y: auto;
+      display: none;
+    }
+    .art-dropdown-list.open { display: block; }
+    .art-drop-item {
+      display: flex; align-items: center; gap: 10px;
+      padding: 8px 12px; cursor: pointer;
+      border-bottom: 1px solid var(--border);
+      transition: background .12s;
+    }
+    .art-drop-item:last-child { border-bottom: none; }
+    .art-drop-item:hover { background: var(--border); }
+    .art-drop-item.selected { background: rgba(200,75,49,.12); }
+    .art-drop-item img {
+      width: 32px; height: 44px;
+      object-fit: cover; border-radius: 3px; flex-shrink: 0;
+    }
+    .art-drop-item-set  { font-size: .85rem; font-weight: 600; }
+    .art-drop-item-code { font-size: .72rem; color: var(--muted); margin-top: 1px; }
+
+    /* ── +1/+1 QUICK COUNTER ───────────────────────────── */
+    .plus-row {
+      display: flex; align-items: center;
+      gap: 4px; padding: 0 8px 5px;
+    }
+    .plus-btn {
+      background: var(--surface2); border: 1px solid #3a6a4a;
+      color: #4aaa7a; border-radius: 5px;
+      width: 22px; height: 22px; font-size: .9rem;
+      cursor: pointer; display: flex; align-items: center;
+      justify-content: center; flex-shrink: 0;
+      transition: background .15s;
+    }
+    .plus-btn:hover { background: #1a3a2a; }
+    .plus-label {
+      flex: 1; text-align: center;
+      font-size: .68rem; color: #4aaa7a; font-weight: 700;
+      letter-spacing: .3px;
+    }
+    .plus-count {
+      font-size: .82rem; font-weight: 700;
+      color: #4aaa7a; min-width: 20px; text-align: center;
+    }
+
     /* Tap all button */
     .btn-tap-all {
       background: var(--surface2);
@@ -869,14 +969,16 @@
           <circle cx="8" cy="8" r="6" stroke="currentColor" stroke-width="1.5"/>
         </svg>
       </button>
-      <button class="btn-generate" onclick="openModal()">
-        <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-          <path d="M7 1V13M1 7H13" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
-        </svg>
-        Generate Token
-      </button>
     </div>
   </header>
+
+  <!-- Floating Action Button -->
+  <button class="fab-generate" onclick="openModal()">
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+      <path d="M8 1V15M1 8H15" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/>
+    </svg>
+    Generate Token
+  </button>
 
   <!-- BATTLEFIELD CANVAS -->
   <div id="canvas">
@@ -935,7 +1037,15 @@
           <div class="section-divider"></div>
           <div class="form-group">
             <label class="form-label">Art Version</label>
-            <div class="art-grid" id="artGrid"></div>
+            <div class="art-dropdown-trigger" id="artDropdownTrigger" onclick="toggleArtDropdown()">
+              <img class="art-drop-thumb" id="artDropThumb" src="" alt="">
+              <div class="art-drop-label">
+                <div class="art-drop-name" id="artDropName">Select art version</div>
+                <div class="art-drop-set"  id="artDropSet"></div>
+              </div>
+              <span class="art-drop-arrow">▾</span>
+            </div>
+            <div class="art-dropdown-list" id="artDropdownList"></div>
           </div>
         </div>
 
@@ -1186,6 +1296,7 @@
       document.getElementById('previewStrip').className = 'preview-strip';
       document.getElementById('searchSection').style.display  = 'block';
       document.getElementById('artSection').style.display     = 'none';
+      closeArtDropdown();
       document.getElementById('ptSection').style.display      = 'none';
       document.getElementById('generateBtn').disabled         = true;
 
@@ -1306,13 +1417,22 @@
       drop.className = 'search-drop';
     }
 
-    // Delegated listener — mousedown fires before blur so the item is still in the DOM
+    // Delegated listeners — mousedown fires before blur
     document.addEventListener('DOMContentLoaded', () => {
+      // Token search results
       document.getElementById('searchDrop').addEventListener('mousedown', function(e) {
         const item = e.target.closest('.search-item[data-name]');
         if (!item) return;
-        e.preventDefault(); // prevent input losing focus before we read the value
+        e.preventDefault();
         selectTokenByName(item.dataset.name);
+      });
+
+      // Art dropdown list
+      document.getElementById('artDropdownList').addEventListener('mousedown', function(e) {
+        const item = e.target.closest('.art-drop-item[data-art-idx]');
+        if (!item) return;
+        e.preventDefault();
+        pickArt(parseInt(item.dataset.artIdx));
       });
     });
 
@@ -1461,7 +1581,7 @@
       selectedCardData = artOptions[0];
 
       updatePreview();
-      renderArtGrid();
+      renderArtDropdown();
 
       // Show P/T for creature tokens
       const isCreature = (selectedCardData.type_line || '').includes('Creature');
@@ -1477,29 +1597,59 @@
       document.getElementById('generateBtn').disabled = false;
     }
 
-    function renderArtGrid() {
+    function renderArtDropdown() {
       const withImg = artOptions.filter(c => getNormalImg(c));
       const show    = withImg.length > 1;
       document.getElementById('artSection').style.display = show ? 'block' : 'none';
       if (!show) return;
 
-      document.getElementById('artGrid').innerHTML = withImg.slice(0, 12).map((card, i) => {
-        const img = getNormalImg(card);
-        return `
-          <div class="art-opt ${i === selectedArtIdx ? 'selected' : ''}"
-               title="${esc(card.set_name || card.set || '')}"
-               onclick="pickArt(${i})">
-            <img src="${img}" alt="" loading="lazy">
-            <div class="art-set-label">${esc((card.set || '').toUpperCase())}</div>
-          </div>`;
+      // Populate the scrollable list — ALL printings, no cap
+      document.getElementById('artDropdownList').innerHTML = withImg.map((card, i) => {
+        const img  = getSmallImg(card) || getNormalImg(card);
+        const name = card.set_name || card.set || 'Unknown Set';
+        const code = (card.set || '').toUpperCase();
+        const num  = card.collector_number ? ` · #${card.collector_number}` : '';
+        return `<div class="art-drop-item ${i === selectedArtIdx ? 'selected' : ''}" data-art-idx="${i}">
+          <img src="${img}" alt="" loading="lazy">
+          <div>
+            <div class="art-drop-item-set">${esc(name)}</div>
+            <div class="art-drop-item-code">${esc(code)}${esc(num)}</div>
+          </div>
+        </div>`;
       }).join('');
+
+      updateArtTrigger();
+    }
+
+    function updateArtTrigger() {
+      const card = artOptions.filter(c => getNormalImg(c))[selectedArtIdx];
+      if (!card) return;
+      document.getElementById('artDropThumb').src   = getSmallImg(card) || getNormalImg(card);
+      document.getElementById('artDropName').textContent = card.set_name || 'Unknown Set';
+      document.getElementById('artDropSet').textContent  =
+        (card.set || '').toUpperCase() + (card.collector_number ? ` · #${card.collector_number}` : '');
+    }
+
+    function toggleArtDropdown() {
+      const list    = document.getElementById('artDropdownList');
+      const trigger = document.getElementById('artDropdownTrigger');
+      const opening = !list.classList.contains('open');
+      list.classList.toggle('open', opening);
+      trigger.classList.toggle('open', opening);
+    }
+
+    function closeArtDropdown() {
+      document.getElementById('artDropdownList').classList.remove('open');
+      document.getElementById('artDropdownTrigger').classList.remove('open');
     }
 
     function pickArt(idx) {
       selectedArtIdx   = idx;
       selectedCardData = artOptions.filter(c => getNormalImg(c))[idx];
-      document.querySelectorAll('.art-opt').forEach((el, i) => el.classList.toggle('selected', i === idx));
+      document.querySelectorAll('.art-drop-item').forEach((el, i) => el.classList.toggle('selected', i === idx));
+      updateArtTrigger();
       updatePreview();
+      closeArtDropdown();
     }
 
     function updatePreview() {
@@ -1649,6 +1799,13 @@
 
         <div class="card-counters" id="cbadges-${token.id}">${ctrBadges}${modBadges}</div>
 
+        <div class="plus-row">
+          <button class="plus-btn" onclick="quickCounter(${token.id}, -1)">−</button>
+          <span class="plus-label">+1/+1</span>
+          <span class="plus-count" id="pcv-${token.id}">${getPlusCount(token)}</span>
+          <button class="plus-btn" onclick="quickCounter(${token.id},  1)">+</button>
+        </div>
+
         <div class="tap-dots" id="dots-${token.id}">${dots}</div>
 
         <div class="card-controls">
@@ -1756,12 +1913,37 @@
         cb.innerHTML = counterBadgesHTML(token) + modBadges;
       }
 
+      // +1/+1 quick counter display
+      const pcv = document.getElementById(`pcv-${token.id}`);
+      if (pcv) pcv.textContent = getPlusCount(token);
+
       // P/T badge (may have been edited)
       const pt = document.getElementById(`pt-${token.id}`);
       if (pt && token.isCreature) pt.textContent = `${token.power}/${token.toughness}`;
 
       // All-tapped highlight
       el.classList.toggle('all-tapped', token.tapped >= token.quantity && token.quantity > 0);
+    }
+
+    // ══════════════════════════════════════════════════════
+    //  +1/+1 QUICK COUNTER
+    // ══════════════════════════════════════════════════════
+    function getPlusCount(token) {
+      const c = (token.counters || []).find(c => c.type === '+1/+1');
+      return c ? c.count : 0;
+    }
+
+    function quickCounter(id, delta) {
+      const t = tokenById(id);
+      if (!t) return;
+      let c = (t.counters = t.counters || []).find(c => c.type === '+1/+1');
+      if (!c) { c = { type: '+1/+1', count: 0 }; t.counters.push(c); }
+      c.count = Math.max(0, c.count + delta);
+      // Update the quick display
+      const el = document.getElementById(`pcv-${id}`);
+      if (el) el.textContent = c.count;
+      // Keep counter badges in sync
+      refreshCard(t);
     }
 
     // ══════════════════════════════════════════════════════
