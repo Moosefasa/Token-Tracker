@@ -1200,6 +1200,115 @@
     @media (hover: hover) { .hd-item:hover { background: var(--surface2); } }
     .hd-item-icon { color: var(--muted); flex-shrink: 0; }
 
+    /* ── SETTINGS SECTIONS ───────────────────────────────── */
+    .hd-section { padding: 10px 14px 6px; }
+    .hd-section-title { font-size: .72rem; font-weight: 600; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); margin-bottom: 7px; }
+    .settings-chips { display: flex; gap: 5px; flex-wrap: wrap; padding-bottom: 2px; }
+    .settings-chip {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      color: var(--muted);
+      border-radius: 6px;
+      padding: 4px 11px;
+      font-size: .8rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background .12s, border-color .12s, color .12s;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+    .settings-chip:active { transform: scale(.93); }
+    .settings-chip.active { background: var(--accent); border-color: var(--accent); color: #fff; }
+    .hd-divider { height: 1px; background: var(--border); margin: 2px 0; }
+
+    /* ── DICE ROLLER ─────────────────────────────────────── */
+    .dice-dropdown {
+      position: absolute;
+      top: calc(100% + 8px);
+      right: 0;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      width: 210px;
+      box-shadow: 0 8px 32px rgba(0,0,0,.55);
+      opacity: 0;
+      pointer-events: none;
+      transform: translateY(-6px) scale(.97);
+      transform-origin: top right;
+      transition: opacity .15s, transform .15s;
+      z-index: 200;
+      overflow: hidden;
+    }
+    .dice-dropdown.open { opacity: 1; pointer-events: all; transform: translateY(0) scale(1); }
+    .dice-dd-header { padding: 10px 14px 6px; font-size: .72rem; font-weight: 600; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); }
+    .dice-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 5px;
+      padding: 0 10px 10px;
+    }
+    .dice-opt {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      color: var(--text);
+      border-radius: 8px;
+      padding: 8px 4px;
+      font-size: .82rem;
+      font-weight: 700;
+      cursor: pointer;
+      text-align: center;
+      transition: background .12s, border-color .12s;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+    .dice-opt:active { transform: scale(.9); }
+    @media (hover: hover) { .dice-opt:hover { background: var(--border); } }
+    .dice-result-area {
+      padding: 6px 14px 10px;
+      text-align: center;
+      min-height: 60px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 2px;
+    }
+    .dice-result-label { font-size: .72rem; color: var(--muted); }
+    .dice-result-num {
+      font-size: 2.2rem;
+      font-weight: 800;
+      color: var(--text);
+      line-height: 1;
+      transition: color .2s;
+    }
+    .dice-result-num.rolling {
+      animation: diceRoll .38s cubic-bezier(.2,1.4,.5,1);
+    }
+    @keyframes diceRoll {
+      0%   { transform: scale(0.4) rotate(-20deg); opacity: 0; }
+      65%  { transform: scale(1.22) rotate(5deg);  opacity: 1; }
+      100% { transform: scale(1) rotate(0deg);     opacity: 1; }
+    }
+    .dice-history-wrap {
+      border-top: 1px solid var(--border);
+      max-height: 108px;
+      overflow-y: auto;
+    }
+    .dice-history-wrap::-webkit-scrollbar { width: 3px; }
+    .dice-history-wrap::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+    .dice-hist-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 5px 14px;
+      font-size: .78rem;
+      border-bottom: 1px solid var(--border);
+      color: var(--muted);
+    }
+    .dice-hist-item:last-child { border-bottom: none; }
+    .dice-hist-val { font-weight: 700; color: var(--text); }
+    .dice-hist-empty { padding: 10px 14px; font-size: .78rem; color: var(--muted); text-align: center; }
+
     /* ── LIFE TRACKER PANEL ─────────────────────────────── */
     .life-panel-overlay {
       position: fixed;
@@ -1441,36 +1550,79 @@
           <path d="M8 13.5C8 13.5 1.5 9.2 1.5 5.3C1.5 3.3 3.1 2 5 2C6.1 2 7.1 2.55 8 3.5C8.9 2.55 9.9 2 11 2C12.9 2 14.5 3.3 14.5 5.3C14.5 9.2 8 13.5 8 13.5Z" fill="currentColor"/>
         </svg>
       </button>
-      <!-- Menu dropdown -->
-      <div class="header-menu-wrap" id="headerMenuWrap">
-        <button class="btn-icon" id="menuBtn" onclick="toggleHeaderMenu()" title="More actions">
+      <!-- Dice roller -->
+      <div class="header-menu-wrap" id="diceMenuWrap">
+        <button class="btn-icon" id="diceBtn" onclick="toggleDiceRoller()" title="Dice roller">
           <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-            <circle cx="8" cy="3.5" r="1.3" fill="currentColor"/>
-            <circle cx="8" cy="8"   r="1.3" fill="currentColor"/>
-            <circle cx="8" cy="12.5" r="1.3" fill="currentColor"/>
+            <rect x="1.5" y="1.5" width="13" height="13" rx="2.5" stroke="currentColor" stroke-width="1.4"/>
+            <circle cx="5" cy="5"   r="1.1" fill="currentColor"/>
+            <circle cx="11" cy="5"  r="1.1" fill="currentColor"/>
+            <circle cx="5" cy="11"  r="1.1" fill="currentColor"/>
+            <circle cx="11" cy="11" r="1.1" fill="currentColor"/>
+            <circle cx="8" cy="8"   r="1.1" fill="currentColor"/>
+          </svg>
+        </button>
+        <div class="header-dropdown dice-dropdown" id="diceDropdown">
+          <div class="dice-dd-header">Roll Dice</div>
+          <div class="dice-grid">
+            <div class="dice-opt" onclick="rollDice('coin')">🪙</div>
+            <div class="dice-opt" onclick="rollDice('d4')">d4</div>
+            <div class="dice-opt" onclick="rollDice('d6')">d6</div>
+            <div class="dice-opt" onclick="rollDice('d8')">d8</div>
+            <div class="dice-opt" onclick="rollDice('d10')">d10</div>
+            <div class="dice-opt" onclick="rollDice('d12')">d12</div>
+            <div class="dice-opt" onclick="rollDice('d20')">d20</div>
+            <div class="dice-opt" onclick="rollDice('d100')">d%</div>
+          </div>
+          <div class="dice-result-area">
+            <div class="dice-result-label" id="diceResultLabel">tap a die to roll</div>
+            <div class="dice-result-num" id="diceResultNum">—</div>
+          </div>
+          <div class="dice-history-wrap" id="diceHistoryWrap">
+            <div class="dice-hist-empty" id="diceHistEmpty">No rolls yet</div>
+          </div>
+        </div>
+      </div>
+      <!-- Settings dropdown -->
+      <div class="header-menu-wrap" id="headerMenuWrap">
+        <button class="btn-icon" id="menuBtn" onclick="toggleHeaderMenu()" title="Settings">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+            <path d="M8 10a2 2 0 100-4 2 2 0 000 4z" fill="currentColor" opacity=".8"/>
+            <path d="M8 1.5v1.1M8 13.4v1.1M1.5 8h1.1M13.4 8h1.1M3.2 3.2l.77.77M12.03 12.03l.77.77M12.03 3.97l-.77.77M3.97 12.03l-.77.77" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
           </svg>
         </button>
         <div class="header-dropdown" id="headerDropdown">
-          <div class="hd-item" onclick="untapAllTokens();closeHeaderMenu()">
-            <svg class="hd-item-icon" width="14" height="14" viewBox="0 0 16 16" fill="none">
-              <path d="M8 2V8L12 12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-              <circle cx="8" cy="8" r="6" stroke="currentColor" stroke-width="1.5"/>
-            </svg>
-            Untap All
+          <div class="hd-section">
+            <div class="hd-section-title">Starting Life</div>
+            <div class="settings-chips" id="settingsLifeChips">
+              <button class="settings-chip active" onclick="settingsSetLife(20)">20</button>
+              <button class="settings-chip"        onclick="settingsSetLife(30)">30</button>
+              <button class="settings-chip"        onclick="settingsSetLife(40)">40</button>
+            </div>
           </div>
-          <div class="hd-item" onclick="openGlobal();closeHeaderMenu()">
-            <svg class="hd-item-icon" width="14" height="14" viewBox="0 0 16 16" fill="none">
-              <path d="M8 1L10 6H15L11 9.5L12.5 15L8 12L3.5 15L5 9.5L1 6H6L8 1Z" fill="currentColor"/>
-            </svg>
-            Battlefield Effects
+          <div class="hd-divider"></div>
+          <div class="hd-section">
+            <div class="hd-section-title">Players</div>
+            <div class="settings-chips" id="settingsPlayerChips">
+              <button class="settings-chip"        onclick="settingsSetPlayers(1)">1</button>
+              <button class="settings-chip active" onclick="settingsSetPlayers(2)">2</button>
+              <button class="settings-chip"        onclick="settingsSetPlayers(3)">3</button>
+              <button class="settings-chip"        onclick="settingsSetPlayers(4)">4</button>
+            </div>
           </div>
-          <div class="hd-item" onclick="clearEOTEffects();closeHeaderMenu()">
+          <div class="hd-divider"></div>
+          <div class="hd-item" onclick="clearBattlefield();closeHeaderMenu()">
             <svg class="hd-item-icon" width="14" height="14" viewBox="0 0 16 16" fill="none">
-              <circle cx="8" cy="8" r="6" stroke="currentColor" stroke-width="1.5"/>
-              <path d="M8 4V8.5L11 10.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-              <path d="M2.5 2.5L13.5 13.5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" opacity="0.45"/>
+              <path d="M2 4h12M6 4V2.5a.5.5 0 01.5-.5h3a.5.5 0 01.5.5V4M13 4l-.8 9.5a1 1 0 01-1 .9H4.8a1 1 0 01-1-.9L3 4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
             </svg>
-            End Turn
+            Clear Battlefield
+          </div>
+          <div class="hd-item" style="opacity:.55;cursor:default;font-size:.8rem">
+            <svg class="hd-item-icon" width="14" height="14" viewBox="0 0 16 16" fill="none">
+              <circle cx="8" cy="8" r="6" stroke="currentColor" stroke-width="1.4"/>
+              <path d="M8 7v5M8 5v.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+            </svg>
+            Token Tracker v1.0
           </div>
         </div>
       </div>
@@ -1496,6 +1648,7 @@
           </div>
           <div class="life-chip-group" id="startLifeChips">
             <button class="life-chip active" onclick="setStartingLife(20)">20</button>
+            <button class="life-chip"        onclick="setStartingLife(30)">30</button>
             <button class="life-chip"        onclick="setStartingLife(40)">40</button>
           </div>
         </div>
@@ -3111,13 +3264,95 @@
     }
 
     // ══════════════════════════════════════════════════════
-    //  HEADER MENU DROPDOWN
+    //  DICE ROLLER
+    // ══════════════════════════════════════════════════════
+    let diceHistory = [];
+
+    function toggleDiceRoller() {
+      const dd = document.getElementById('diceDropdown');
+      if (dd.classList.contains('open')) {
+        closeDiceRoller();
+      } else {
+        // close settings if open
+        document.getElementById('headerDropdown').classList.remove('open');
+        dd.classList.add('open');
+        setTimeout(() => document.addEventListener('pointerdown', _closeDiceOutside, { once: true }), 0);
+      }
+    }
+    function closeDiceRoller() {
+      document.getElementById('diceDropdown').classList.remove('open');
+    }
+    function _closeDiceOutside(e) {
+      if (!document.getElementById('diceMenuWrap')?.contains(e.target)) closeDiceRoller();
+    }
+
+    function rollDice(type) {
+      let max, result, label;
+      switch (type) {
+        case 'coin':  max = 2;   result = Math.random() < 0.5 ? 'Heads' : 'Tails'; label = '🪙 Coin'; break;
+        case 'd4':   max = 4;   result = Math.floor(Math.random() * 4)   + 1; label = 'd4';  break;
+        case 'd6':   max = 6;   result = Math.floor(Math.random() * 6)   + 1; label = 'd6';  break;
+        case 'd8':   max = 8;   result = Math.floor(Math.random() * 8)   + 1; label = 'd8';  break;
+        case 'd10':  max = 10;  result = Math.floor(Math.random() * 10)  + 1; label = 'd10'; break;
+        case 'd12':  max = 12;  result = Math.floor(Math.random() * 12)  + 1; label = 'd12'; break;
+        case 'd20':  max = 20;  result = Math.floor(Math.random() * 20)  + 1; label = 'd20'; break;
+        case 'd100': max = 100; result = Math.floor(Math.random() * 100) + 1; label = 'd%';  break;
+        default: return;
+      }
+
+      // Animate result
+      const numEl   = document.getElementById('diceResultNum');
+      const lblEl   = document.getElementById('diceResultLabel');
+      numEl.classList.remove('rolling');
+      // Force reflow to restart animation
+      void numEl.offsetWidth;
+      numEl.classList.add('rolling');
+      numEl.textContent  = String(result);
+      lblEl.textContent  = label;
+
+      // Colour nat-20 gold, nat-1 red for dice (not coin)
+      if (type !== 'coin') {
+        numEl.style.color = result === max ? '#ffd966' : result === 1 ? '#ff7070' : 'var(--text)';
+      } else {
+        numEl.style.color = 'var(--text)';
+      }
+
+      // Add to history (most recent first, cap at 30)
+      diceHistory.unshift({ label, result, ts: Date.now() });
+      if (diceHistory.length > 30) diceHistory.pop();
+      _renderDiceHistory();
+    }
+
+    function _renderDiceHistory() {
+      const wrap  = document.getElementById('diceHistoryWrap');
+      const empty = document.getElementById('diceHistEmpty');
+      if (!diceHistory.length) {
+        if (empty) empty.style.display = '';
+        // remove all hist items
+        wrap.querySelectorAll('.dice-hist-item').forEach(el => el.remove());
+        return;
+      }
+      if (empty) empty.style.display = 'none';
+      // Rebuild history items
+      wrap.querySelectorAll('.dice-hist-item').forEach(el => el.remove());
+      diceHistory.forEach(entry => {
+        const item = document.createElement('div');
+        item.className = 'dice-hist-item';
+        item.innerHTML = `<span>${entry.label}</span><span class="dice-hist-val">${entry.result}</span>`;
+        wrap.appendChild(item);
+      });
+    }
+
+    // ══════════════════════════════════════════════════════
+    //  HEADER MENU DROPDOWN (Settings)
     // ══════════════════════════════════════════════════════
     function toggleHeaderMenu() {
       const dd = document.getElementById('headerDropdown');
       if (dd.classList.contains('open')) {
         closeHeaderMenu();
       } else {
+        // close dice if open
+        document.getElementById('diceDropdown').classList.remove('open');
         dd.classList.add('open');
         setTimeout(() => document.addEventListener('pointerdown', _closeMenuOutside, { once: true }), 0);
       }
@@ -3127,6 +3362,21 @@
     }
     function _closeMenuOutside(e) {
       if (!document.getElementById('headerMenuWrap')?.contains(e.target)) closeHeaderMenu();
+    }
+
+    function clearBattlefield() {
+      // Remove all tokens with a fade animation
+      tokens.forEach(t => {
+        const el = document.getElementById(`tc-${t.id}`);
+        if (el) {
+          el.style.transition = 'opacity .2s, transform .2s';
+          el.style.opacity = '0';
+          el.style.transform = 'scale(.85)';
+          setTimeout(() => el.remove(), 220);
+        }
+      });
+      tokens = [];
+      setTimeout(updateEmptyState, 240);
     }
 
     // ══════════════════════════════════════════════════════
@@ -3164,14 +3414,32 @@
       document.querySelectorAll('#playerChips .life-chip').forEach((btn, i) => {
         btn.classList.toggle('active', i + 1 === n);
       });
+      // sync settings chips
+      document.querySelectorAll('#settingsPlayerChips .settings-chip').forEach((btn, i) => {
+        btn.classList.toggle('active', i + 1 === n);
+      });
       renderLifePlayers();
     }
 
     function setStartingLife(n) {
       lifeStarting = n;
+      const lifeVals = [20, 30, 40];
       document.querySelectorAll('#startLifeChips .life-chip').forEach((btn, i) => {
-        btn.classList.toggle('active', (i === 0 ? 20 : 40) === n);
+        btn.classList.toggle('active', lifeVals[i] === n);
       });
+      // sync settings chips
+      document.querySelectorAll('#settingsLifeChips .settings-chip').forEach((btn, i) => {
+        btn.classList.toggle('active', lifeVals[i] === n);
+      });
+    }
+
+    // Settings shortcuts — called from the header settings dropdown
+    function settingsSetLife(n) {
+      setStartingLife(n);
+      // no closeHeaderMenu() so the user can see the active chip update
+    }
+    function settingsSetPlayers(n) {
+      setLifePlayerCount(n);
     }
 
     function resetLifeTotals() {
