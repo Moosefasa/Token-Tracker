@@ -1,5 +1,5 @@
-// MTG Token Tracker — Service Worker v4
-const CACHE  = 'mtg-tokens-v4';
+// MTG Token Tracker — Service Worker v5
+const CACHE  = 'mtg-tokens-v5';
 const ASSETS = [
   './index.html',
   './manifest.json',
@@ -7,6 +7,16 @@ const ASSETS = [
   './icon-512.png',
   './monarch.svg',
   './citys.svg',
+  './icons/heart.svg',
+  './icons/dice.svg',
+  './icons/gear.svg',
+  './icons/star.svg',
+  './icons/plus.svg',
+  './icons/trash.svg',
+  './icons/untap.svg',
+  './icons/effects.svg',
+  './icons/endturn.svg',
+  './icons/chevron-up.svg',
 ];
 
 // Install: pre-cache app shell, then WAIT — do NOT auto-skipWaiting.

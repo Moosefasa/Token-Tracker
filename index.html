@@ -1430,7 +1430,7 @@
     }
     .life-value {
       font-size: clamp(3.2rem, 13vw, 4.8rem);
-      font-weight: 700; color: #fff; line-height: 1;
+      font-weight: 700; color: var(--life-val-col, #fff); line-height: 1;
       letter-spacing: -3px; transition: transform .07s;
       font-variant-numeric: tabular-nums;
     }
@@ -1633,9 +1633,187 @@
       100% { box-shadow: none; }
     }
     .token-card.merge-flash { animation: mergeFlash .5s ease-out forwards; }
+
+    /* ── TOKEN WIZARD ──────────────────────────────────── */
+    .wiz-progress {
+      display: flex; gap: 6px; justify-content: center;
+      padding: 4px 0 16px;
+    }
+    .wiz-dot {
+      width: 8px; height: 8px; border-radius: 50%;
+      background: var(--border); transition: background .2s, transform .2s;
+    }
+    .wiz-dot.active { background: var(--accent); transform: scale(1.3); }
+    .wiz-dot.done   { background: var(--muted); }
+
+    .wiz-step { display: none; }
+    .wiz-step.active { display: block; }
+
+    .wiz-type-grid {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding-bottom: 4px;
+    }
+    .wiz-type-tile {
+      background: var(--surface2); border: 2px solid var(--border);
+      border-radius: 12px; padding: 20px 10px 14px;
+      text-align: center; cursor: pointer;
+      transition: border-color .15s, background .15s, transform .1s;
+      user-select: none; -webkit-user-select: none;
+    }
+    .wiz-type-tile:active { transform: scale(.96); }
+    @media (hover: hover) { .wiz-type-tile:hover { border-color: var(--muted); } }
+    .wiz-type-tile.selected { border-color: var(--accent); background: rgba(200,75,49,.1); }
+    .wiz-type-icon  { font-size: 2rem; line-height: 1; margin-bottom: 7px; }
+    .wiz-type-label { font-size: .9rem; font-weight: 700; color: var(--text); }
+    .wiz-type-sub   { font-size: .7rem; color: var(--muted); margin-top: 3px; line-height: 1.3; }
+
+    .wiz-card-banner {
+      display: none; align-items: center; gap: 12px;
+      padding: 10px 12px; margin-bottom: 12px;
+      background: var(--surface2); border: 1px solid var(--border);
+      border-radius: 10px;
+    }
+    .wiz-card-banner.visible { display: flex; }
+    .wiz-banner-img   { width: 40px; height: 56px; object-fit: cover; border-radius: 4px; flex-shrink: 0; background: var(--bg); }
+    .wiz-banner-info  { flex: 1; min-width: 0; }
+    .wiz-banner-name  { font-size: .88rem; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .wiz-banner-type  { font-size: .72rem; color: var(--muted); margin-top: 2px; }
+    .wiz-banner-clear { background: none; border: none; color: var(--muted); cursor: pointer; font-size: 1rem; padding: 4px; flex-shrink: 0; transition: color .15s; }
+    .wiz-banner-clear:hover { color: var(--text); }
+
+    .wiz-nav { display: flex; gap: 10px; margin-top: 18px; }
+    .btn-wiz-back {
+      background: var(--surface2); border: 1px solid var(--border);
+      color: var(--muted); border-radius: 9px; padding: 13px 16px;
+      font-size: .88rem; font-weight: 600; cursor: pointer; flex-shrink: 0;
+      transition: color .15s, border-color .15s;
+    }
+    .btn-wiz-back:hover { color: var(--text); border-color: var(--muted); }
+    .btn-wiz-next {
+      flex: 1; background: var(--accent); color: #fff;
+      border: none; border-radius: 9px; padding: 13px;
+      font-size: .95rem; font-weight: 700; cursor: pointer;
+      transition: background .15s, transform .1s;
+    }
+    .btn-wiz-next:hover { background: var(--accent-h); }
+    .btn-wiz-next:active { transform: scale(.97); }
+    .btn-wiz-next:disabled { background: var(--border); color: var(--muted); cursor: not-allowed; transform: none; }
+    .btn-wiz-submit {
+      flex: 1; background: var(--green); color: var(--green-t);
+      border: 1px solid #4aaa7a; border-radius: 9px; padding: 13px;
+      font-size: .95rem; font-weight: 700; cursor: pointer;
+      transition: background .15s, transform .1s;
+    }
+    .btn-wiz-submit:hover { background: #2a5a2a; }
+    .btn-wiz-submit:active { transform: scale(.97); }
+
+    .wiz-manual-hint { text-align: center; margin-top: 8px; }
+    .wiz-manual-hint button {
+      background: none; border: none; color: var(--muted);
+      font-size: .78rem; cursor: pointer;
+      text-decoration: underline; text-underline-offset: 2px;
+      padding: 4px; transition: color .15s;
+    }
+    .wiz-manual-hint button:hover { color: var(--text); }
+    .wiz-step-label {
+      font-size: .72rem; font-weight: 700; text-transform: uppercase;
+      letter-spacing: .06em; color: var(--muted); margin-bottom: 14px;
+    }
+
+    /* ── SPLASH SCREEN ──────────────────────────────────── */
+    .splash-overlay {
+      position: fixed; inset: 0; z-index: 800;
+      background: var(--bg);
+      display: flex; align-items: center; justify-content: center;
+      padding: 32px 24px;
+      transition: opacity .4s cubic-bezier(.4,0,.2,1), transform .4s cubic-bezier(.4,0,.2,1);
+    }
+    .splash-overlay.out { opacity: 0; transform: scale(.96); pointer-events: none; }
+    .splash-inner  { max-width: 300px; width: 100%; text-align: center; }
+    .splash-logo   { margin-bottom: 22px; }
+    .splash-logo svg { filter: drop-shadow(0 4px 22px rgba(200,75,49,.55)); }
+    .splash-title  { font-size: 1.65rem; font-weight: 800; color: var(--text); margin-bottom: 6px; }
+    .splash-sub    { font-size: .88rem; color: var(--muted); margin-bottom: 28px; }
+    .splash-life-label {
+      font-size: .72rem; font-weight: 700; text-transform: uppercase;
+      letter-spacing: .06em; color: var(--muted); margin-bottom: 10px;
+    }
+    .splash-chips  { display: flex; gap: 10px; justify-content: center; margin-bottom: 28px; }
+    .splash-chip {
+      flex: 1; background: var(--surface2); border: 2px solid var(--border);
+      color: var(--text); border-radius: 11px; padding: 16px 10px;
+      font-size: 1.25rem; font-weight: 800; cursor: pointer;
+      transition: border-color .15s, background .15s, color .15s; user-select: none;
+    }
+    @media (hover: hover) { .splash-chip:hover { border-color: var(--muted); } }
+    .splash-chip:active { transform: scale(.95); }
+    .splash-chip.active { border-color: var(--accent); color: var(--accent); background: rgba(200,75,49,.1); }
+    .btn-splash-start {
+      width: 100%; background: var(--accent); color: #fff;
+      border: none; border-radius: 13px; padding: 17px;
+      font-size: 1.05rem; font-weight: 700; cursor: pointer;
+      transition: background .15s, transform .1s;
+      box-shadow: 0 4px 22px rgba(200,75,49,.38);
+    }
+    .btn-splash-start:hover  { background: var(--accent-h); }
+    .btn-splash-start:active { transform: scale(.97); }
+
+    /* ── LIGHT MODE ─────────────────────────────────────── */
+    [data-theme="light"] {
+      --bg:      #ebebf4;
+      --surface: #ffffff;
+      --surface2:#f2f2fa;
+      --border:  #d4d4e6;
+      --text:    #1a1a2e;
+      --muted:   #828294;
+    }
+    [data-theme="light"] header { background: #fff; border-bottom-color: #d4d4e6; }
+    [data-theme="light"] .life-panel { background: #eeeef8; }
+    [data-theme="light"] .life-value { color: #1a1a2e !important; }
+    [data-theme="light"] .life-value.dead { color: #cc2222 !important; }
+    [data-theme="light"] .life-name { color: rgba(26,26,46,.55) !important; }
+    [data-theme="light"] .life-tally.positive { color: #2a8a2a; }
+    [data-theme="light"] .life-tally.negative { color: #cc2222; }
+
+    /* Theme toggle in settings dropdown */
+    .theme-toggle-row {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 10px 14px;
+    }
+    .theme-toggle-label { font-size: .88rem; color: var(--text); }
+    .theme-icon-toggle {
+      display: flex; background: var(--surface2); border: 1px solid var(--border);
+      border-radius: 20px; padding: 2px; gap: 2px;
+    }
+    .theme-icon-btn {
+      background: none; border: none; border-radius: 16px;
+      padding: 4px 9px; cursor: pointer; font-size: .82rem;
+      color: var(--muted); transition: background .15s, color .15s;
+      user-select: none;
+    }
+    .theme-icon-btn.active { background: var(--accent); color: #fff; }
   </style>
 </head>
 <body>
+
+  <!-- SPLASH SCREEN -->
+  <div class="splash-overlay" id="splashOverlay">
+    <div class="splash-inner">
+      <div class="splash-logo">
+        <svg width="72" height="72" viewBox="0 0 20 20" fill="none">
+          <path d="M10 2L12.5 7.5H18L13.5 11L15.5 17L10 13.5L4.5 17L6.5 11L2 7.5H7.5L10 2Z" fill="#c84b31"/>
+        </svg>
+      </div>
+      <h1 class="splash-title">Token Tracker</h1>
+      <p class="splash-sub">Your MTG battlefield companion</p>
+      <p class="splash-life-label">Starting Life Total</p>
+      <div class="splash-chips">
+        <button class="splash-chip active" id="splashChip20" onclick="setSplashLife(20)">20</button>
+        <button class="splash-chip"        id="splashChip30" onclick="setSplashLife(30)">30</button>
+        <button class="splash-chip"        id="splashChip40" onclick="setSplashLife(40)">40</button>
+      </div>
+      <button class="btn-splash-start" onclick="dismissSplash()">Start Playing</button>
+    </div>
+  </div>
 
   <!-- HEADER -->
   <header>
@@ -1647,14 +1825,14 @@
     </div>
     <div class="header-actions">
       <!-- Life tracker -->
-      <button class="btn-icon" id="lifeBtn" onclick="openLifePanel()" title="Life totals">
+      <button class="btn-icon" id="lifeBtn" onclick="openLifePanel()" title="Life totals" data-icon="heart">
         <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
           <path d="M8 13.5C8 13.5 1.5 9.2 1.5 5.3C1.5 3.3 3.1 2 5 2C6.1 2 7.1 2.55 8 3.5C8.9 2.55 9.9 2 11 2C12.9 2 14.5 3.3 14.5 5.3C14.5 9.2 8 13.5 8 13.5Z" fill="currentColor"/>
         </svg>
       </button>
       <!-- Dice roller -->
       <div class="header-menu-wrap" id="diceMenuWrap">
-        <button class="btn-icon" id="diceBtn" onclick="toggleDiceRoller()" title="Dice roller">
+        <button class="btn-icon" id="diceBtn" onclick="toggleDiceRoller()" title="Dice roller" data-icon="dice">
           <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
             <rect x="1.5" y="1.5" width="13" height="13" rx="2.5" stroke="currentColor" stroke-width="1.4"/>
             <circle cx="5" cy="5"   r="1.1" fill="currentColor"/>
@@ -1694,7 +1872,7 @@
       </div>
       <!-- Settings dropdown -->
       <div class="header-menu-wrap" id="headerMenuWrap">
-        <button class="btn-icon" id="menuBtn" onclick="toggleHeaderMenu()" title="Settings">
+        <button class="btn-icon" id="menuBtn" onclick="toggleHeaderMenu()" title="Settings" data-icon="gear">
           <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
             <path d="M8 10a2 2 0 100-4 2 2 0 000 4z" fill="currentColor" opacity=".8"/>
             <path d="M8 1.5v1.1M8 13.4v1.1M1.5 8h1.1M13.4 8h1.1M3.2 3.2l.77.77M12.03 12.03l.77.77M12.03 3.97l-.77.77M3.97 12.03l-.77.77" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
@@ -1717,6 +1895,15 @@
               <button class="settings-chip active" onclick="settingsSetPlayers(2)">2</button>
               <button class="settings-chip"        onclick="settingsSetPlayers(3)">3</button>
               <button class="settings-chip"        onclick="settingsSetPlayers(4)">4</button>
+            </div>
+          </div>
+          <div class="hd-divider"></div>
+          <div class="hd-divider"></div>
+          <div class="theme-toggle-row">
+            <span class="theme-toggle-label">Theme</span>
+            <div class="theme-icon-toggle">
+              <button class="theme-icon-btn active" id="themeBtnDark"  onclick="setTheme('dark')">🌙 Dark</button>
+              <button class="theme-icon-btn"        id="themeBtnLight" onclick="setTheme('light')">☀️ Light</button>
             </div>
           </div>
           <div class="hd-divider"></div>
@@ -1836,243 +2023,235 @@
     </div>
   </div>
 
-  <!-- GENERATE TOKEN MODAL -->
+  <!-- GENERATE TOKEN MODAL — 7-step wizard -->
   <div class="modal-overlay" id="modalOverlay" onclick="handleOverlayClick(event)">
     <div class="modal" id="modal">
       <div class="modal-drag"></div>
       <div class="modal-header">
-        <span class="modal-title">Generate Token</span>
+        <span class="modal-title" id="wizModalTitle">Token Type</span>
         <button class="modal-close" onclick="closeModal()">✕</button>
       </div>
       <div class="modal-body">
 
-        <!-- Selected preview -->
-        <div class="preview-strip" id="previewStrip">
-          <img class="preview-thumb" id="previewThumb" src="" alt="">
-          <div class="preview-info">
-            <div class="preview-name" id="previewName">—</div>
-            <div class="preview-type" id="previewType">—</div>
-          </div>
+        <!-- Progress dots (7 steps) -->
+        <div class="wiz-progress" id="wizProgress">
+          <div class="wiz-dot"></div>
+          <div class="wiz-dot"></div>
+          <div class="wiz-dot"></div>
+          <div class="wiz-dot"></div>
+          <div class="wiz-dot"></div>
+          <div class="wiz-dot"></div>
+          <div class="wiz-dot"></div>
         </div>
 
-        <!-- Token search -->
-        <div class="form-group" id="searchSection">
-          <label class="form-label">Token Name</label>
-          <input
-            type="text"
-            id="tokenSearch"
-            class="form-input"
-            placeholder="Saproling, Treasure, Food, Copy…"
-            autocomplete="off"
-            spellcheck="false"
-            oninput="onSearchInput()"
-          >
-          <div class="search-drop" id="searchDrop"></div>
-          <div class="manual-toggle-row">
-            <button class="btn-manual-toggle" type="button" onmousedown="event.preventDefault();enableManual()">
-              ✏️ Create manually instead
-            </button>
-          </div>
-        </div>
-
-        <!-- Art selection (shown when >1 printing) -->
-        <div id="artSection" style="display:none">
-          <div class="section-divider"></div>
-          <div class="form-group">
-            <label class="form-label">Art Version</label>
-            <div class="art-dropdown-trigger" id="artDropdownTrigger" onclick="toggleArtDropdown()">
-              <img class="art-drop-thumb" id="artDropThumb" src="" alt="">
-              <div class="art-drop-label">
-                <div class="art-drop-name" id="artDropName">Select art version</div>
-                <div class="art-drop-set"  id="artDropSet"></div>
-              </div>
-              <span class="art-drop-arrow">▾</span>
+        <!-- ── Step 1: Type ─────────────────────────────── -->
+        <div class="wiz-step" id="wizStep1">
+          <div class="wiz-step-label">What type of token?</div>
+          <div class="wiz-type-grid">
+            <div class="wiz-type-tile" data-type="Creature"    onclick="wizSelectType('Creature')">
+              <div class="wiz-type-icon">🐲</div>
+              <div class="wiz-type-label">Creature</div>
+              <div class="wiz-type-sub">Saproling, Goblin, Spirit…</div>
             </div>
-            <div class="art-dropdown-list" id="artDropdownList"></div>
-          </div>
-        </div>
-
-        <!-- Copy card search (shown for Copy tokens) -->
-        <div id="copySection" style="display:none">
-          <div class="section-divider"></div>
-          <div class="form-group">
-            <label class="form-label">Card Being Copied</label>
-            <input type="text" id="copySearch" class="form-input"
-              placeholder="Search any permanent (creature, artifact…)"
-              autocomplete="off" spellcheck="false" oninput="onCopyInput()">
-            <div class="search-drop" id="copyDrop"></div>
-            <div class="preview-strip" id="copyPreviewStrip" style="margin-top:8px;display:none">
-              <img class="preview-thumb" id="copyThumb" src="" alt="">
-              <div class="preview-info">
-                <div class="preview-name" id="copyCardName">—</div>
-                <div class="preview-type" id="copyCardType">—</div>
-              </div>
+            <div class="wiz-type-tile" data-type="Artifact"    onclick="wizSelectType('Artifact')">
+              <div class="wiz-type-icon">⚙️</div>
+              <div class="wiz-type-label">Artifact</div>
+              <div class="wiz-type-sub">Treasure, Food, Clue…</div>
+            </div>
+            <div class="wiz-type-tile" data-type="Enchantment" onclick="wizSelectType('Enchantment')">
+              <div class="wiz-type-icon">✨</div>
+              <div class="wiz-type-label">Enchantment</div>
+              <div class="wiz-type-sub">Role, Shard, Cursed…</div>
+            </div>
+            <div class="wiz-type-tile" data-type="Copy"        onclick="wizSelectType('Copy')">
+              <div class="wiz-type-icon">📋</div>
+              <div class="wiz-type-label">Copy</div>
+              <div class="wiz-type-sub">Exact copy of a permanent</div>
             </div>
           </div>
         </div>
 
-        <!-- Power / Toughness (creatures only, or manual creature) -->
-        <div id="ptSection" style="display:none">
-          <div class="section-divider"></div>
-          <div class="pt-row">
+        <!-- ── Step 2: Search ───────────────────────────── -->
+        <div class="wiz-step" id="wizStep2">
+          <!-- Selected card banner -->
+          <div class="wiz-card-banner" id="wizBanner">
+            <img class="wiz-banner-img" id="wizBannerImg" src="" alt="">
+            <div class="wiz-banner-info">
+              <div class="wiz-banner-name" id="wizBannerName"></div>
+              <div class="wiz-banner-type" id="wizBannerType"></div>
+            </div>
+            <button class="wiz-banner-clear" onclick="wizClearCard()" title="Clear">✕</button>
+          </div>
+
+          <div class="form-group" id="wizSearchGroup">
+            <label class="form-label" id="wizSearchLabel">Token Name</label>
+            <input type="text" id="wizSearch" class="form-input"
+                   placeholder="Start typing…" autocomplete="off" spellcheck="false"
+                   oninput="wizOnSearchInput()">
+            <div class="search-drop" id="wizSearchDrop"></div>
+          </div>
+
+          <!-- Art version (shown when >1 printing) -->
+          <div id="wizArtSection" style="display:none">
+            <div class="section-divider"></div>
+            <div class="form-group">
+              <label class="form-label">Art Version</label>
+              <div class="art-dropdown-trigger" id="wizArtTrigger" onclick="wizToggleArtDrop()">
+                <img class="art-drop-thumb" id="wizArtThumb" src="" alt="">
+                <div class="art-drop-label">
+                  <div class="art-drop-name" id="wizArtName">Select version</div>
+                  <div class="art-drop-set"  id="wizArtSet"></div>
+                </div>
+                <span class="art-drop-arrow">▾</span>
+              </div>
+              <div class="art-dropdown-list" id="wizArtList"></div>
+            </div>
+          </div>
+
+          <div class="wiz-manual-hint" id="wizManualHint">
+            <button onmousedown="event.preventDefault();wizGoManual()">✏️ Create manually instead</button>
+          </div>
+
+          <div class="wiz-nav">
+            <button class="btn-wiz-back" onclick="wizGo(1)">← Back</button>
+            <button class="btn-wiz-next" id="wizNext2" onclick="wizGo(3)" disabled>Continue</button>
+          </div>
+        </div>
+
+        <!-- ── Step 3: Qty + P/T ────────────────────────── -->
+        <div class="wiz-step" id="wizStep3">
+          <div class="form-group">
+            <label class="form-label">Quantity</label>
+            <div class="modal-qty-row">
+              <button class="modal-qty-btn" onclick="wizAdjQty(-1)">−</button>
+              <input type="number" id="wizQty" class="form-input modal-qty-input"
+                     value="1" min="1" max="99" inputmode="numeric">
+              <button class="modal-qty-btn" onclick="wizAdjQty(1)">+</button>
+            </div>
+          </div>
+          <div class="pt-row" id="wizPtRow">
             <div class="form-group">
               <label class="form-label">Power</label>
-              <input type="text" id="tokenPower" class="form-input" value="1" inputmode="decimal">
+              <input type="text" id="wizPower" class="form-input" value="1" inputmode="decimal">
             </div>
             <div class="form-group">
               <label class="form-label">Toughness</label>
-              <input type="text" id="tokenToughness" class="form-input" value="1" inputmode="decimal">
+              <input type="text" id="wizToughness" class="form-input" value="1" inputmode="decimal">
             </div>
+          </div>
+          <div class="wiz-nav">
+            <button class="btn-wiz-back" onclick="wizGo(2)">← Back</button>
+            <button class="btn-wiz-next" onclick="wizGo(4)">Continue</button>
           </div>
         </div>
 
-        <!-- ── MANUAL CREATION FORM ─────────────────────────── -->
-        <div id="manualSection" style="display:none">
-          <div class="section-divider"></div>
-
+        <!-- ── Step 4: Colors ───────────────────────────── -->
+        <div class="wiz-step" id="wizStep4">
           <div class="form-group">
-            <label class="form-label">Token Name</label>
-            <input type="text" id="manualName" class="form-input" placeholder="e.g. Goblin, Spirit, Copy…"
-                   oninput="onManualNameInput()">
-          </div>
-
-          <div class="form-group">
-            <label class="form-label">Type</label>
-            <select id="manualType" class="form-input" onchange="onManualTypeChange()">
-              <option value="Creature">Creature Token</option>
-              <option value="Artifact">Artifact Token</option>
-              <option value="Enchantment">Enchantment Token</option>
-              <option value="Instant">Instant (Copy)</option>
-              <option value="Sorcery">Sorcery (Copy)</option>
-              <option value="Other">Other / Custom</option>
-            </select>
-          </div>
-
-          <div class="form-group" id="manualSubtypeRow">
-            <label class="form-label">Subtype / Creature Type</label>
-            <input type="text" id="manualSubtype" class="form-input" placeholder="e.g. Goblin Warrior, Human, Treasure">
-          </div>
-
-          <div class="form-group">
-            <label class="form-label">Colors</label>
-            <div class="color-chips">
-              <div class="color-chip chip-w" title="White"   data-color="W" onclick="toggleColor(this)">W</div>
-              <div class="color-chip chip-u" title="Blue"    data-color="U" onclick="toggleColor(this)">U</div>
-              <div class="color-chip chip-b" title="Black"   data-color="B" onclick="toggleColor(this)">B</div>
-              <div class="color-chip chip-r" title="Red"     data-color="R" onclick="toggleColor(this)">R</div>
-              <div class="color-chip chip-g" title="Green"   data-color="G" onclick="toggleColor(this)">G</div>
-              <div class="color-chip chip-c" title="Colorless" data-color="C" onclick="toggleColor(this)">∅</div>
+            <label class="form-label">Card Color</label>
+            <div class="color-chips" id="wizColorChips">
+              <div class="color-chip chip-w" data-color="W" onclick="wizToggleColor(this)" title="White">W</div>
+              <div class="color-chip chip-u" data-color="U" onclick="wizToggleColor(this)" title="Blue">U</div>
+              <div class="color-chip chip-b" data-color="B" onclick="wizToggleColor(this)" title="Black">B</div>
+              <div class="color-chip chip-r" data-color="R" onclick="wizToggleColor(this)" title="Red">R</div>
+              <div class="color-chip chip-g" data-color="G" onclick="wizToggleColor(this)" title="Green">G</div>
+              <div class="color-chip chip-c" data-color="C" onclick="wizToggleColor(this)" title="Colorless">∅</div>
             </div>
           </div>
-
-          <div id="manualPtRow" class="pt-row" style="display:none">
-            <div class="form-group">
-              <label class="form-label">Power</label>
-              <input type="text" id="manualPower" class="form-input" value="1" inputmode="decimal">
-            </div>
-            <div class="form-group">
-              <label class="form-label">Toughness</label>
-              <input type="text" id="manualToughness" class="form-input" value="1" inputmode="decimal">
-            </div>
-          </div>
-
-          <div class="form-group">
-            <label class="form-label">Abilities <span style="font-weight:400;text-transform:none;font-size:.75rem">(optional)</span></label>
-            <textarea id="manualAbilities" class="form-textarea" placeholder="Flying&#10;Deathtouch&#10;When this token enters, draw a card…"></textarea>
-          </div>
-
-          <div class="manual-toggle-row" style="justify-content:flex-start">
-            <button class="btn-manual-toggle" type="button" onclick="disableManual()">
-              ← Back to search
-            </button>
+          <div class="wiz-nav">
+            <button class="btn-wiz-back" onclick="wizGo(3)">← Back</button>
+            <button class="btn-wiz-next" onclick="wizGo(5)">Continue</button>
           </div>
         </div>
 
-        <!-- ── MODIFIERS (collapsible) ──────────────────────── -->
-        <div class="section-divider"></div>
-        <details id="modifiersDetails">
-          <summary style="list-style:none;cursor:pointer;display:flex;align-items:center;justify-content:space-between;padding:2px 0 8px">
-            <span class="form-label" style="margin:0">Modifiers</span>
-            <span style="font-size:0.75rem;color:var(--muted)">optional ▾</span>
-          </summary>
-
+        <!-- ── Step 5: Subtypes ─────────────────────────── -->
+        <div class="wiz-step" id="wizStep5">
           <div class="form-group">
-            <label class="form-label">Keywords</label>
+            <label class="form-label">Subtypes <span style="font-weight:400;text-transform:none;font-size:.75rem">(optional)</span></label>
+            <input type="text" id="wizSubtype" class="form-input"
+                   placeholder="e.g. Goblin Warrior, Treasure">
+          </div>
+          <div class="wiz-nav">
+            <button class="btn-wiz-back" onclick="wizGo(4)">← Back</button>
+            <button class="btn-wiz-next" onclick="wizGo(6)">Continue</button>
+          </div>
+        </div>
+
+        <!-- ── Step 6: Keywords ─────────────────────────── -->
+        <div class="wiz-step" id="wizStep6">
+          <div class="form-group">
+            <label class="form-label">Keywords <span style="font-weight:400;text-transform:none;font-size:.75rem">(tap to toggle)</span></label>
             <div class="modifier-chips">
-              <div class="mod-chip" data-kw="Flying"        onclick="toggleModChip(this)">Flying</div>
-              <div class="mod-chip" data-kw="Trample"       onclick="toggleModChip(this)">Trample</div>
-              <div class="mod-chip" data-kw="Haste"         onclick="toggleModChip(this)">Haste</div>
-              <div class="mod-chip" data-kw="Vigilance"     onclick="toggleModChip(this)">Vigilance</div>
-              <div class="mod-chip" data-kw="Deathtouch"    onclick="toggleModChip(this)">Deathtouch</div>
-              <div class="mod-chip" data-kw="Lifelink"      onclick="toggleModChip(this)">Lifelink</div>
-              <div class="mod-chip" data-kw="Menace"        onclick="toggleModChip(this)">Menace</div>
-              <div class="mod-chip" data-kw="Reach"         onclick="toggleModChip(this)">Reach</div>
-              <div class="mod-chip" data-kw="First Strike"  onclick="toggleModChip(this)">First Strike</div>
-              <div class="mod-chip" data-kw="Double Strike" onclick="toggleModChip(this)">Double Strike</div>
-              <div class="mod-chip" data-kw="Hexproof"      onclick="toggleModChip(this)">Hexproof</div>
+              <div class="mod-chip" data-kw="Flying"         onclick="toggleModChip(this)">Flying</div>
+              <div class="mod-chip" data-kw="Trample"        onclick="toggleModChip(this)">Trample</div>
+              <div class="mod-chip" data-kw="Haste"          onclick="toggleModChip(this)">Haste</div>
+              <div class="mod-chip" data-kw="Vigilance"      onclick="toggleModChip(this)">Vigilance</div>
+              <div class="mod-chip" data-kw="Deathtouch"     onclick="toggleModChip(this)">Deathtouch</div>
+              <div class="mod-chip" data-kw="Lifelink"       onclick="toggleModChip(this)">Lifelink</div>
+              <div class="mod-chip" data-kw="Menace"         onclick="toggleModChip(this)">Menace</div>
+              <div class="mod-chip" data-kw="Reach"          onclick="toggleModChip(this)">Reach</div>
+              <div class="mod-chip" data-kw="First Strike"   onclick="toggleModChip(this)">First Strike</div>
+              <div class="mod-chip" data-kw="Double Strike"  onclick="toggleModChip(this)">Double Strike</div>
+              <div class="mod-chip" data-kw="Hexproof"       onclick="toggleModChip(this)">Hexproof</div>
               <div class="mod-chip" data-kw="Indestructible" onclick="toggleModChip(this)">Indestructible</div>
+              <div class="mod-chip" data-kw="Ward"           onclick="toggleModChip(this)">Ward</div>
+              <div class="mod-chip" data-kw="Flash"          onclick="toggleModChip(this)">Flash</div>
             </div>
           </div>
+          <div class="wiz-nav">
+            <button class="btn-wiz-back" onclick="wizGo(5)">← Back</button>
+            <button class="btn-wiz-next" onclick="wizGo(7)">Continue</button>
+          </div>
+        </div>
 
+        <!-- ── Step 7: Ability Text ─────────────────────── -->
+        <div class="wiz-step" id="wizStep7">
           <div class="form-group">
-            <label class="form-label">Starting Counters</label>
+            <label class="form-label">Ability Text <span style="font-weight:400;text-transform:none;font-size:.75rem">(optional)</span></label>
+            <textarea id="wizAbilities" class="form-textarea" rows="4"
+                      placeholder="Flying&#10;{T}: Add {G}&#10;When this enters, draw a card…"></textarea>
+          </div>
+
+          <details id="wizCounterDetails" style="margin-bottom:12px">
+            <summary style="list-style:none;cursor:pointer;display:flex;align-items:center;justify-content:space-between;padding:2px 0 8px">
+              <span class="form-label" style="margin:0">Starting Counters</span>
+              <span style="font-size:.75rem;color:var(--muted)">optional ▾</span>
+            </summary>
             <div class="counter-row">
               <div class="counter-group">
                 <span class="counter-label" style="color:#4aaa7a">+1/+1</span>
-                <input type="number" class="counter-num" id="ctrPlus" value="0" min="0" max="99" inputmode="numeric">
+                <input type="number" class="counter-num" id="wizCtrPlus"  value="0" min="0" max="99" inputmode="numeric">
               </div>
               <div class="counter-group">
                 <span class="counter-label" style="color:#aa4455">−1/−1</span>
-                <input type="number" class="counter-num" id="ctrMinus" value="0" min="0" max="99" inputmode="numeric">
+                <input type="number" class="counter-num" id="wizCtrMinus" value="0" min="0" max="99" inputmode="numeric">
               </div>
               <div class="counter-group" style="gap:6px">
-                <input type="text"   class="counter-num" id="ctrCustomName" placeholder="name" style="width:52px;font-size:.75rem">
-                <input type="number" class="counter-num" id="ctrCustomVal"  value="0" min="0" max="99" inputmode="numeric">
+                <input type="text"   class="counter-num" id="wizCtrName"   placeholder="name" style="width:52px;font-size:.75rem">
+                <input type="number" class="counter-num" id="wizCtrCustom" value="0" min="0" max="99" inputmode="numeric">
               </div>
             </div>
+          </details>
+
+          <div class="toggle-row" style="padding:4px 0 14px">
+            <div>
+              <div class="toggle-label">Enters Tapped</div>
+              <div class="toggle-sub">All tokens enter already tapped</div>
+            </div>
+            <label class="toggle-switch">
+              <input type="checkbox" id="wizEntersTapped">
+              <span class="toggle-knob"></span>
+            </label>
           </div>
-        </details>
 
-        <div class="section-divider"></div>
-
-        <!-- Enters Tapped toggle -->
-        <div class="toggle-row">
-          <div>
-            <div class="toggle-label">Enters Tapped</div>
-            <div class="toggle-sub">All tokens enter the battlefield already tapped</div>
-          </div>
-          <label class="toggle-switch">
-            <input type="checkbox" id="entersTapped">
-            <span class="toggle-knob"></span>
-          </label>
-        </div>
-
-        <div class="section-divider"></div>
-
-        <!-- Quantity -->
-        <div class="form-group">
-          <label class="form-label">Quantity</label>
-          <div class="modal-qty-row">
-            <button class="modal-qty-btn" onclick="adjustModalQty(-1)">−</button>
-            <input
-              type="number"
-              id="tokenQty"
-              class="form-input modal-qty-input"
-              value="1"
-              min="1"
-              max="99"
-              inputmode="numeric"
-            >
-            <button class="modal-qty-btn" onclick="adjustModalQty(1)">+</button>
+          <div class="wiz-nav">
+            <button class="btn-wiz-back"   onclick="wizGo(6)">← Back</button>
+            <button class="btn-wiz-submit" onclick="wizGenerate()">Add to Battlefield</button>
           </div>
         </div>
 
-        <button class="btn-submit" id="generateBtn" onclick="generateToken()" disabled>
-          Add to Battlefield
-        </button>
-
-      </div>
-    </div>
+      </div><!-- /.modal-body -->
+    </div><!-- /.modal -->
   </div>
 
   <!-- ── GLOBAL EFFECTS SHEET ──────────────────────────────── -->
@@ -2166,27 +2345,82 @@
     // ══════════════════════════════════════════════════════
     //  STATE
     // ══════════════════════════════════════════════════════
-    let tokens     = [];
-    let nextId     = 1;
+    let tokens   = [];
+    let nextId   = 1;
+    let appTheme = 'dark';
+    let splashLife = 20;
 
-    // Modal state
-    let artOptions       = [];
-    let selectedArtIdx   = 0;
-    let selectedCardData = null;
-    let searchTimer      = null;
-    let copyTimer        = null;
-    let copiedCardData   = null;
-    let _nameCache       = {};   // name → first card hit
-    let activeModKws     = new Set();  // selected keyword modifiers
-    let activeDetailId   = null;       // which token the detail sheet is open for
+    // ══════════════════════════════════════════════════════
+    //  THEME
+    // ══════════════════════════════════════════════════════
+    function setTheme(t) {
+      appTheme = t;
+      document.documentElement.setAttribute('data-theme', t === 'light' ? 'light' : '');
+      document.getElementById('themeBtnDark') .classList.toggle('active', t === 'dark');
+      document.getElementById('themeBtnLight').classList.toggle('active', t === 'light');
+      // Re-render life players so background + color variable update
+      if (document.getElementById('lifePlayers').children.length) renderLifePlayers();
+    }
+
+    // ══════════════════════════════════════════════════════
+    //  SPLASH SCREEN
+    // ══════════════════════════════════════════════════════
+    function setSplashLife(n) {
+      splashLife = n;
+      [20, 30, 40].forEach(v => {
+        const btn = document.getElementById('splashChip' + v);
+        if (btn) btn.classList.toggle('active', v === n);
+      });
+    }
+
+    function dismissSplash() {
+      // Apply chosen starting life
+      setStartingLife(splashLife);
+      resetLifeTotals();
+      // Animate out
+      const overlay = document.getElementById('splashOverlay');
+      overlay.classList.add('out');
+      setTimeout(() => { overlay.style.display = 'none'; }, 450);
+    }
+
+    // ══════════════════════════════════════════════════════
+    //  ICONS FETCH SYSTEM
+    // ══════════════════════════════════════════════════════
+    const _ICONS = {};
+    const _iconsReady = (async () => {
+      const names = ['heart','dice','gear','star','plus','trash','untap','effects','endturn'];
+      await Promise.all(names.map(async n => {
+        try {
+          const r = await fetch(`icons/${n}.svg`);
+          if (r.ok) _ICONS[n] = await r.text();
+        } catch(e) { /* icon file not found — fall back to inline SVG */ }
+      }));
+      document.querySelectorAll('[data-icon]').forEach(el => {
+        const n = el.dataset.icon;
+        if (_ICONS[n]) el.innerHTML = _ICONS[n];
+      });
+    })();
+
+    // ── Wizard state ──────────────────────────────────────
+    let wizStep       = 1;
+    let wizType       = '';        // 'Creature'|'Artifact'|'Enchantment'|'Copy'
+    let wizCardData   = null;      // selected Scryfall card
+    let wizArtOptions = [];        // all art printings
+    let wizArtIdx     = 0;
+    let wizSearchTimer = null;
+    let wizIsManual   = false;
+    let wizManualName = '';
+    let wizColors     = new Set();
+    let wizActiveKws  = new Set();
+    let _wizNameCache = {};
+    let activeDetailId = null;     // which token the detail sheet is open for
 
     // ══════════════════════════════════════════════════════
     //  MODAL OPEN / CLOSE
     // ══════════════════════════════════════════════════════
     function openModal() {
-      resetModal();
+      wizReset();
       document.getElementById('modalOverlay').classList.add('open');
-      setTimeout(() => document.getElementById('tokenSearch').focus(), 280);
     }
 
     function closeModal() {
@@ -2197,98 +2431,9 @@
       if (e.target === e.currentTarget) closeModal();
     }
 
-    function resetModal() {
-      selectedCardData = null;
-      selectedArtIdx   = 0;
-      artOptions       = [];
-      isManualMode     = false;
-      manualColors     = new Set();
-
-      // Scryfall section
-      document.getElementById('tokenSearch').value      = '';
-      document.getElementById('tokenQty').value         = 1;
-      document.getElementById('searchDrop').className   = 'search-drop';
-      document.getElementById('searchDrop').innerHTML   = '';
-      document.getElementById('previewStrip').className = 'preview-strip';
-      document.getElementById('searchSection').style.display  = 'block';
-      document.getElementById('artSection').style.display     = 'none';
-      closeArtDropdown();
-      document.getElementById('ptSection').style.display      = 'none';
-      document.getElementById('generateBtn').disabled         = true;
-
-      // Manual section
-      document.getElementById('manualSection').style.display  = 'none';
-      document.getElementById('manualName').value             = '';
-      document.getElementById('manualSubtype').value          = '';
-      document.getElementById('manualAbilities').value        = '';
-      document.getElementById('manualPower').value            = '1';
-      document.getElementById('manualToughness').value        = '1';
-      document.getElementById('manualType').value             = 'Creature';
-      document.querySelectorAll('.color-chip').forEach(c => c.classList.remove('active'));
-      onManualTypeChange();
-
-      // Copy section
-      copiedCardData = null;
-      document.getElementById('copySection').style.display       = 'none';
-      document.getElementById('copySearch').value                = '';
-      document.getElementById('copyDrop').className              = 'search-drop';
-      document.getElementById('copyDrop').innerHTML              = '';
-      document.getElementById('copyPreviewStrip').style.display  = 'none';
-
-      // Modifiers
-      activeModKws = new Set();
-      document.querySelectorAll('.mod-chip').forEach(c => c.classList.remove('active'));
-      document.getElementById('ctrPlus').value       = '0';
-      document.getElementById('ctrMinus').value      = '0';
-      document.getElementById('ctrCustomName').value = '';
-      document.getElementById('ctrCustomVal').value  = '0';
-      const det = document.getElementById('modifiersDetails');
-      if (det && det.open) det.open = false;
-
-      // Enters tapped
-      document.getElementById('entersTapped').checked = false;
-    }
-
     // ══════════════════════════════════════════════════════
-    //  SEARCH
+    //  SCRYFALL UTILITY
     // ══════════════════════════════════════════════════════
-    function onSearchInput() {
-      const q = document.getElementById('tokenSearch').value.trim();
-      clearTimeout(searchTimer);
-      if (q.length < 2) {
-        closeDrop();
-        return;
-      }
-      searchTimer = setTimeout(() => doSearch(q), 180);
-    }
-
-    async function doSearch(q) {
-      const drop = document.getElementById('searchDrop');
-      drop.className = 'search-drop open';
-      drop.innerHTML = '<div class="spinner"></div>';
-
-      try {
-        // Primary: layout:token + name substring match
-        let cards = await scryfallSearch(`layout:token name:${q}`, 'prints');
-        if (!cards.length) {
-          // Fallback: type-line token search
-          cards = await scryfallSearch(`t:token name:${q}`, 'prints');
-        }
-        if (!cards.length) {
-          drop.innerHTML = `
-            <div style="padding:12px 14px;color:var(--muted);font-size:.85rem">
-              No tokens found for "<strong style="color:var(--text)">${esc(q)}</strong>"
-              — <span class="drop-manual-link" style="color:var(--accent);cursor:pointer;text-decoration:underline"
-                      onmousedown="event.preventDefault();enableManual()">create manually instead</span>
-            </div>`;
-          return;
-        }
-        renderDrop(cards);
-      } catch (err) {
-        drop.innerHTML = '<div style="padding:12px 14px;color:var(--muted);font-size:.85rem">Search failed. Check your connection.</div>';
-      }
-    }
-
     async function scryfallSearch(q, unique = 'cards') {
       const url = `https://api.scryfall.com/cards/search?q=${encodeURIComponent(q)}&order=name&unique=${unique}`;
       const res = await fetch(url);
@@ -2297,393 +2442,394 @@
       return data.data || [];
     }
 
-    function renderDrop(cards) {
-      const drop = document.getElementById('searchDrop');
-
-      // Dedupe by name (keep first per name)
-      const seen = new Set();
-      const unique = cards.filter(c => {
-        if (seen.has(c.name)) return false;
-        seen.add(c.name);
-        _nameCache[c.name] = c;
-        return true;
-      }).slice(0, 12);
-
-      drop.innerHTML = unique.map(card => {
-        const img  = getSmallImg(card);
-        const pt   = card.power != null ? `${card.power}/${card.toughness}` : '';
-        const type = card.type_line || '';
-        // Use data-name + mousedown delegation — avoids the double-quote-in-onclick bug
-        return `
-          <div class="search-item" tabindex="0" data-name="${esc(card.name)}">
-            ${img
-              ? `<img class="search-item-img" src="${img}" alt="" loading="lazy">`
-              : `<div class="search-item-img-ph"></div>`
-            }
-            <div>
-              <div class="search-item-name">${esc(card.name)}${pt ? ` <span style="color:var(--muted);font-weight:400">${esc(pt)}</span>` : ''}</div>
-              <div class="search-item-type">${esc(type)}</div>
-            </div>
-          </div>`;
-      }).join('');
-    }
-
-    function closeDrop() {
-      const drop = document.getElementById('searchDrop');
-      drop.className = 'search-drop';
-    }
-
-    // Delegated listeners — mousedown fires before blur
-    document.addEventListener('DOMContentLoaded', () => {
-      // Token search results
-      document.getElementById('searchDrop').addEventListener('mousedown', function(e) {
-        const item = e.target.closest('.search-item[data-name]');
-        if (!item) return;
-        e.preventDefault();
-        selectTokenByName(item.dataset.name);
-      });
-
-      // ── Art dropdown: select on mousedown ──────────────
-      document.getElementById('artDropdownList').addEventListener('mousedown', function(e) {
-        const item = e.target.closest('.art-drop-item[data-art-idx]');
-        if (!item) return;
-        e.preventDefault();
-        pickArt(parseInt(item.dataset.artIdx));
-      });
-
-      // ── Art preview: desktop hover ───────────────────────
-      document.getElementById('artDropdownList').addEventListener('mouseenter', function(e) {
-        const item = e.target.closest('.art-drop-item[data-full-img]');
-        if (!item) return;
-        showArtPreview(item.dataset.fullImg, item);
-      }, true);
-
-      document.getElementById('artDropdownList').addEventListener('mouseleave', function(e) {
-        // Only hide if leaving the list entirely
-        if (!e.relatedTarget || !e.relatedTarget.closest('#artDropdownList')) {
-          hideArtPreview();
-        }
-      }, true);
-
-      // ── Art preview: mobile long-press ───────────────────
-      let _lpTimer = null;
-      document.getElementById('artDropdownList').addEventListener('touchstart', function(e) {
-        const item = e.target.closest('.art-drop-item[data-full-img]');
-        if (!item) return;
-        _lpTimer = setTimeout(() => {
-          e.preventDefault();
-          showArtPreviewMobile(item.dataset.fullImg);
-        }, 450);
-      }, { passive: true });
-
-      document.getElementById('artDropdownList').addEventListener('touchend',  () => clearTimeout(_lpTimer));
-      document.getElementById('artDropdownList').addEventListener('touchmove', () => clearTimeout(_lpTimer));
-    });
-
     // ══════════════════════════════════════════════════════
-    //  COPY CARD SEARCH
+    //  WIZARD CORE
     // ══════════════════════════════════════════════════════
-    function showCopySection(visible) {
-      document.getElementById('copySection').style.display = visible ? 'block' : 'none';
-      if (!visible) { copiedCardData = null; }
+    function wizReset() {
+      wizStep      = 1;
+      wizType      = '';
+      wizCardData  = null;
+      wizArtOptions = [];
+      wizArtIdx    = 0;
+      wizIsManual  = false;
+      wizManualName = '';
+      wizColors    = new Set();
+      wizActiveKws = new Set();
+
+      document.getElementById('wizSearch').value           = '';
+      document.getElementById('wizSearch').oninput         = null;  // will be reassigned below
+      document.getElementById('wizSearchDrop').className   = 'search-drop';
+      document.getElementById('wizSearchDrop').innerHTML   = '';
+      document.getElementById('wizBanner').className       = 'wiz-card-banner';
+      document.getElementById('wizSearchGroup').style.display  = 'block';
+      document.getElementById('wizManualHint').style.display   = 'block';
+      document.getElementById('wizArtSection').style.display   = 'none';
+      document.getElementById('wizNext2').disabled         = true;
+      document.getElementById('wizQty').value              = '1';
+      document.getElementById('wizPower').value            = '1';
+      document.getElementById('wizToughness').value        = '1';
+      document.getElementById('wizSubtype').value          = '';
+      document.getElementById('wizAbilities').value        = '';
+      document.getElementById('wizCtrPlus').value          = '0';
+      document.getElementById('wizCtrMinus').value         = '0';
+      document.getElementById('wizCtrName').value          = '';
+      document.getElementById('wizCtrCustom').value        = '0';
+      document.getElementById('wizEntersTapped').checked   = false;
+      document.querySelectorAll('#wizColorChips .color-chip').forEach(c => c.classList.remove('active'));
+      document.querySelectorAll('#wizStep6 .mod-chip').forEach(c => c.classList.remove('active'));
+      document.querySelectorAll('.wiz-type-tile').forEach(t => t.classList.remove('selected'));
+      const det = document.getElementById('wizCounterDetails');
+      if (det && det.open) det.open = false;
+
+      // Restore default oninput handler for search
+      document.getElementById('wizSearch').oninput = wizOnSearchInput;
+
+      _wizShowStep(1);
     }
 
-    function onCopyInput() {
-      const q = document.getElementById('copySearch').value.trim();
-      clearTimeout(copyTimer);
-      const drop = document.getElementById('copyDrop');
-      if (q.length < 2) { drop.className = 'search-drop'; return; }
-      copyTimer = setTimeout(() => doCopySearch(q), 180);
+    function _wizShowStep(n) {
+      wizStep = n;
+      document.querySelectorAll('.wiz-step').forEach((el, i) => {
+        el.classList.toggle('active', i + 1 === n);
+      });
+      const dots = document.querySelectorAll('#wizProgress .wiz-dot');
+      dots.forEach((d, i) => {
+        d.classList.remove('active','done');
+        if (i + 1 === n) d.classList.add('active');
+        else if (i + 1 < n) d.classList.add('done');
+      });
+      const titles = ['Token Type','Token Search','Quantity & Size','Card Color','Subtypes','Keywords','Ability Text'];
+      document.getElementById('wizModalTitle').textContent = titles[n - 1] || 'Generate Token';
+      if (n === 3) {
+        const showPT = wizType === 'Creature'
+          || (wizCardData && (wizCardData.type_line || '').includes('Creature'));
+        document.getElementById('wizPtRow').style.display = showPT ? 'flex' : 'none';
+      }
+      if (n === 2) setTimeout(() => { if (!wizCardData) document.getElementById('wizSearch').focus(); }, 280);
     }
 
-    async function doCopySearch(q) {
-      const drop = document.getElementById('copyDrop');
+    function wizGo(n) { _wizShowStep(n); }
+
+    // ── Step 1: type selection ────────────────────────────
+    function wizSelectType(type) {
+      wizType = type;
+      document.querySelectorAll('.wiz-type-tile').forEach(t => t.classList.toggle('selected', t.dataset.type === type));
+      const isCopy = type === 'Copy';
+      document.getElementById('wizSearchLabel').textContent = isCopy ? 'Card Being Copied' : 'Token Name';
+      document.getElementById('wizSearch').placeholder      = isCopy ? 'Search any permanent…' : 'Saproling, Treasure, Spirit…';
+      document.getElementById('wizSearch').value = '';
+      document.getElementById('wizSearchDrop').className = 'search-drop';
+      document.getElementById('wizSearchDrop').innerHTML = '';
+      wizCardData = null; wizArtOptions = [];
+      document.getElementById('wizBanner').className = 'wiz-card-banner';
+      document.getElementById('wizSearchGroup').style.display = 'block';
+      document.getElementById('wizManualHint').style.display  = isCopy ? 'none' : 'block';
+      document.getElementById('wizArtSection').style.display  = 'none';
+      document.getElementById('wizNext2').disabled = true;
+      _wizShowStep(2);
+    }
+
+    // ── Step 2: search ────────────────────────────────────
+    function wizOnSearchInput() {
+      if (wizIsManual) {
+        wizManualName = document.getElementById('wizSearch').value.trim();
+        document.getElementById('wizNext2').disabled = wizManualName.length === 0;
+        return;
+      }
+      const q = document.getElementById('wizSearch').value.trim();
+      clearTimeout(wizSearchTimer);
+      if (q.length < 2) { document.getElementById('wizSearchDrop').className = 'search-drop'; return; }
+      wizSearchTimer = setTimeout(() => _wizDoSearch(q), 180);
+    }
+
+    async function _wizDoSearch(q) {
+      const drop = document.getElementById('wizSearchDrop');
       drop.className = 'search-drop open';
       drop.innerHTML = '<div class="spinner"></div>';
       try {
-        // Search non-token permanents by name
-        const cards = await scryfallSearch(`not:token (t:creature OR t:artifact OR t:enchantment OR t:planeswalker OR t:land) name:${q}`, 'cards');
+        let cards;
+        if (wizType === 'Copy') {
+          cards = await scryfallSearch(`not:token (t:creature OR t:artifact OR t:enchantment OR t:planeswalker OR t:land) name:${q}`, 'cards');
+        } else {
+          cards = await scryfallSearch(`layout:token name:${q}`, 'prints');
+          if (!cards.length) cards = await scryfallSearch(`t:token name:${q}`, 'prints');
+        }
         if (!cards.length) {
-          drop.innerHTML = '<div style="padding:10px 14px;color:var(--muted);font-size:.85rem">No cards found</div>';
+          drop.innerHTML = `<div style="padding:12px 14px;color:var(--muted);font-size:.85rem">
+            No results for "<strong style="color:var(--text)">${esc(q)}</strong>"
+            ${wizType !== 'Copy' ? `— <span style="color:var(--accent);cursor:pointer;text-decoration:underline"
+              onmousedown="event.preventDefault();wizGoManual()">create manually</span>` : ''}
+          </div>`;
           return;
         }
         const seen = new Set();
-        const uniq = cards.filter(c => { if (seen.has(c.name)) return false; seen.add(c.name); return true; }).slice(0, 10);
+        const uniq = cards.filter(c => { if (seen.has(c.name)) return false; seen.add(c.name); return true; }).slice(0, 12);
+        uniq.forEach(c => { _wizNameCache[c.name] = c; });
         drop.innerHTML = uniq.map(card => {
-          const img  = getSmallImg(card);
-          const pt   = card.power != null ? ` ${card.power}/${card.toughness}` : '';
-          return `<div class="search-item" data-copy-name="${esc(card.name)}" data-img="${esc(getNormalImg(card))}" data-type="${esc(card.type_line||'')}" data-pt="${esc(pt.trim())}">
-            ${img ? `<img class="search-item-img" src="${img}" alt="" loading="lazy">` : '<div class="search-item-img-ph"></div>'}
+          const img = getSmallImg(card);
+          const pt  = card.power != null ? ` ${card.power}/${card.toughness}` : '';
+          return `<div class="search-item" tabindex="0" data-wiz-name="${esc(card.name)}">
+            ${img ? `<img class="search-item-img" src="${esc(img)}" alt="" loading="lazy">` : '<div class="search-item-img-ph"></div>'}
             <div>
-              <div class="search-item-name">${esc(card.name)}${pt ? `<span style="color:var(--muted);font-weight:400"> ${esc(pt.trim())}</span>` : ''}</div>
+              <div class="search-item-name">${esc(card.name)}${pt ? ` <span style="color:var(--muted);font-weight:400">${esc(pt.trim())}</span>` : ''}</div>
               <div class="search-item-type">${esc(card.type_line||'')}</div>
             </div>
           </div>`;
         }).join('');
-      } catch { drop.innerHTML = '<div style="padding:10px 14px;color:var(--muted);font-size:.85rem">Search failed.</div>'; }
-    }
-
-    // Delegated mousedown for copy drop
-    document.addEventListener('DOMContentLoaded', () => {
-      document.getElementById('copyDrop').addEventListener('mousedown', function(e) {
-        const item = e.target.closest('.search-item[data-copy-name]');
-        if (!item) return;
-        e.preventDefault();
-        copiedCardData = { name: item.dataset.copyName, imageUri: item.dataset.img, type: item.dataset.type };
-        document.getElementById('copySearch').value = item.dataset.copyName;
-        document.getElementById('copyDrop').className = 'search-drop';
-        // Show preview
-        const strip = document.getElementById('copyPreviewStrip');
-        document.getElementById('copyThumb').src      = item.dataset.img || '';
-        document.getElementById('copyCardName').textContent = item.dataset.copyName;
-        document.getElementById('copyCardType').textContent = item.dataset.type;
-        strip.style.display = item.dataset.img ? 'flex' : 'none';
-      });
-    });
-
-    // ══════════════════════════════════════════════════════
-    //  MANUAL MODE
-    // ══════════════════════════════════════════════════════
-    let isManualMode = false;
-    let manualColors = new Set();
-
-    function enableManual() {
-      isManualMode = true;
-      closeDrop();
-      document.getElementById('searchSection').style.display   = 'none';
-      document.getElementById('artSection').style.display      = 'none';
-      document.getElementById('ptSection').style.display       = 'none';
-      document.getElementById('previewStrip').className        = 'preview-strip';
-      document.getElementById('manualSection').style.display   = 'block';
-      // Pre-fill name from whatever was typed in the search box
-      const typed = document.getElementById('tokenSearch').value.trim();
-      if (typed) document.getElementById('manualName').value = typed;
-      onManualTypeChange();
-      onManualNameInput();
-      document.getElementById('manualName').focus();
-    }
-
-    function disableManual() {
-      isManualMode = false;
-      document.getElementById('manualSection').style.display   = 'none';
-      document.getElementById('searchSection').style.display   = 'block';
-      document.getElementById('generateBtn').disabled = !selectedCardData;
-      document.getElementById('tokenSearch').focus();
-    }
-
-    function onManualNameInput() {
-      const name = document.getElementById('manualName').value.trim();
-      document.getElementById('generateBtn').disabled = name.length === 0;
-    }
-
-    function onManualTypeChange() {
-      const type = document.getElementById('manualType').value;
-      const isCreature = type === 'Creature';
-      const isCopy     = type === 'Instant' || type === 'Sorcery';
-      document.getElementById('manualPtRow').style.display = isCreature ? 'flex' : 'none';
-      // Always show subtype row
-      document.getElementById('manualSubtypeRow').style.display = 'block';
-      // Show copy search for spell copies
-      showCopySection(isCopy);
-    }
-
-    function toggleModChip(chip) {
-      const kw = chip.dataset.kw;
-      if (activeModKws.has(kw)) { activeModKws.delete(kw); chip.classList.remove('active'); }
-      else                       { activeModKws.add(kw);    chip.classList.add('active');    }
-    }
-
-    function toggleColor(chip) {
-      const c = chip.dataset.color;
-      if (manualColors.has(c)) {
-        manualColors.delete(c);
-        chip.classList.remove('active');
-      } else {
-        manualColors.add(c);
-        chip.classList.add('active');
+      } catch(err) {
+        drop.innerHTML = '<div style="padding:12px 14px;color:var(--muted);font-size:.85rem">Search failed. Check connection.</div>';
       }
     }
 
-    // ══════════════════════════════════════════════════════
-    //  TOKEN SELECTION & ART
-    // ══════════════════════════════════════════════════════
-    async function selectTokenByName(name) {
-      closeDrop();
-      document.getElementById('tokenSearch').value = name;
-
-      // Fetch all art printings
+    async function wizSelectCard(name) {
+      document.getElementById('wizSearchDrop').className = 'search-drop';
+      wizIsManual = false;
+      // Fetch printings
+      let prints = [];
       try {
-        const prints = await scryfallSearch(`layout:token !"${name}"`, 'prints');
-        artOptions = prints.length ? prints : (_nameCache[name] ? [_nameCache[name]] : []);
-      } catch {
-        artOptions = _nameCache[name] ? [_nameCache[name]] : [];
-      }
-
-      if (!artOptions.length) return;
-
-      selectedArtIdx   = 0;
-      selectedCardData = artOptions[0];
-
-      updatePreview();
-      renderArtDropdown();
-
-      // Show P/T for creature tokens
-      const isCreature = (selectedCardData.type_line || '').includes('Creature');
-      document.getElementById('ptSection').style.display = isCreature ? 'block' : 'none';
-      if (isCreature && selectedCardData.power != null) {
-        document.getElementById('tokenPower').value     = selectedCardData.power;
-        document.getElementById('tokenToughness').value = selectedCardData.toughness;
-      }
-
-      // Show copy section for "Copy" tokens
-      showCopySection(/copy/i.test(selectedCardData.name));
-
-      document.getElementById('generateBtn').disabled = false;
+        if (wizType === 'Copy') {
+          prints = _wizNameCache[name] ? [_wizNameCache[name]] : await scryfallSearch(`!"${name}" not:token`, 'cards');
+        } else {
+          prints = await scryfallSearch(`layout:token !"${name}"`, 'prints');
+          if (!prints.length) prints = _wizNameCache[name] ? [_wizNameCache[name]] : [];
+        }
+      } catch(e) { prints = _wizNameCache[name] ? [_wizNameCache[name]] : []; }
+      if (!prints.length) return;
+      wizArtOptions = prints.filter(c => getNormalImg(c));
+      if (!wizArtOptions.length) wizArtOptions = prints;
+      wizArtIdx   = 0;
+      wizCardData = wizArtOptions[0] || prints[0];
+      _wizUpdateBanner();
+      _wizRenderArtSection();
+      _wizAutoFill(wizCardData);
+      document.getElementById('wizNext2').disabled = false;
     }
 
-    function renderArtDropdown() {
-      const withImg = artOptions.filter(c => getNormalImg(c));
-      const show    = withImg.length > 1;
-      document.getElementById('artSection').style.display = show ? 'block' : 'none';
-      if (!show) return;
+    function _wizUpdateBanner() {
+      if (!wizCardData) { document.getElementById('wizBanner').className = 'wiz-card-banner'; return; }
+      const img = getSmallImg(wizCardData) || getNormalImg(wizCardData);
+      document.getElementById('wizBannerImg').src  = img || '';
+      document.getElementById('wizBannerName').textContent = wizCardData.name || '—';
+      document.getElementById('wizBannerType').textContent = wizCardData.type_line || '—';
+      document.getElementById('wizBanner').className       = 'wiz-card-banner visible';
+      // Hide search + hint, card is selected
+      document.getElementById('wizSearch').value              = '';
+      document.getElementById('wizSearchGroup').style.display = 'none';
+      document.getElementById('wizManualHint').style.display  = 'none';
+    }
 
-      // Populate the grid — ALL printings, no cap
-      document.getElementById('artDropdownList').innerHTML = withImg.map((card, i) => {
+    function wizClearCard() {
+      wizCardData = null; wizArtOptions = [];
+      document.getElementById('wizBanner').className          = 'wiz-card-banner';
+      document.getElementById('wizSearchGroup').style.display = 'block';
+      document.getElementById('wizManualHint').style.display  = wizType === 'Copy' ? 'none' : 'block';
+      document.getElementById('wizArtSection').style.display  = 'none';
+      document.getElementById('wizSearch').value              = '';
+      document.getElementById('wizNext2').disabled            = true;
+      setTimeout(() => document.getElementById('wizSearch').focus(), 50);
+    }
+
+    function _wizRenderArtSection() {
+      const withImg = wizArtOptions.filter(c => getNormalImg(c));
+      if (withImg.length <= 1) { document.getElementById('wizArtSection').style.display = 'none'; return; }
+      document.getElementById('wizArtSection').style.display = 'block';
+      document.getElementById('wizArtList').innerHTML = withImg.map((card, i) => {
         const thumb = getSmallImg(card) || getNormalImg(card);
-        const full  = getNormalImg(card);   // stored for hover/long-press preview
+        const full  = getNormalImg(card);
         const code  = (card.set || '').toUpperCase();
-        return `<div class="art-drop-item ${i === selectedArtIdx ? 'selected' : ''}"
-                     data-art-idx="${i}" data-full-img="${esc(full)}" title="${esc(card.set_name||code)}">
+        return `<div class="art-drop-item ${i === wizArtIdx ? 'selected' : ''}"
+                     data-wiz-art-idx="${i}" data-full-img="${esc(full)}" title="${esc(card.set_name||code)}">
           <img src="${esc(thumb)}" alt="" loading="lazy">
           <div class="art-drop-item-code">${esc(code)}</div>
         </div>`;
       }).join('');
-
-      updateArtTrigger();
+      _wizUpdateArtTrigger(withImg);
     }
 
-    function updateArtTrigger() {
-      const card = artOptions.filter(c => getNormalImg(c))[selectedArtIdx];
+    function _wizUpdateArtTrigger(withImg) {
+      const arr  = withImg || wizArtOptions.filter(c => getNormalImg(c));
+      const card = arr[wizArtIdx];
       if (!card) return;
-      document.getElementById('artDropThumb').src   = getSmallImg(card) || getNormalImg(card);
-      document.getElementById('artDropName').textContent = card.set_name || 'Unknown Set';
-      document.getElementById('artDropSet').textContent  =
-        (card.set || '').toUpperCase() + (card.collector_number ? ` · #${card.collector_number}` : '');
+      document.getElementById('wizArtThumb').src = getSmallImg(card) || getNormalImg(card);
+      document.getElementById('wizArtName').textContent = card.set_name || 'Unknown Set';
+      document.getElementById('wizArtSet').textContent  = (card.set||'').toUpperCase() + (card.collector_number ? ` · #${card.collector_number}` : '');
     }
 
-    function toggleArtDropdown() {
-      const list    = document.getElementById('artDropdownList');
-      const trigger = document.getElementById('artDropdownTrigger');
+    function wizToggleArtDrop() {
+      const list = document.getElementById('wizArtList'), trig = document.getElementById('wizArtTrigger');
       const opening = !list.classList.contains('open');
-      list.classList.toggle('open', opening);
-      trigger.classList.toggle('open', opening);
+      list.classList.toggle('open', opening); trig.classList.toggle('open', opening);
     }
 
-    function closeArtDropdown() {
-      document.getElementById('artDropdownList').classList.remove('open');
-      document.getElementById('artDropdownTrigger').classList.remove('open');
-    }
-
-    function pickArt(idx) {
-      selectedArtIdx   = idx;
-      selectedCardData = artOptions.filter(c => getNormalImg(c))[idx];
-      document.querySelectorAll('.art-drop-item').forEach((el, i) => el.classList.toggle('selected', i === idx));
-      updateArtTrigger();
-      updatePreview();
-      closeArtDropdown();
-    }
-
-    function updatePreview() {
-      if (!selectedCardData) return;
-      const img = getSmallImg(selectedCardData) || getNormalImg(selectedCardData);
-      if (img) {
-        document.getElementById('previewThumb').src = img;
-        document.getElementById('previewStrip').className = 'preview-strip visible';
+    function _wizAutoFill(card) {
+      if (!card) return;
+      // P/T
+      if (card.power != null) {
+        document.getElementById('wizPower').value     = card.power;
+        document.getElementById('wizToughness').value = card.toughness;
       }
-      document.getElementById('previewName').textContent = selectedCardData.name || '—';
-      document.getElementById('previewType').textContent = selectedCardData.type_line || '—';
+      // Colors
+      const colors = new Set(card.colors || []);
+      wizColors = colors;
+      document.querySelectorAll('#wizColorChips .color-chip').forEach(chip => {
+        chip.classList.toggle('active', colors.has(chip.dataset.color));
+      });
+      // Subtypes
+      const tl = card.type_line || '';
+      const dash = tl.indexOf('—');
+      document.getElementById('wizSubtype').value = dash >= 0 ? tl.slice(dash + 2).trim() : '';
+      // Keywords from oracle
+      const oracle = card.oracle_text || '';
+      const kwList = ['Flying','Trample','Haste','Vigilance','Deathtouch','Lifelink','Menace','Reach','First Strike','Double Strike','Hexproof','Indestructible','Ward','Flash'];
+      wizActiveKws = new Set();
+      document.querySelectorAll('#wizStep6 .mod-chip').forEach(chip => {
+        const on = kwList.includes(chip.dataset.kw) && oracle.includes(chip.dataset.kw);
+        chip.classList.toggle('active', on);
+        if (on) wizActiveKws.add(chip.dataset.kw);
+      });
+      // Ability text
+      document.getElementById('wizAbilities').value = oracle;
     }
 
-    // ══════════════════════════════════════════════════════
-    //  MODAL QUANTITY
-    // ══════════════════════════════════════════════════════
-    function adjustModalQty(delta) {
-      const inp = document.getElementById('tokenQty');
+    function wizGoManual() {
+      wizIsManual = true;
+      wizCardData = null;
+      document.getElementById('wizSearchLabel').textContent  = 'Token Name';
+      document.getElementById('wizSearch').placeholder      = 'Enter token name…';
+      document.getElementById('wizSearch').value            = '';
+      document.getElementById('wizSearchDrop').className    = 'search-drop';
+      document.getElementById('wizSearchDrop').innerHTML    = '';
+      document.getElementById('wizBanner').className        = 'wiz-card-banner';
+      document.getElementById('wizArtSection').style.display = 'none';
+      document.getElementById('wizManualHint').style.display = 'none';
+      document.getElementById('wizNext2').disabled          = true;
+      document.getElementById('wizSearch').focus();
+    }
+
+    function wizToggleColor(chip) {
+      const c = chip.dataset.color;
+      if (wizColors.has(c)) { wizColors.delete(c); chip.classList.remove('active'); }
+      else                   { wizColors.add(c);    chip.classList.add('active');    }
+    }
+
+    function toggleModChip(chip) {
+      const kw = chip.dataset.kw;
+      if (wizActiveKws.has(kw)) { wizActiveKws.delete(kw); chip.classList.remove('active'); }
+      else                       { wizActiveKws.add(kw);    chip.classList.add('active');    }
+    }
+
+    function wizAdjQty(delta) {
+      const inp = document.getElementById('wizQty');
       inp.value = Math.max(1, Math.min(99, (parseInt(inp.value) || 1) + delta));
     }
+
+    // ── Delegated listeners for wizard ───────────────────
+    document.addEventListener('DOMContentLoaded', () => {
+      // Wizard search drop
+      document.getElementById('wizSearchDrop').addEventListener('mousedown', function(e) {
+        const item = e.target.closest('.search-item[data-wiz-name]');
+        if (!item) return;
+        e.preventDefault();
+        wizSelectCard(item.dataset.wizName);
+      });
+      // Wizard art list
+      document.getElementById('wizArtList').addEventListener('mousedown', function(e) {
+        const item = e.target.closest('.art-drop-item[data-wiz-art-idx]');
+        if (!item) return;
+        e.preventDefault();
+        const withImg = wizArtOptions.filter(c => getNormalImg(c));
+        wizArtIdx   = parseInt(item.dataset.wizArtIdx);
+        wizCardData = withImg[wizArtIdx];
+        document.querySelectorAll('#wizArtList .art-drop-item').forEach((el, i) => el.classList.toggle('selected', i === wizArtIdx));
+        _wizUpdateArtTrigger(withImg);
+        _wizAutoFill(wizCardData);
+        _wizUpdateBanner();
+        wizToggleArtDrop();
+      });
+      // Art hover preview
+      document.getElementById('wizArtList').addEventListener('mouseenter', function(e) {
+        const item = e.target.closest('.art-drop-item[data-full-img]');
+        if (item) showArtPreview(item.dataset.fullImg, item);
+      }, true);
+      document.getElementById('wizArtList').addEventListener('mouseleave', function(e) {
+        if (!e.relatedTarget || !e.relatedTarget.closest('#wizArtList')) hideArtPreview();
+      }, true);
+      // Mobile long-press
+      let _wlpTimer = null;
+      document.getElementById('wizArtList').addEventListener('touchstart', function(e) {
+        const item = e.target.closest('.art-drop-item[data-full-img]');
+        if (!item) return;
+        _wlpTimer = setTimeout(() => { e.preventDefault(); showArtPreviewMobile(item.dataset.fullImg); }, 450);
+      }, { passive: true });
+      document.getElementById('wizArtList').addEventListener('touchend',  () => clearTimeout(_wlpTimer));
+      document.getElementById('wizArtList').addEventListener('touchmove', () => clearTimeout(_wlpTimer));
+    });
 
     // ══════════════════════════════════════════════════════
     //  GENERATE → ADD TOKEN TO BATTLEFIELD
     // ══════════════════════════════════════════════════════
-    function generateToken() {
-      const qty         = Math.max(1, parseInt(document.getElementById('tokenQty').value) || 1);
-      const entersTap   = document.getElementById('entersTapped').checked;
-      const modKws      = [...activeModKws];
-      const ctrPlus     = parseInt(document.getElementById('ctrPlus').value)  || 0;
-      const ctrMinus    = parseInt(document.getElementById('ctrMinus').value) || 0;
-      const ctrCustName = document.getElementById('ctrCustomName').value.trim();
-      const ctrCustVal  = parseInt(document.getElementById('ctrCustomVal').value) || 0;
-
-      // Build counters array
-      const counters = [];
+    function wizGenerate() {
+      const qty        = Math.max(1, parseInt(document.getElementById('wizQty').value) || 1);
+      const entersTap  = document.getElementById('wizEntersTapped').checked;
+      const ctrPlus    = parseInt(document.getElementById('wizCtrPlus').value)   || 0;
+      const ctrMinus   = parseInt(document.getElementById('wizCtrMinus').value)  || 0;
+      const ctrCustNm  = document.getElementById('wizCtrName').value.trim();
+      const ctrCustVal = parseInt(document.getElementById('wizCtrCustom').value) || 0;
+      const counters   = [];
       if (ctrPlus  > 0) counters.push({ type: '+1/+1', count: ctrPlus });
       if (ctrMinus > 0) counters.push({ type: '−1/−1', count: ctrMinus });
-      if (ctrCustName && ctrCustVal > 0) counters.push({ type: ctrCustName, count: ctrCustVal });
+      if (ctrCustNm && ctrCustVal > 0) counters.push({ type: ctrCustNm, count: ctrCustVal });
+
+      const abilities = document.getElementById('wizAbilities').value.trim();
+      const subtype   = document.getElementById('wizSubtype').value.trim();
+      const colors    = [...wizColors].join('');
+      const isCreature = wizType === 'Creature' || (!!(wizCardData && (wizCardData.type_line||'').includes('Creature')));
+      // Read keyword chips fresh
+      const finalKws = [];
+      document.querySelectorAll('#wizStep6 .mod-chip.active').forEach(c => finalKws.push(c.dataset.kw));
 
       let token;
-
-      if (isManualMode) {
-        const name       = document.getElementById('manualName').value.trim();
+      if (wizIsManual || !wizCardData) {
+        const name = wizIsManual ? wizManualName : '';
         if (!name) return;
-        const typeVal    = document.getElementById('manualType').value;
-        const subtype    = document.getElementById('manualSubtype').value.trim();
-        const isCreature = typeVal === 'Creature';
-        const colors     = [...manualColors].join('');
-        const abilities  = document.getElementById('manualAbilities').value.trim();
-        const typeLine   = isCreature
+        const typeLine = isCreature
           ? `Token Creature${subtype ? ' — ' + subtype : ''}`
-          : `Token ${typeVal}${subtype ? ' — ' + subtype : ''}`;
-
+          : `Token ${wizType}${subtype ? ' — ' + subtype : ''}`;
         token = {
           id: nextId++, name, typeLine, isCreature,
-          power:     isCreature ? (document.getElementById('manualPower').value || '1') : null,
-          toughness: isCreature ? (document.getElementById('manualToughness').value || '1') : null,
-          colors, abilities,
-          quantity: qty, tapped: entersTap ? qty : 0,
-          imageUri: copiedCardData?.imageUri || '',
-          smallUri: '',
-          copiedFrom: copiedCardData || null,
-          modifiers: modKws, counters,
-          entersTapped: entersTap, isManual: true,
-          eotPower: 0, eotToughness: 0,
+          power:     isCreature ? (document.getElementById('wizPower').value || '1') : null,
+          toughness: isCreature ? (document.getElementById('wizToughness').value || '1') : null,
+          colors, abilities, quantity: qty, tapped: entersTap ? qty : 0,
+          imageUri: '', smallUri: '', copiedFrom: null,
+          modifiers: finalKws, counters,
+          entersTapped: entersTap, isManual: true, eotPower: 0, eotToughness: 0,
         };
       } else {
-        if (!selectedCardData) return;
-        const isCreature = (selectedCardData.type_line || '').includes('Creature');
         token = {
           id: nextId++,
-          name:      copiedCardData?.name || selectedCardData.name,
-          typeLine:  selectedCardData.type_line || 'Token',
+          name:      wizCardData.name,
+          typeLine:  wizCardData.type_line || `Token ${wizType}${subtype ? ' — '+subtype : ''}`,
           isCreature,
-          power:     isCreature ? (document.getElementById('tokenPower').value || '*') : null,
-          toughness: isCreature ? (document.getElementById('tokenToughness').value || '*') : null,
-          colors:    (selectedCardData.colors || []).join(''),
-          abilities: selectedCardData.oracle_text || '',
-          quantity:  qty, tapped: entersTap ? qty : 0,
-          imageUri:  copiedCardData?.imageUri || getNormalImg(selectedCardData),
-          smallUri:  getSmallImg(selectedCardData),
-          copiedFrom: copiedCardData || null,
-          modifiers: modKws, counters,
-          entersTapped: entersTap, isManual: false,
-          eotPower: 0, eotToughness: 0,
+          power:     isCreature ? (document.getElementById('wizPower').value || '*') : null,
+          toughness: isCreature ? (document.getElementById('wizToughness').value || '*') : null,
+          colors,
+          abilities,
+          quantity: qty, tapped: entersTap ? qty : 0,
+          imageUri: getNormalImg(wizCardData),
+          smallUri: getSmallImg(wizCardData),
+          copiedFrom: wizType === 'Copy' ? { name: wizCardData.name, imageUri: getNormalImg(wizCardData) } : null,
+          modifiers: finalKws, counters,
+          entersTapped: entersTap, isManual: false, eotPower: 0, eotToughness: 0,
         };
       }
-
       tokens.push(token);
       closeModal();
       appendTokenCard(token);
       updateEmptyState();
     }
+
+    // Keep scryfallSearch alias used elsewhere
+    function generateToken() { wizGenerate(); }
 
     // ══════════════════════════════════════════════════════
     //  CANVAS RENDERING
@@ -3847,7 +3993,10 @@
     }
 
     function _palGradient(pal) {
-      // Rich top-to-bottom gradient: bright palette color at top fading to very dark at bottom
+      if (appTheme === 'light') {
+        // Light tint: swatch color at low opacity over white
+        return `linear-gradient(175deg, ${pal.swatch}28 0%, ${pal.swatch}0e 100%)`;
+      }
       return `linear-gradient(175deg, ${pal.bg} 0%, #07070f 100%)`;
     }
 
@@ -3860,6 +4009,8 @@
         const el  = document.createElement('div');
         el.className = 'life-player';
         el.style.background = _palGradient(pal);
+        // Set CSS variable so .life-value uses the player accent colour in dark mode
+        el.style.setProperty('--life-val-col', pal.accent);
         el.innerHTML = _lifeTapWrapHTML(i);
         container.appendChild(el);
       }
@@ -3873,6 +4024,7 @@
         const playerEl = container.children[idx];
         if (playerEl) {
           playerEl.style.background = _palGradient(pal);
+          playerEl.style.setProperty('--life-val-col', pal.accent);
           playerEl.innerHTML = _lifeTapWrapHTML(idx);
         }
       }
