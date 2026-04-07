@@ -1091,6 +1091,175 @@
     .detail-action-btn:hover { background: var(--border); }
     .detail-action-btn.danger { color: #ff7070; border-color: #ff707055; }
     .detail-action-btn.danger:hover { background: rgba(255,112,112,.1); }
+
+    /* ── HEADER DROPDOWN ────────────────────────────────── */
+    .header-menu-wrap { position: relative; }
+    .header-dropdown {
+      position: absolute;
+      top: calc(100% + 8px);
+      right: 0;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      min-width: 172px;
+      overflow: hidden;
+      box-shadow: 0 8px 32px rgba(0,0,0,.55);
+      opacity: 0;
+      pointer-events: none;
+      transform: translateY(-6px) scale(.97);
+      transform-origin: top right;
+      transition: opacity .15s, transform .15s;
+      z-index: 200;
+    }
+    .header-dropdown.open {
+      opacity: 1;
+      pointer-events: all;
+      transform: translateY(0) scale(1);
+    }
+    .hd-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 11px 14px;
+      cursor: pointer;
+      font-size: .88rem;
+      color: var(--text);
+      border-bottom: 1px solid var(--border);
+      transition: background .12s;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+    .hd-item:last-child { border-bottom: none; }
+    .hd-item:active { background: var(--surface2); }
+    @media (hover: hover) { .hd-item:hover { background: var(--surface2); } }
+    .hd-item-icon { color: var(--muted); flex-shrink: 0; }
+
+    /* ── LIFE TRACKER PANEL ─────────────────────────────── */
+    .life-panel-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,.55);
+      z-index: 180;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity .25s;
+    }
+    .life-panel-overlay.open { opacity: 1; pointer-events: all; }
+    .life-panel {
+      position: absolute;
+      top: 0; left: 0;
+      width: 260px;
+      max-width: 82vw;
+      height: 100%;
+      background: #090910;
+      display: flex;
+      flex-direction: column;
+      transform: translateX(-100%);
+      transition: transform .3s cubic-bezier(.2,.8,.4,1);
+      overflow: hidden;
+      box-shadow: 4px 0 40px rgba(0,0,0,.7);
+    }
+    .life-panel-overlay.open .life-panel { transform: translateX(0); }
+    .life-panel-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 13px 14px 11px;
+      border-bottom: 1px solid #1c1c28;
+      flex-shrink: 0;
+    }
+    .life-panel-title {
+      font-size: .75rem; font-weight: 700;
+      color: #484860; text-transform: uppercase; letter-spacing: 1px;
+    }
+    .life-config { display: flex; gap: 6px; flex: 1; justify-content: center; }
+    .life-chip-group {
+      display: flex;
+      background: #13131e;
+      border-radius: 6px;
+      overflow: hidden;
+      border: 1px solid #1e1e2e;
+    }
+    .life-chip {
+      background: none; border: none;
+      color: #484860; font-size: .75rem; font-weight: 700;
+      padding: 4px 9px; cursor: pointer;
+      transition: background .12s, color .12s;
+      border-right: 1px solid #1e1e2e; line-height: 1;
+    }
+    .life-chip:last-child { border-right: none; }
+    .life-chip.active { background: #1e1e2e; color: #dddde8; }
+    .life-reset-btn {
+      background: none; border: 1px solid #1e1e2e;
+      color: #484860; border-radius: 6px;
+      width: 26px; height: 26px; cursor: pointer;
+      font-size: .95rem; display: flex; align-items: center;
+      justify-content: center; transition: color .15s, border-color .15s; flex-shrink: 0;
+    }
+    .life-reset-btn:hover { color: #dddde8; border-color: #484860; }
+    .life-players { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+    .life-player {
+      flex: 1; display: flex; flex-direction: column;
+      position: relative; overflow: hidden;
+      user-select: none; -webkit-user-select: none;
+    }
+    .life-player:not(:last-child) { border-bottom: 1px solid rgba(255,255,255,.06); }
+    .life-tap-area {
+      flex: 1; display: flex; align-items: center;
+      justify-content: center; cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+      touch-action: none;
+    }
+    .life-tap-area:active { background: rgba(255,255,255,.04); }
+    .life-tap-hint {
+      font-size: 1.5rem; font-weight: 200;
+      opacity: 0; transition: opacity .15s;
+      pointer-events: none; color: rgba(255,255,255,.45); line-height: 1;
+    }
+    @media (hover: hover) { .life-tap-area:hover .life-tap-hint { opacity: 1; } }
+    .life-center {
+      position: absolute; top: 50%; left: 0; right: 0;
+      transform: translateY(-50%); text-align: center;
+      pointer-events: none; z-index: 1;
+    }
+    .life-name {
+      font-size: .6rem; font-weight: 700;
+      text-transform: uppercase; letter-spacing: 1.2px;
+      margin-bottom: 2px; pointer-events: all; cursor: text;
+    }
+    .life-value {
+      font-size: clamp(3.2rem, 13vw, 4.8rem);
+      font-weight: 700; color: #fff; line-height: 1;
+      letter-spacing: -3px; transition: transform .07s;
+      font-variant-numeric: tabular-nums;
+    }
+    .life-value.bump { transform: scale(1.1); }
+    .life-value.dead { color: #ff5555; }
+
+    /* ── DRAG AND DROP ──────────────────────────────────── */
+    .token-card[draggable="true"] { cursor: grab; }
+    .token-card.drag-source { opacity: .32; transform: scale(.96); transition: opacity .15s, transform .15s; }
+    .token-card.drag-over {
+      border-color: #4aaa7a !important;
+      box-shadow: 0 0 0 2px rgba(74,170,122,.3), 0 4px 20px rgba(0,0,0,.4);
+    }
+    .drag-ghost {
+      position: fixed; pointer-events: none; z-index: 9999;
+      border-radius: 10px; overflow: hidden;
+      box-shadow: 0 12px 40px rgba(0,0,0,.7);
+      transform: rotate(3deg) scale(.82);
+      width: 110px; background: var(--surface); border: 1px solid var(--border);
+    }
+    .drag-ghost img { width: 100%; display: block; aspect-ratio: 5/4; object-fit: cover; }
+    .drag-ghost-label {
+      padding: 5px 8px; font-size: .72rem; font-weight: 600;
+      color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    @keyframes mergeFlash {
+      0%   { box-shadow: 0 0 0 3px #4aaa7a, 0 0 0 7px rgba(74,170,122,.25); }
+      100% { box-shadow: none; }
+    }
+    .token-card.merge-flash { animation: mergeFlash .5s ease-out forwards; }
   </style>
 </head>
 <body>
@@ -1104,30 +1273,73 @@
       Token Tracker
     </div>
     <div class="header-actions">
-      <button class="btn-icon" onclick="untapAllTokens()" title="Untap all tokens">
+      <!-- Life tracker -->
+      <button class="btn-icon" id="lifeBtn" onclick="openLifePanel()" title="Life totals">
         <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-          <path d="M8 2V8L12 12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-          <circle cx="8" cy="8" r="6" stroke="currentColor" stroke-width="1.5"/>
+          <path d="M8 13.5C8 13.5 1.5 9.2 1.5 5.3C1.5 3.3 3.1 2 5 2C6.1 2 7.1 2.55 8 3.5C8.9 2.55 9.9 2 11 2C12.9 2 14.5 3.3 14.5 5.3C14.5 9.2 8 13.5 8 13.5Z" fill="currentColor"/>
         </svg>
       </button>
-      <button class="btn-icon" onclick="openGlobal()" title="Battlefield effects" id="globalBtn">
-        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-          <path d="M8 1L10 6H15L11 9.5L12.5 15L8 12L3.5 15L5 9.5L1 6H6L8 1Z" fill="currentColor"/>
-        </svg>
-      </button>
-      <button class="btn-icon" onclick="clearEOTEffects()" title="End turn — clear all EOT effects" id="eotBtn">
-        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-          <circle cx="8" cy="8" r="6" stroke="currentColor" stroke-width="1.5"/>
-          <path d="M8 4V8.5L11 10.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-          <path d="M2.5 2.5L13.5 13.5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" opacity="0.45"/>
-        </svg>
-      </button>
+      <!-- Menu dropdown -->
+      <div class="header-menu-wrap" id="headerMenuWrap">
+        <button class="btn-icon" id="menuBtn" onclick="toggleHeaderMenu()" title="More actions">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+            <circle cx="8" cy="3.5" r="1.3" fill="currentColor"/>
+            <circle cx="8" cy="8"   r="1.3" fill="currentColor"/>
+            <circle cx="8" cy="12.5" r="1.3" fill="currentColor"/>
+          </svg>
+        </button>
+        <div class="header-dropdown" id="headerDropdown">
+          <div class="hd-item" onclick="untapAllTokens();closeHeaderMenu()">
+            <svg class="hd-item-icon" width="14" height="14" viewBox="0 0 16 16" fill="none">
+              <path d="M8 2V8L12 12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+              <circle cx="8" cy="8" r="6" stroke="currentColor" stroke-width="1.5"/>
+            </svg>
+            Untap All
+          </div>
+          <div class="hd-item" onclick="openGlobal();closeHeaderMenu()">
+            <svg class="hd-item-icon" width="14" height="14" viewBox="0 0 16 16" fill="none">
+              <path d="M8 1L10 6H15L11 9.5L12.5 15L8 12L3.5 15L5 9.5L1 6H6L8 1Z" fill="currentColor"/>
+            </svg>
+            Battlefield Effects
+          </div>
+          <div class="hd-item" onclick="clearEOTEffects();closeHeaderMenu()">
+            <svg class="hd-item-icon" width="14" height="14" viewBox="0 0 16 16" fill="none">
+              <circle cx="8" cy="8" r="6" stroke="currentColor" stroke-width="1.5"/>
+              <path d="M8 4V8.5L11 10.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M2.5 2.5L13.5 13.5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" opacity="0.45"/>
+            </svg>
+            End Turn
+          </div>
+        </div>
+      </div>
     </div>
   </header>
 
   <!-- Art full-size preview popup -->
   <div class="art-preview-popup" id="artPreviewPopup" onclick="hideArtPreview()">
     <img id="artPreviewImg" src="" alt="Card art preview">
+  </div>
+
+  <!-- Life Tracker Panel -->
+  <div class="life-panel-overlay" id="lifePanelOverlay" onclick="handleLifeOverlay(event)">
+    <div class="life-panel" id="lifePanel">
+      <div class="life-panel-header">
+        <span class="life-panel-title">Life</span>
+        <div class="life-config">
+          <div class="life-chip-group" id="playerChips">
+            <button class="life-chip active" onclick="setLifePlayerCount(2)">2</button>
+            <button class="life-chip"        onclick="setLifePlayerCount(3)">3</button>
+            <button class="life-chip"        onclick="setLifePlayerCount(4)">4</button>
+          </div>
+          <div class="life-chip-group" id="startLifeChips">
+            <button class="life-chip active" onclick="setStartingLife(20)">20</button>
+            <button class="life-chip"        onclick="setStartingLife(40)">40</button>
+          </div>
+        </div>
+        <button class="life-reset-btn" onclick="resetLifeTotals()" title="Reset">↺</button>
+      </div>
+      <div class="life-players" id="lifePlayers"></div>
+    </div>
   </div>
 
   <!-- Update available banner -->
@@ -2028,6 +2240,7 @@
       el.className  = 'token-card';
       el.id         = `tc-${token.id}`;
       el.innerHTML  = cardHTML(token);
+      initDragEvents(el, token.id);
       return el;
     }
 
@@ -2605,6 +2818,301 @@
       navigator.serviceWorker.getRegistration().then(reg => {
         if (reg && reg.waiting) reg.waiting.postMessage({ type: 'SKIP_WAITING' });
       });
+    }
+
+    // ══════════════════════════════════════════════════════
+    //  HEADER MENU DROPDOWN
+    // ══════════════════════════════════════════════════════
+    function toggleHeaderMenu() {
+      const dd = document.getElementById('headerDropdown');
+      if (dd.classList.contains('open')) {
+        closeHeaderMenu();
+      } else {
+        dd.classList.add('open');
+        setTimeout(() => document.addEventListener('pointerdown', _closeMenuOutside, { once: true }), 0);
+      }
+    }
+    function closeHeaderMenu() {
+      document.getElementById('headerDropdown').classList.remove('open');
+    }
+    function _closeMenuOutside(e) {
+      if (!document.getElementById('headerMenuWrap')?.contains(e.target)) closeHeaderMenu();
+    }
+
+    // ══════════════════════════════════════════════════════
+    //  LIFE TRACKER
+    // ══════════════════════════════════════════════════════
+    const LIFE_BG      = ['#120606','#060612','#060e06','#0e0612'];
+    const LIFE_ACCENTS = ['#c84b31','#3a7aaa','#3a8a3a','#7a50bb'];
+    const LIFE_NAMES   = ['Player 1','Player 2','Player 3','Player 4'];
+
+    let lifePlayerCount  = 2;
+    let lifeStarting     = 20;
+    let lifeTotals       = [20, 20, 20, 20];
+    let _lifeHoldFired   = false;
+    let _lifeHoldTimer   = null;
+    let _lifeHoldIval    = null;
+
+    function openLifePanel() {
+      renderLifePlayers();
+      document.getElementById('lifePanelOverlay').classList.add('open');
+    }
+    function closeLifePanel() {
+      document.getElementById('lifePanelOverlay').classList.remove('open');
+    }
+    function handleLifeOverlay(e) {
+      if (e.target === e.currentTarget) closeLifePanel();
+    }
+
+    function setLifePlayerCount(n) {
+      lifePlayerCount = n;
+      document.querySelectorAll('#playerChips .life-chip').forEach((btn, i) => {
+        btn.classList.toggle('active', i + 2 === n);
+      });
+      renderLifePlayers();
+    }
+
+    function setStartingLife(n) {
+      lifeStarting = n;
+      document.querySelectorAll('#startLifeChips .life-chip').forEach((btn, i) => {
+        btn.classList.toggle('active', (i === 0 ? 20 : 40) === n);
+      });
+    }
+
+    function resetLifeTotals() {
+      for (let i = 0; i < 4; i++) lifeTotals[i] = lifeStarting;
+      renderLifePlayers();
+    }
+
+    function changeLife(idx, delta) {
+      lifeTotals[idx] += delta;
+      const el = document.getElementById(`lv-${idx}`);
+      if (el) {
+        el.textContent = lifeTotals[idx];
+        el.classList.toggle('dead', lifeTotals[idx] <= 0);
+        el.classList.add('bump');
+        setTimeout(() => el.classList.remove('bump'), 75);
+      }
+    }
+
+    function onLifePointerDown(idx, delta, e) {
+      e.preventDefault();
+      _lifeHoldFired = false;
+      _lifeHoldTimer = setTimeout(() => {
+        _lifeHoldFired = true;
+        changeLife(idx, delta);
+        _lifeHoldIval = setInterval(() => changeLife(idx, delta), 90);
+      }, 420);
+    }
+    function onLifePointerUp(idx, delta) {
+      const wasFired = _lifeHoldFired;
+      clearTimeout(_lifeHoldTimer);
+      clearInterval(_lifeHoldIval);
+      _lifeHoldFired = false;
+      if (!wasFired) changeLife(idx, delta);
+    }
+    function onLifePointerLeave() {
+      clearTimeout(_lifeHoldTimer);
+      clearInterval(_lifeHoldIval);
+      _lifeHoldFired = false;
+    }
+
+    function startEditLifeName(idx) {
+      const el = document.getElementById(`ln-${idx}`);
+      if (!el) return;
+      const cur = LIFE_NAMES[idx];
+      const inp = document.createElement('input');
+      inp.value = cur;
+      inp.style.cssText = 'background:transparent;border:none;border-bottom:1px solid rgba(255,255,255,.25);color:inherit;font-size:inherit;font-weight:inherit;text-transform:inherit;letter-spacing:inherit;outline:none;width:80%;text-align:center;padding:0';
+      el.replaceWith(inp);
+      inp.focus(); inp.select();
+      const save = () => { LIFE_NAMES[idx] = inp.value.trim() || cur; renderLifePlayers(); };
+      inp.addEventListener('blur', save);
+      inp.addEventListener('keydown', e => {
+        if (e.key === 'Enter') inp.blur();
+        if (e.key === 'Escape') { LIFE_NAMES[idx] = cur; renderLifePlayers(); }
+      });
+    }
+
+    function renderLifePlayers() {
+      const container = document.getElementById('lifePlayers');
+      if (!container) return;
+      container.innerHTML = '';
+      for (let i = 0; i < lifePlayerCount; i++) {
+        const accent = LIFE_ACCENTS[i];
+        const life   = lifeTotals[i];
+        const el     = document.createElement('div');
+        el.className = 'life-player';
+        el.style.background = `linear-gradient(155deg, ${LIFE_BG[i]} 0%, #0a0a12 100%)`;
+        el.innerHTML = `
+          <div class="life-tap-area"
+               onpointerdown="onLifePointerDown(${i},1,event)"
+               onpointerup="onLifePointerUp(${i},1)"
+               onpointerleave="onLifePointerLeave()">
+            <span class="life-tap-hint">+</span>
+          </div>
+          <div class="life-center">
+            <div class="life-name" id="ln-${i}" style="color:${accent}99"
+                 ondblclick="startEditLifeName(${i})">${esc(LIFE_NAMES[i])}</div>
+            <div class="life-value${life <= 0 ? ' dead' : ''}" id="lv-${i}">${life}</div>
+          </div>
+          <div class="life-tap-area"
+               onpointerdown="onLifePointerDown(${i},-1,event)"
+               onpointerup="onLifePointerUp(${i},-1)"
+               onpointerleave="onLifePointerLeave()">
+            <span class="life-tap-hint">−</span>
+          </div>`;
+        container.appendChild(el);
+      }
+    }
+
+    // ══════════════════════════════════════════════════════
+    //  DRAG AND DROP CONSOLIDATION
+    // ══════════════════════════════════════════════════════
+    let _dragSrcId   = null;
+    let _touchDragId = null;
+    let _touchTimer  = null;
+    let _touchGhost  = null;
+
+    function initDragEvents(el, tokenId) {
+      el.setAttribute('draggable', 'true');
+
+      // ── Desktop HTML5 drag ─────────────────────────────
+      el.addEventListener('dragstart', e => {
+        _dragSrcId = tokenId;
+        el.classList.add('drag-source');
+        e.dataTransfer.effectAllowed = 'move';
+        e.dataTransfer.setData('text/plain', String(tokenId));
+      });
+
+      el.addEventListener('dragend', () => {
+        el.classList.remove('drag-source');
+        _dragSrcId = null;
+        document.querySelectorAll('.token-card.drag-over').forEach(c => c.classList.remove('drag-over'));
+      });
+
+      el.addEventListener('dragover', e => {
+        if (_dragSrcId === null || _dragSrcId === tokenId) return;
+        e.preventDefault();
+        e.dataTransfer.dropEffect = 'move';
+        el.classList.add('drag-over');
+      });
+
+      el.addEventListener('dragleave', e => {
+        if (!el.contains(e.relatedTarget)) el.classList.remove('drag-over');
+      });
+
+      el.addEventListener('drop', e => {
+        e.preventDefault();
+        el.classList.remove('drag-over');
+        if (_dragSrcId !== null && _dragSrcId !== tokenId) {
+          mergeTwoTokens(_dragSrcId, tokenId);
+        }
+      });
+
+      // ── Touch long-press drag ──────────────────────────
+      el.addEventListener('touchstart', () => {
+        _touchTimer = setTimeout(() => {
+          _touchDragId = tokenId;
+          el.classList.add('drag-source');
+        }, 380);
+      }, { passive: true });
+
+      el.addEventListener('touchmove', e => {
+        clearTimeout(_touchTimer);
+        if (!_touchDragId) return;
+        e.preventDefault();
+        const touch = e.touches[0];
+        // Lazy-create ghost on first move
+        if (!_touchGhost) _createTouchGhost(el);
+        _moveTouchGhost(touch.clientX, touch.clientY);
+        // Highlight drop target
+        document.querySelectorAll('.token-card.drag-over').forEach(c => c.classList.remove('drag-over'));
+        const target = document.elementFromPoint(touch.clientX, touch.clientY)?.closest('.token-card');
+        if (target && target !== el) target.classList.add('drag-over');
+      }, { passive: false });
+
+      el.addEventListener('touchend', e => {
+        clearTimeout(_touchTimer);
+        _removeTouchGhost();
+        if (!_touchDragId) return;
+        const touch = e.changedTouches[0];
+        document.querySelectorAll('.token-card.drag-over').forEach(c => c.classList.remove('drag-over'));
+        const target = document.elementFromPoint(touch.clientX, touch.clientY)?.closest('.token-card');
+        el.classList.remove('drag-source');
+        if (target && target !== el) {
+          const tId = parseInt(target.id.replace('tc-', ''));
+          if (tId && tId !== tokenId) mergeTwoTokens(tokenId, tId);
+        }
+        _touchDragId = null;
+      });
+
+      el.addEventListener('touchcancel', () => {
+        clearTimeout(_touchTimer);
+        _removeTouchGhost();
+        el.classList.remove('drag-source');
+        _touchDragId = null;
+        document.querySelectorAll('.token-card.drag-over').forEach(c => c.classList.remove('drag-over'));
+      });
+    }
+
+    function _createTouchGhost(sourceEl) {
+      _removeTouchGhost();
+      const t = tokens.find(tk => `tc-${tk.id}` === sourceEl.id);
+      const ghost = document.createElement('div');
+      ghost.className = 'drag-ghost';
+      const img = sourceEl.querySelector('.card-art');
+      ghost.innerHTML = `${img ? `<img src="${img.src}" alt="">` : ''}
+        <div class="drag-ghost-label">${t ? esc(t.name) : ''}</div>`;
+      document.body.appendChild(ghost);
+      _touchGhost = ghost;
+    }
+
+    function _moveTouchGhost(x, y) {
+      if (!_touchGhost) return;
+      _touchGhost.style.left = (x - 55) + 'px';
+      _touchGhost.style.top  = (y - 90) + 'px';
+    }
+
+    function _removeTouchGhost() {
+      if (_touchGhost) { _touchGhost.remove(); _touchGhost = null; }
+    }
+
+    function mergeTwoTokens(srcId, tgtId) {
+      const src = tokenById(srcId);
+      const tgt = tokenById(tgtId);
+      if (!src || !tgt) return;
+
+      tgt.quantity += src.quantity;
+      tgt.tapped    = Math.min(tgt.tapped + src.tapped, tgt.quantity);
+
+      // Merge counters
+      (src.counters || []).forEach(c => {
+        let tc = (tgt.counters = tgt.counters || []).find(x => x.type === c.type);
+        if (tc) tc.count += c.count;
+        else tgt.counters.push({ ...c });
+      });
+
+      // Merge EOT buffs
+      tgt.eotPower     = (tgt.eotPower     || 0) + (src.eotPower     || 0);
+      tgt.eotToughness = (tgt.eotToughness || 0) + (src.eotToughness || 0);
+
+      // Animate source out
+      tokens = tokens.filter(t => t.id !== srcId);
+      const srcEl = document.getElementById(`tc-${srcId}`);
+      if (srcEl) {
+        srcEl.style.cssText += ';opacity:0;transform:scale(.88);transition:all .22s ease-in;';
+        setTimeout(() => srcEl.remove(), 230);
+      }
+
+      // Refresh target with merge flash
+      refreshCard(tgt);
+      const tgtEl = document.getElementById(`tc-${tgtId}`);
+      if (tgtEl) {
+        tgtEl.classList.add('merge-flash');
+        setTimeout(() => tgtEl.classList.remove('merge-flash'), 500);
+      }
+      updateEmptyState();
     }
   </script>
 </body>
