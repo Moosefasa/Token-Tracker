@@ -1,6 +1,13 @@
-// MTG Token Tracker — Service Worker v3
-const CACHE  = 'mtg-tokens-v3';
-const ASSETS = ['./index.html', './manifest.json', './icon-192.png', './icon-512.png'];
+// MTG Token Tracker — Service Worker v4
+const CACHE  = 'mtg-tokens-v4';
+const ASSETS = [
+  './index.html',
+  './manifest.json',
+  './icon-192.png',
+  './icon-512.png',
+  './monarch.svg',
+  './citys.svg',
+];
 
 // Install: pre-cache app shell, then WAIT — do NOT auto-skipWaiting.
 // The page will detect reg.waiting and show the update banner, then
