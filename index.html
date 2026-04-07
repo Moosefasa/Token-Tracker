@@ -744,7 +744,7 @@
     /* ── UPDATE BANNER ─────────────────────────────────── */
     .update-banner {
       position: fixed;
-      bottom: 76px;        /* sits just above the FAB */
+      bottom: 82px;        /* sits just above the FAB hub */
       left: 50%;
       transform: translateX(-50%) translateY(20px);
       z-index: 50;
@@ -781,28 +781,94 @@
     }
     .update-banner-btn:hover { background: #5abf8a; }
 
-    /* ── FAB (Generate Token) ──────────────────────────── */
-    .fab-generate {
+    /* ── FAB HUB ───────────────────────────────────────── */
+    .fab-hub {
       position: fixed;
       bottom: 22px;
       right: 22px;
       z-index: 30;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 10px;
+    }
+    /* Secondary action menu (slides up when hub toggle is pressed) */
+    .fab-menu {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 8px;
+      opacity: 0;
+      pointer-events: none;
+      transform: translateY(10px) scale(.97);
+      transform-origin: bottom right;
+      transition: opacity .18s, transform .18s;
+    }
+    .fab-menu.open {
+      opacity: 1;
+      pointer-events: all;
+      transform: translateY(0) scale(1);
+    }
+    .fab-menu-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--text);
+      border-radius: 40px;
+      padding: 9px 16px 9px 12px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      white-space: nowrap;
+      box-shadow: 0 4px 18px rgba(0,0,0,.5);
+      transition: background .12s, transform .1s;
+      user-select: none;
+    }
+    .fab-menu-item:hover  { background: var(--surface2); }
+    .fab-menu-item:active { transform: scale(.96); }
+    .fab-menu-item svg    { flex-shrink: 0; color: var(--muted); }
+    /* Split pill: primary + toggle */
+    .fab-split {
+      display: flex;
+      align-items: center;
       background: var(--accent);
-      color: #fff;
-      border: none;
       border-radius: 50px;
-      padding: 14px 22px;
+      box-shadow: 0 4px 24px rgba(0,0,0,.55);
+      overflow: hidden;
+      transition: box-shadow .15s;
+    }
+    .fab-split:hover { box-shadow: 0 6px 28px rgba(0,0,0,.6); }
+    .fab-generate {
+      background: none;
+      border: none;
+      color: #fff;
+      padding: 14px 18px 14px 22px;
       font-size: 0.95rem;
       font-weight: 700;
       cursor: pointer;
       display: flex;
       align-items: center;
       gap: 8px;
-      box-shadow: 0 4px 24px rgba(0,0,0,.55);
-      transition: background .15s, transform .1s, box-shadow .15s;
+      white-space: nowrap;
+      transition: background .13s;
     }
-    .fab-generate:hover  { background: var(--accent-h); transform: scale(1.04); }
-    .fab-generate:active { transform: scale(0.97); }
+    .fab-generate:hover  { background: rgba(255,255,255,.08); }
+    .fab-generate:active { background: rgba(255,255,255,.15); }
+    .fab-split-divider {
+      width: 1px; height: 22px;
+      background: rgba(255,255,255,.25);
+      flex-shrink: 0;
+    }
+    .fab-hub-toggle {
+      background: none; border: none; color: rgba(255,255,255,.85);
+      padding: 14px 16px; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      transition: background .13s, transform .2s;
+    }
+    .fab-hub-toggle:hover  { background: rgba(255,255,255,.1); color: #fff; }
+    .fab-hub-toggle.open   { transform: rotate(180deg); }
 
     /* ── ART DROPDOWN ──────────────────────────────────── */
     .art-dropdown-trigger {
@@ -1236,6 +1302,85 @@
     .life-value.bump { transform: scale(1.1); }
     .life-value.dead { color: #ff5555; }
 
+    /* ── LIFE TRACKER — EXTENDED COMPONENTS ────────────── */
+    .life-tap-wrap {
+      flex: 1; display: flex; flex-direction: column;
+      position: relative; min-height: 100px;
+    }
+    /* Single-player stats panel */
+    .life-stats {
+      flex-shrink: 0; overflow-y: auto;
+      border-top: 1px solid rgba(255,255,255,.06);
+      overscroll-behavior: contain; max-height: 52%;
+    }
+    .life-stats-section {
+      padding: 8px 12px 6px;
+      border-bottom: 1px solid rgba(255,255,255,.04);
+    }
+    .life-stats-section:last-child { border-bottom: none; }
+    .life-stats-title {
+      font-size: .57rem; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 1px; color: #363650; margin-bottom: 5px;
+    }
+    /* Counter rows (full-size, single-player) */
+    .life-ctr-row { display: flex; align-items: center; gap: 5px; padding: 3px 0; }
+    .life-ctr-icon { font-size: .88rem; flex-shrink: 0; width: 16px; text-align: center; line-height: 1; }
+    .life-ctr-label { flex: 1; font-size: .72rem; color: rgba(255,255,255,.35); }
+    .life-ctr-btn {
+      background: rgba(255,255,255,.07); border: none; color: rgba(255,255,255,.55);
+      border-radius: 4px; width: 22px; height: 22px; font-size: .88rem;
+      cursor: pointer; display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0; transition: background .1s;
+    }
+    .life-ctr-btn:active { background: rgba(255,255,255,.16); }
+    .life-ctr-val { min-width: 24px; text-align: center; font-size: .88rem; font-weight: 700; color: #e0e0f0; }
+    /* Status badges (full-size) */
+    .life-status-row { display: flex; gap: 6px; flex-wrap: wrap; padding: 2px 0; }
+    .life-status-badge {
+      border-radius: 5px; padding: 4px 9px; font-size: .72rem; font-weight: 600;
+      cursor: pointer; color: rgba(255,255,255,.25); transition: all .15s;
+      user-select: none; -webkit-user-select: none;
+      border: 1px solid rgba(255,255,255,.08); background: rgba(255,255,255,.04);
+    }
+    .life-status-badge:active { transform: scale(.95); }
+    .life-status-monarch.active { background: rgba(255,180,0,.14); color: #ffc050; border-color: rgba(255,180,0,.3); }
+    .life-status-citys.active   { background: rgba(100,180,255,.14); color: #78b8ff; border-color: rgba(100,180,255,.3); }
+    /* Multi-player compact footer */
+    .life-footer {
+      flex-shrink: 0; border-top: 1px solid rgba(255,255,255,.06);
+      padding: 5px 8px 6px; display: flex; gap: 4px; flex-direction: column;
+    }
+    .life-footer-top, .life-footer-bottom {
+      display: flex; align-items: center; gap: 4px;
+      overflow-x: auto; scrollbar-width: none;
+    }
+    .life-footer-top::-webkit-scrollbar,
+    .life-footer-bottom::-webkit-scrollbar { display: none; }
+    .life-footer-ctr {
+      display: flex; align-items: center; gap: 2px; flex-shrink: 0;
+      background: rgba(255,255,255,.05); border-radius: 20px; padding: 2px 5px;
+    }
+    .life-ctr-btn-sm {
+      background: none; border: none; color: rgba(255,255,255,.4);
+      cursor: pointer; font-size: .75rem; padding: 0 2px; line-height: 1;
+    }
+    .life-ctr-btn-sm:active { color: #fff; }
+    .life-ctr-val-sm { min-width: 12px; text-align: center; font-size: .7rem; font-weight: 700; color: #e0e0f0; }
+    .life-status-badge-sm {
+      border-radius: 4px; padding: 2px 5px; font-size: .68rem; font-weight: 600;
+      cursor: pointer; color: rgba(255,255,255,.2); transition: all .12s;
+      user-select: none; -webkit-user-select: none;
+      border: 1px solid rgba(255,255,255,.07); background: rgba(255,255,255,.03); flex-shrink: 0;
+    }
+    .life-status-badge-sm:active { transform: scale(.92); }
+    .life-status-badge-sm.monarch-active { color: #ffc050; border-color: rgba(255,180,0,.3); background: rgba(255,180,0,.1); }
+    .life-status-badge-sm.citys-active   { color: #78b8ff; border-color: rgba(100,180,255,.3); background: rgba(100,180,255,.1); }
+    .life-cmd-item {
+      display: flex; align-items: center; gap: 2px; flex-shrink: 0;
+      background: rgba(255,100,80,.06); border-radius: 20px; padding: 2px 5px;
+    }
+    .life-cmd-label { font-size: .6rem; color: rgba(255,128,100,.55); white-space: nowrap; margin-right: 1px; }
+
     /* ── DRAG AND DROP ──────────────────────────────────── */
     .token-card[draggable="true"] { cursor: grab; }
     .token-card.drag-source { opacity: .32; transform: scale(.96); transition: opacity .15s, transform .15s; }
@@ -1327,6 +1472,7 @@
         <span class="life-panel-title">Life</span>
         <div class="life-config">
           <div class="life-chip-group" id="playerChips">
+            <button class="life-chip"        onclick="setLifePlayerCount(1)">1</button>
             <button class="life-chip active" onclick="setLifePlayerCount(2)">2</button>
             <button class="life-chip"        onclick="setLifePlayerCount(3)">3</button>
             <button class="life-chip"        onclick="setLifePlayerCount(4)">4</button>
@@ -1348,13 +1494,48 @@
     <button class="update-banner-btn" onclick="applyUpdate()">Refresh</button>
   </div>
 
-  <!-- Floating Action Button -->
-  <button class="fab-generate" onclick="openModal()">
-    <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-      <path d="M8 1V15M1 8H15" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/>
-    </svg>
-    Generate Token
-  </button>
+  <!-- FAB Hub -->
+  <div class="fab-hub" id="fabHub">
+    <!-- Secondary actions (slide up when hub toggle is pressed) -->
+    <div class="fab-menu" id="fabMenu">
+      <div class="fab-menu-item" onclick="untapAllTokens();closeFabMenu()">
+        <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
+          <path d="M8 2V8L12 12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+          <circle cx="8" cy="8" r="6" stroke="currentColor" stroke-width="1.5"/>
+        </svg>
+        Untap All
+      </div>
+      <div class="fab-menu-item" onclick="openGlobal();closeFabMenu()">
+        <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
+          <path d="M8 1L10 6H15L11 9.5L12.5 15L8 12L3.5 15L5 9.5L1 6H6L8 1Z" fill="currentColor"/>
+        </svg>
+        Battlefield Effects
+      </div>
+      <div class="fab-menu-item" onclick="clearEOTEffects();closeFabMenu()">
+        <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
+          <circle cx="8" cy="8" r="6" stroke="currentColor" stroke-width="1.5"/>
+          <path d="M8 4V8.5L11 10.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M2.5 2.5L13.5 13.5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" opacity="0.45"/>
+        </svg>
+        End Turn
+      </div>
+    </div>
+    <!-- Split pill: Generate Token (primary) + hub toggle -->
+    <div class="fab-split">
+      <button class="fab-generate" onclick="openModal()">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+          <path d="M8 1V15M1 8H15" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/>
+        </svg>
+        Generate Token
+      </button>
+      <div class="fab-split-divider"></div>
+      <button class="fab-hub-toggle" id="fabHubToggle" onclick="toggleFabMenu()" title="More actions">
+        <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+          <path d="M2 8L6 4L10 8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </button>
+    </div>
+  </div>
 
   <!-- BATTLEFIELD CANVAS -->
   <div id="canvas">
@@ -2212,19 +2393,10 @@
         };
       }
 
-      // Bundle into existing card if same name is already on the battlefield
-      const existing = tokens.find(t => t.name.toLowerCase() === token.name.toLowerCase());
-      if (existing) {
-        existing.quantity += token.quantity;
-        existing.tapped   += token.tapped;          // preserve the newly-tapped ones
-        closeModal();
-        refreshCard(existing);
-      } else {
-        tokens.push(token);
-        closeModal();
-        appendTokenCard(token);
-        updateEmptyState();
-      }
+      tokens.push(token);
+      closeModal();
+      appendTokenCard(token);
+      updateEmptyState();
     }
 
     // ══════════════════════════════════════════════════════
@@ -2821,6 +2993,29 @@
     }
 
     // ══════════════════════════════════════════════════════
+    //  FAB HUB
+    // ══════════════════════════════════════════════════════
+    let _fabMenuOpen = false;
+
+    function toggleFabMenu() {
+      _fabMenuOpen ? closeFabMenu() : openFabMenu();
+    }
+    function openFabMenu() {
+      _fabMenuOpen = true;
+      document.getElementById('fabMenu').classList.add('open');
+      document.getElementById('fabHubToggle').classList.add('open');
+      setTimeout(() => document.addEventListener('pointerdown', _closeFabOutside, { once: true }), 0);
+    }
+    function closeFabMenu() {
+      _fabMenuOpen = false;
+      document.getElementById('fabMenu').classList.remove('open');
+      document.getElementById('fabHubToggle').classList.remove('open');
+    }
+    function _closeFabOutside(e) {
+      if (!document.getElementById('fabHub')?.contains(e.target)) closeFabMenu();
+    }
+
+    // ══════════════════════════════════════════════════════
     //  HEADER MENU DROPDOWN
     // ══════════════════════════════════════════════════════
     function toggleHeaderMenu() {
@@ -2844,14 +3039,19 @@
     // ══════════════════════════════════════════════════════
     const LIFE_BG      = ['#120606','#060612','#060e06','#0e0612'];
     const LIFE_ACCENTS = ['#c84b31','#3a7aaa','#3a8a3a','#7a50bb'];
-    const LIFE_NAMES   = ['Player 1','Player 2','Player 3','Player 4'];
 
-    let lifePlayerCount  = 2;
-    let lifeStarting     = 20;
-    let lifeTotals       = [20, 20, 20, 20];
-    let _lifeHoldFired   = false;
-    let _lifeHoldTimer   = null;
-    let _lifeHoldIval    = null;
+    let lifePlayerCount = 2;
+    let lifeStarting    = 20;
+    let lifeData = Array.from({length: 4}, (_, i) => ({
+      name: `Player ${i+1}`,
+      life: 20,
+      poison: 0, experience: 0, energy: 0, rad: 0,
+      isMonarch: false, hasCitysBlessing: false,
+      cmdDamage: [0,0,0,0],
+    }));
+    let _lifeHoldFired = false;
+    let _lifeHoldTimer = null;
+    let _lifeHoldIval  = null;
 
     function openLifePanel() {
       renderLifePlayers();
@@ -2867,7 +3067,7 @@
     function setLifePlayerCount(n) {
       lifePlayerCount = n;
       document.querySelectorAll('#playerChips .life-chip').forEach((btn, i) => {
-        btn.classList.toggle('active', i + 2 === n);
+        btn.classList.toggle('active', i + 1 === n);
       });
       renderLifePlayers();
     }
@@ -2880,16 +3080,21 @@
     }
 
     function resetLifeTotals() {
-      for (let i = 0; i < 4; i++) lifeTotals[i] = lifeStarting;
+      lifeData.forEach(d => {
+        d.life = lifeStarting;
+        d.poison = 0; d.experience = 0; d.energy = 0; d.rad = 0;
+        d.isMonarch = false; d.hasCitysBlessing = false;
+        d.cmdDamage = [0,0,0,0];
+      });
       renderLifePlayers();
     }
 
     function changeLife(idx, delta) {
-      lifeTotals[idx] += delta;
+      lifeData[idx].life += delta;
       const el = document.getElementById(`lv-${idx}`);
       if (el) {
-        el.textContent = lifeTotals[idx];
-        el.classList.toggle('dead', lifeTotals[idx] <= 0);
+        el.textContent = lifeData[idx].life;
+        el.classList.toggle('dead', lifeData[idx].life <= 0);
         el.classList.add('bump');
         setTimeout(() => el.classList.remove('bump'), 75);
       }
@@ -2906,45 +3111,65 @@
     }
     function onLifePointerUp(idx, delta) {
       const wasFired = _lifeHoldFired;
-      clearTimeout(_lifeHoldTimer);
-      clearInterval(_lifeHoldIval);
+      clearTimeout(_lifeHoldTimer); clearInterval(_lifeHoldIval);
       _lifeHoldFired = false;
       if (!wasFired) changeLife(idx, delta);
     }
     function onLifePointerLeave() {
-      clearTimeout(_lifeHoldTimer);
-      clearInterval(_lifeHoldIval);
+      clearTimeout(_lifeHoldTimer); clearInterval(_lifeHoldIval);
       _lifeHoldFired = false;
+    }
+
+    function changeLifeCounter(idx, type, delta) {
+      lifeData[idx][type] = Math.max(0, (lifeData[idx][type] || 0) + delta);
+      const el = document.getElementById(`lct-${idx}-${type}`);
+      if (el) el.textContent = lifeData[idx][type];
+    }
+
+    function changeLifeCmd(playerIdx, srcIdx, delta) {
+      lifeData[playerIdx].cmdDamage[srcIdx] = Math.max(0, (lifeData[playerIdx].cmdDamage[srcIdx] || 0) + delta);
+      const v = lifeData[playerIdx].cmdDamage[srcIdx];
+      ['lcd','lcv'].forEach(pre => {
+        const el = document.getElementById(`${pre}-${playerIdx}-${srcIdx}`);
+        if (el) el.textContent = v;
+      });
+    }
+
+    function toggleLifeStatus(idx, status) {
+      lifeData[idx][status] = !lifeData[idx][status];
+      const on = lifeData[idx][status];
+      if (status === 'isMonarch') {
+        const el = document.getElementById(`lsm-${idx}`);
+        if (el) { el.classList.toggle('active', on); el.classList.toggle('monarch-active', on); }
+      } else {
+        const el = document.getElementById(`lsc-${idx}`);
+        if (el) { el.classList.toggle('active', on); el.classList.toggle('citys-active', on); }
+      }
     }
 
     function startEditLifeName(idx) {
       const el = document.getElementById(`ln-${idx}`);
       if (!el) return;
-      const cur = LIFE_NAMES[idx];
+      const cur = lifeData[idx].name;
       const inp = document.createElement('input');
       inp.value = cur;
       inp.style.cssText = 'background:transparent;border:none;border-bottom:1px solid rgba(255,255,255,.25);color:inherit;font-size:inherit;font-weight:inherit;text-transform:inherit;letter-spacing:inherit;outline:none;width:80%;text-align:center;padding:0';
       el.replaceWith(inp);
       inp.focus(); inp.select();
-      const save = () => { LIFE_NAMES[idx] = inp.value.trim() || cur; renderLifePlayers(); };
+      const save = () => { lifeData[idx].name = inp.value.trim() || cur; renderLifePlayers(); };
       inp.addEventListener('blur', save);
       inp.addEventListener('keydown', e => {
         if (e.key === 'Enter') inp.blur();
-        if (e.key === 'Escape') { LIFE_NAMES[idx] = cur; renderLifePlayers(); }
+        if (e.key === 'Escape') { lifeData[idx].name = cur; renderLifePlayers(); }
       });
     }
 
-    function renderLifePlayers() {
-      const container = document.getElementById('lifePlayers');
-      if (!container) return;
-      container.innerHTML = '';
-      for (let i = 0; i < lifePlayerCount; i++) {
-        const accent = LIFE_ACCENTS[i];
-        const life   = lifeTotals[i];
-        const el     = document.createElement('div');
-        el.className = 'life-player';
-        el.style.background = `linear-gradient(155deg, ${LIFE_BG[i]} 0%, #0a0a12 100%)`;
-        el.innerHTML = `
+    // ── Life tracker rendering helpers ─────────────────
+    function _lifeTapWrapHTML(i) {
+      const d = lifeData[i];
+      const accent = LIFE_ACCENTS[i];
+      return `
+        <div class="life-tap-wrap">
           <div class="life-tap-area"
                onpointerdown="onLifePointerDown(${i},1,event)"
                onpointerup="onLifePointerUp(${i},1)"
@@ -2953,14 +3178,119 @@
           </div>
           <div class="life-center">
             <div class="life-name" id="ln-${i}" style="color:${accent}99"
-                 ondblclick="startEditLifeName(${i})">${esc(LIFE_NAMES[i])}</div>
-            <div class="life-value${life <= 0 ? ' dead' : ''}" id="lv-${i}">${life}</div>
+                 ondblclick="startEditLifeName(${i})">${esc(d.name)}</div>
+            <div class="life-value${d.life<=0?' dead':''}" id="lv-${i}">${d.life}</div>
           </div>
           <div class="life-tap-area"
                onpointerdown="onLifePointerDown(${i},-1,event)"
                onpointerup="onLifePointerUp(${i},-1)"
                onpointerleave="onLifePointerLeave()">
             <span class="life-tap-hint">−</span>
+          </div>
+        </div>`;
+    }
+
+    function _lifeCtrRowHTML(idx, type, icon, color) {
+      const labels = {poison:'Poison',experience:'Experience',energy:'Energy',rad:'Rad'};
+      return `<div class="life-ctr-row">
+        <span class="life-ctr-icon" style="color:${color}">${icon}</span>
+        <span class="life-ctr-label">${labels[type]}</span>
+        <button class="life-ctr-btn" onclick="changeLifeCounter(${idx},'${type}',-1)">−</button>
+        <span class="life-ctr-val" id="lct-${idx}-${type}">${lifeData[idx][type]}</span>
+        <button class="life-ctr-btn" onclick="changeLifeCounter(${idx},'${type}',1)">+</button>
+      </div>`;
+    }
+
+    function _lifeCmdRowHTML(playerIdx, srcIdx, label) {
+      const v = lifeData[playerIdx].cmdDamage[srcIdx] || 0;
+      return `<div class="life-ctr-row">
+        <span class="life-ctr-icon" style="color:#ff8070">⚔</span>
+        <span class="life-ctr-label">${esc(label)}</span>
+        <button class="life-ctr-btn" onclick="changeLifeCmd(${playerIdx},${srcIdx},-1)">−</button>
+        <span class="life-ctr-val" id="lcd-${playerIdx}-${srcIdx}">${v}</span>
+        <button class="life-ctr-btn" onclick="changeLifeCmd(${playerIdx},${srcIdx},1)">+</button>
+      </div>`;
+    }
+
+    function _footerCtrHTML(idx, type, icon, color) {
+      return `<div class="life-footer-ctr">
+        <span style="color:${color};font-size:.7rem">${icon}</span>
+        <button class="life-ctr-btn-sm" onclick="changeLifeCounter(${idx},'${type}',-1)">−</button>
+        <span class="life-ctr-val-sm" id="lct-${idx}-${type}">${lifeData[idx][type]}</span>
+        <button class="life-ctr-btn-sm" onclick="changeLifeCounter(${idx},'${type}',1)">+</button>
+      </div>`;
+    }
+
+    function renderLifePlayers() {
+      const container = document.getElementById('lifePlayers');
+      if (!container) return;
+      container.innerHTML = '';
+
+      // ── 1-player: full stats panel ──────────────────
+      if (lifePlayerCount === 1) {
+        const d  = lifeData[0];
+        const el = document.createElement('div');
+        el.className = 'life-player';
+        el.style.background = `linear-gradient(155deg, ${LIFE_BG[0]} 0%, #0a0a12 100%)`;
+        el.innerHTML = `
+          ${_lifeTapWrapHTML(0)}
+          <div class="life-stats">
+            <div class="life-stats-section">
+              <div class="life-stats-title">Counters</div>
+              ${_lifeCtrRowHTML(0,'poison','☠','#b0e870')}
+              ${_lifeCtrRowHTML(0,'experience','⭐','#ffc850')}
+              ${_lifeCtrRowHTML(0,'energy','⚡','#80c0ff')}
+              ${_lifeCtrRowHTML(0,'rad','☢','#b0d870')}
+            </div>
+            <div class="life-stats-section">
+              <div class="life-stats-title">Commander Damage</div>
+              ${_lifeCmdRowHTML(0,1,'Commander 1')}
+              ${_lifeCmdRowHTML(0,2,'Commander 2')}
+              ${_lifeCmdRowHTML(0,3,'Commander 3')}
+            </div>
+            <div class="life-stats-section">
+              <div class="life-stats-title">Status Effects</div>
+              <div class="life-status-row">
+                <div class="life-status-badge life-status-monarch ${d.isMonarch?'active':''}" id="lsm-0"
+                     onclick="toggleLifeStatus(0,'isMonarch')">👑 Monarch</div>
+                <div class="life-status-badge life-status-citys ${d.hasCitysBlessing?'active':''}" id="lsc-0"
+                     onclick="toggleLifeStatus(0,'hasCitysBlessing')">✨ City's Blessing</div>
+              </div>
+            </div>
+          </div>`;
+        container.appendChild(el);
+        return;
+      }
+
+      // ── 2-4 players: compact footer per player ──────
+      for (let i = 0; i < lifePlayerCount; i++) {
+        const d         = lifeData[i];
+        const opponents = Array.from({length: lifePlayerCount}, (_, j) => j).filter(j => j !== i);
+        const el        = document.createElement('div');
+        el.className    = 'life-player';
+        el.style.background = `linear-gradient(155deg, ${LIFE_BG[i]} 0%, #0a0a12 100%)`;
+        el.innerHTML = `
+          ${_lifeTapWrapHTML(i)}
+          <div class="life-footer">
+            <div class="life-footer-top">
+              ${_footerCtrHTML(i,'poison','☠','#b0e870')}
+              ${_footerCtrHTML(i,'experience','⭐','#ffc850')}
+              ${_footerCtrHTML(i,'energy','⚡','#80c0ff')}
+              ${_footerCtrHTML(i,'rad','☢','#b0d870')}
+            </div>
+            <div class="life-footer-bottom">
+              <div class="life-status-badge-sm ${d.isMonarch?'monarch-active':''}" id="lsm-${i}"
+                   onclick="toggleLifeStatus(${i},'isMonarch')">👑</div>
+              <div class="life-status-badge-sm ${d.hasCitysBlessing?'citys-active':''}" id="lsc-${i}"
+                   onclick="toggleLifeStatus(${i},'hasCitysBlessing')">✨</div>
+              ${opponents.map(j => `
+                <div class="life-cmd-item">
+                  <span class="life-cmd-label">⚔${lifeData[j].name.replace(/Player /,'P')}</span>
+                  <button class="life-ctr-btn-sm" onclick="changeLifeCmd(${i},${j},-1)">−</button>
+                  <span class="life-ctr-val-sm" id="lcv-${i}-${j}">${lifeData[i].cmdDamage[j]||0}</span>
+                  <button class="life-ctr-btn-sm" onclick="changeLifeCmd(${i},${j},1)">+</button>
+                </div>`).join('')}
+            </div>
           </div>`;
         container.appendChild(el);
       }
