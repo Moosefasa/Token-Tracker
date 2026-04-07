@@ -1381,6 +1381,23 @@
     }
     .life-cmd-label { font-size: .6rem; color: rgba(255,128,100,.55); white-space: nowrap; margin-right: 1px; }
 
+    /* Per-player detail button */
+    .life-player-detail-btn {
+      position: absolute; bottom: 8px; right: 10px;
+      background: rgba(255,255,255,.07); border: 1px solid rgba(255,255,255,.1);
+      color: rgba(255,255,255,.32); border-radius: 6px;
+      width: 28px; height: 28px; font-size: 1.05rem;
+      cursor: pointer; display: flex; align-items: center; justify-content: center;
+      transition: all .15s; z-index: 2;
+      -webkit-user-select: none; user-select: none;
+    }
+    .life-player-detail-btn:hover { background: rgba(255,255,255,.14); color: rgba(255,255,255,.7); }
+    /* Status indicators shown inside each player section */
+    .life-status-indicators {
+      margin-top: 6px; font-size: .72rem; letter-spacing: 2px;
+      opacity: .65; min-height: 14px; line-height: 1;
+    }
+
     /* ── DRAG AND DROP ──────────────────────────────────── */
     .token-card[draggable="true"] { cursor: grab; }
     .token-card.drag-source { opacity: .32; transform: scale(.96); transition: opacity .15s, transform .15s; }
@@ -1485,6 +1502,18 @@
         <button class="life-reset-btn" onclick="resetLifeTotals()" title="Reset">↺</button>
       </div>
       <div class="life-players" id="lifePlayers"></div>
+    </div>
+  </div>
+
+  <!-- Life Tracker — Player Detail Sheet -->
+  <div class="modal-overlay" id="lifeDetailOverlay" onclick="handleLifeDetailOverlay(event)">
+    <div class="modal" id="lifeDetailModal">
+      <div class="modal-drag"></div>
+      <div class="modal-header">
+        <span class="modal-title" id="lifeDetailTitle">Player Stats</span>
+        <button class="modal-close" onclick="closeLifeDetail()">✕</button>
+      </div>
+      <div class="modal-body" id="lifeDetailBody"></div>
     </div>
   </div>
 
@@ -2993,6 +3022,72 @@
     }
 
     // ══════════════════════════════════════════════════════
+    //  LIFE TRACKER — PLAYER DETAIL SHEET
+    // ══════════════════════════════════════════════════════
+    let _lifeDetailIdx = null;
+
+    function openLifeDetail(idx) {
+      _lifeDetailIdx = idx;
+      document.getElementById('lifeDetailTitle').textContent = lifeData[idx].name;
+      document.getElementById('lifeDetailBody').innerHTML = _buildLifeDetailHTML(idx);
+      document.getElementById('lifeDetailOverlay').classList.add('open');
+    }
+    function closeLifeDetail() {
+      document.getElementById('lifeDetailOverlay').classList.remove('open');
+      _lifeDetailIdx = null;
+    }
+    function handleLifeDetailOverlay(e) {
+      if (e.target === e.currentTarget) closeLifeDetail();
+    }
+
+    function _buildLifeDetailHTML(idx) {
+      const d = lifeData[idx];
+      // Commander damage sources: opponents by player index
+      const cmdSources = lifePlayerCount === 1
+        ? [{label:'Commander 1', j:1}, {label:'Commander 2', j:2}, {label:'Commander 3', j:3}]
+        : Array.from({length: lifePlayerCount}, (_,j) => ({label: lifeData[j].name, j})).filter(s => s.j !== idx);
+
+      return `
+        <div class="detail-section-title">Counters</div>
+        ${_detailCtrRow(idx,'poison','☠','#b0e870','Poison')}
+        ${_detailCtrRow(idx,'experience','⭐','#ffc850','Experience')}
+        ${_detailCtrRow(idx,'energy','⚡','#80c0ff','Energy')}
+        ${_detailCtrRow(idx,'rad','☢','#b0d870','Rad')}
+
+        <div class="detail-section-title">Commander Damage</div>
+        ${cmdSources.map(s => _detailCmdRow(idx, s.j, s.label)).join('')}
+
+        <div class="detail-section-title">Status Effects</div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;padding:4px 0 8px">
+          <div class="life-status-badge life-status-monarch ${d.isMonarch?'active':''}"
+               id="lsm-${idx}" onclick="toggleLifeStatus(${idx},'isMonarch')">👑 Monarch</div>
+          <div class="life-status-badge life-status-citys ${d.hasCitysBlessing?'active':''}"
+               id="lsc-${idx}" onclick="toggleLifeStatus(${idx},'hasCitysBlessing')">✨ City's Blessing</div>
+        </div>`;
+    }
+
+    function _detailCtrRow(idx, type, icon, color, label) {
+      return `
+        <div class="detail-ctr-row">
+          <span class="detail-ctr-name" style="color:${color}">${icon} ${label}</span>
+          <button class="detail-ctr-btn" onclick="changeLifeCounter(${idx},'${type}',-1)">−</button>
+          <span class="detail-ctr-count" id="lct-${idx}-${type}">${lifeData[idx][type]}</span>
+          <button class="detail-ctr-btn" onclick="changeLifeCounter(${idx},'${type}',1)">+</button>
+        </div>`;
+    }
+
+    function _detailCmdRow(playerIdx, srcIdx, label) {
+      const v = lifeData[playerIdx].cmdDamage[srcIdx] || 0;
+      return `
+        <div class="detail-ctr-row">
+          <span class="detail-ctr-name" style="color:#ff8878">⚔ ${esc(label)}</span>
+          <button class="detail-ctr-btn" onclick="changeLifeCmd(${playerIdx},${srcIdx},-1)">−</button>
+          <span class="detail-ctr-count" id="lcd-${playerIdx}-${srcIdx}">${v}</span>
+          <button class="detail-ctr-btn" onclick="changeLifeCmd(${playerIdx},${srcIdx},1)">+</button>
+        </div>`;
+    }
+
+    // ══════════════════════════════════════════════════════
     //  FAB HUB
     // ══════════════════════════════════════════════════════
     let _fabMenuOpen = false;
@@ -3124,6 +3219,8 @@
       lifeData[idx][type] = Math.max(0, (lifeData[idx][type] || 0) + delta);
       const el = document.getElementById(`lct-${idx}-${type}`);
       if (el) el.textContent = lifeData[idx][type];
+      // Reflect poison / experience changes in the panel indicators
+      if (type === 'poison' || type === 'experience') _refreshLifeIndicators(idx);
     }
 
     function changeLifeCmd(playerIdx, srcIdx, delta) {
@@ -3138,13 +3235,16 @@
     function toggleLifeStatus(idx, status) {
       lifeData[idx][status] = !lifeData[idx][status];
       const on = lifeData[idx][status];
+      // Update badge inside the detail sheet (if open)
       if (status === 'isMonarch') {
         const el = document.getElementById(`lsm-${idx}`);
-        if (el) { el.classList.toggle('active', on); el.classList.toggle('monarch-active', on); }
+        if (el) { el.classList.toggle('active', on); }
       } else {
         const el = document.getElementById(`lsc-${idx}`);
-        if (el) { el.classList.toggle('active', on); el.classList.toggle('citys-active', on); }
+        if (el) { el.classList.toggle('active', on); }
       }
+      // Update the visible status indicators on the player panel
+      _refreshLifeIndicators(idx);
     }
 
     function startEditLifeName(idx) {
@@ -3165,9 +3265,25 @@
     }
 
     // ── Life tracker rendering helpers ─────────────────
-    function _lifeTapWrapHTML(i) {
+    function _lifeIndicators(i) {
       const d = lifeData[i];
+      return [
+        d.isMonarch        ? '👑' : '',
+        d.hasCitysBlessing ? '✨' : '',
+        d.poison > 0       ? `☠${d.poison}` : '',
+        d.experience > 0   ? `⭐${d.experience}` : '',
+      ].filter(Boolean).join(' ');
+    }
+
+    function _refreshLifeIndicators(i) {
+      const el = document.getElementById(`lsi-${i}`);
+      if (el) el.textContent = _lifeIndicators(i);
+    }
+
+    function _lifeTapWrapHTML(i) {
+      const d      = lifeData[i];
       const accent = LIFE_ACCENTS[i];
+      const indStr = _lifeIndicators(i);
       return `
         <div class="life-tap-wrap">
           <div class="life-tap-area"
@@ -3180,6 +3296,7 @@
             <div class="life-name" id="ln-${i}" style="color:${accent}99"
                  ondblclick="startEditLifeName(${i})">${esc(d.name)}</div>
             <div class="life-value${d.life<=0?' dead':''}" id="lv-${i}">${d.life}</div>
+            <div class="life-status-indicators" id="lsi-${i}">${indStr}</div>
           </div>
           <div class="life-tap-area"
                onpointerdown="onLifePointerDown(${i},-1,event)"
@@ -3187,6 +3304,7 @@
                onpointerleave="onLifePointerLeave()">
             <span class="life-tap-hint">−</span>
           </div>
+          <button class="life-player-detail-btn" onclick="openLifeDetail(${i})" title="Counters & effects">⋯</button>
         </div>`;
     }
 
@@ -3225,73 +3343,11 @@
       const container = document.getElementById('lifePlayers');
       if (!container) return;
       container.innerHTML = '';
-
-      // ── 1-player: full stats panel ──────────────────
-      if (lifePlayerCount === 1) {
-        const d  = lifeData[0];
+      for (let i = 0; i < lifePlayerCount; i++) {
         const el = document.createElement('div');
         el.className = 'life-player';
-        el.style.background = `linear-gradient(155deg, ${LIFE_BG[0]} 0%, #0a0a12 100%)`;
-        el.innerHTML = `
-          ${_lifeTapWrapHTML(0)}
-          <div class="life-stats">
-            <div class="life-stats-section">
-              <div class="life-stats-title">Counters</div>
-              ${_lifeCtrRowHTML(0,'poison','☠','#b0e870')}
-              ${_lifeCtrRowHTML(0,'experience','⭐','#ffc850')}
-              ${_lifeCtrRowHTML(0,'energy','⚡','#80c0ff')}
-              ${_lifeCtrRowHTML(0,'rad','☢','#b0d870')}
-            </div>
-            <div class="life-stats-section">
-              <div class="life-stats-title">Commander Damage</div>
-              ${_lifeCmdRowHTML(0,1,'Commander 1')}
-              ${_lifeCmdRowHTML(0,2,'Commander 2')}
-              ${_lifeCmdRowHTML(0,3,'Commander 3')}
-            </div>
-            <div class="life-stats-section">
-              <div class="life-stats-title">Status Effects</div>
-              <div class="life-status-row">
-                <div class="life-status-badge life-status-monarch ${d.isMonarch?'active':''}" id="lsm-0"
-                     onclick="toggleLifeStatus(0,'isMonarch')">👑 Monarch</div>
-                <div class="life-status-badge life-status-citys ${d.hasCitysBlessing?'active':''}" id="lsc-0"
-                     onclick="toggleLifeStatus(0,'hasCitysBlessing')">✨ City's Blessing</div>
-              </div>
-            </div>
-          </div>`;
-        container.appendChild(el);
-        return;
-      }
-
-      // ── 2-4 players: compact footer per player ──────
-      for (let i = 0; i < lifePlayerCount; i++) {
-        const d         = lifeData[i];
-        const opponents = Array.from({length: lifePlayerCount}, (_, j) => j).filter(j => j !== i);
-        const el        = document.createElement('div');
-        el.className    = 'life-player';
         el.style.background = `linear-gradient(155deg, ${LIFE_BG[i]} 0%, #0a0a12 100%)`;
-        el.innerHTML = `
-          ${_lifeTapWrapHTML(i)}
-          <div class="life-footer">
-            <div class="life-footer-top">
-              ${_footerCtrHTML(i,'poison','☠','#b0e870')}
-              ${_footerCtrHTML(i,'experience','⭐','#ffc850')}
-              ${_footerCtrHTML(i,'energy','⚡','#80c0ff')}
-              ${_footerCtrHTML(i,'rad','☢','#b0d870')}
-            </div>
-            <div class="life-footer-bottom">
-              <div class="life-status-badge-sm ${d.isMonarch?'monarch-active':''}" id="lsm-${i}"
-                   onclick="toggleLifeStatus(${i},'isMonarch')">👑</div>
-              <div class="life-status-badge-sm ${d.hasCitysBlessing?'citys-active':''}" id="lsc-${i}"
-                   onclick="toggleLifeStatus(${i},'hasCitysBlessing')">✨</div>
-              ${opponents.map(j => `
-                <div class="life-cmd-item">
-                  <span class="life-cmd-label">⚔${lifeData[j].name.replace(/Player /,'P')}</span>
-                  <button class="life-ctr-btn-sm" onclick="changeLifeCmd(${i},${j},-1)">−</button>
-                  <span class="life-ctr-val-sm" id="lcv-${i}-${j}">${lifeData[i].cmdDamage[j]||0}</span>
-                  <button class="life-ctr-btn-sm" onclick="changeLifeCmd(${i},${j},1)">+</button>
-                </div>`).join('')}
-            </div>
-          </div>`;
+        el.innerHTML = _lifeTapWrapHTML(i);
         container.appendChild(el);
       }
     }
