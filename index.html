@@ -1240,7 +1240,33 @@
       overflow: hidden;
     }
     .dice-dropdown.open { opacity: 1; pointer-events: all; transform: translateY(0) scale(1); }
-    .dice-dd-header { padding: 10px 14px 6px; font-size: .72rem; font-weight: 600; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); }
+    .dice-dd-header { padding: 10px 14px 4px; font-size: .72rem; font-weight: 600; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); }
+    .dice-qty-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 4px 12px 6px;
+    }
+    .dice-qty-label { font-size: .75rem; color: var(--muted); flex: 1; }
+    .dice-qty-btn {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      color: var(--text);
+      border-radius: 6px;
+      width: 26px; height: 26px;
+      font-size: 1rem; font-weight: 700;
+      cursor: pointer; display: flex; align-items: center; justify-content: center;
+      transition: background .12s;
+    }
+    .dice-qty-btn:active { background: var(--border); transform: scale(.9); }
+    .dice-qty-val { font-size: .9rem; font-weight: 700; min-width: 20px; text-align: center; color: var(--text); }
+    .dice-result-breakdown {
+      font-size: .72rem;
+      color: var(--muted);
+      margin-top: 2px;
+      min-height: 14px;
+      letter-spacing: .02em;
+    }
     .dice-grid {
       display: grid;
       grid-template-columns: repeat(4, 1fr);
@@ -1501,6 +1527,30 @@
       -webkit-user-select: none; user-select: none;
     }
     .life-player-detail-btn:hover { background: rgba(255,255,255,.14); color: rgba(255,255,255,.7); }
+    /* Life detail sheet sits above the life panel overlay */
+    #lifeDetailOverlay { z-index: 190; }
+
+    /* Life-change floating number pop-in */
+    .life-float {
+      position: fixed;
+      pointer-events: none;
+      font-size: 1.5rem;
+      font-weight: 800;
+      letter-spacing: -.5px;
+      text-shadow: 0 2px 6px rgba(0,0,0,.7);
+      z-index: 9999;
+      white-space: nowrap;
+      animation: lifeFloatUp 2s ease-out forwards;
+    }
+    .life-float.positive { color: #80dd80; }
+    .life-float.negative { color: #ff8080; }
+    @keyframes lifeFloatUp {
+      0%   { opacity: 0;   transform: translateY(0)    scale(.6); }
+      12%  { opacity: 1;   transform: translateY(-8px) scale(1.15); }
+      70%  { opacity: 1;   transform: translateY(-48px) scale(1); }
+      100% { opacity: 0;   transform: translateY(-72px) scale(.9); }
+    }
+
     /* Status indicators shown inside each player section */
     .life-status-indicators {
       margin-top: 6px; font-size: .72rem; letter-spacing: 2px;
@@ -1563,7 +1613,13 @@
           </svg>
         </button>
         <div class="header-dropdown dice-dropdown" id="diceDropdown">
-          <div class="dice-dd-header">Roll Dice</div>
+          <div class="dice-dd-header">Roll Dice / Flip Coin</div>
+          <div class="dice-qty-row" id="diceQtyRow">
+            <span class="dice-qty-label">Qty</span>
+            <button class="dice-qty-btn" onclick="adjustDiceQty(-1)">−</button>
+            <span class="dice-qty-val" id="diceQtyVal">1</span>
+            <button class="dice-qty-btn" onclick="adjustDiceQty(1)">+</button>
+          </div>
           <div class="dice-grid">
             <div class="dice-opt" onclick="rollDice('coin')">🪙</div>
             <div class="dice-opt" onclick="rollDice('d4')">d4</div>
@@ -1572,11 +1628,12 @@
             <div class="dice-opt" onclick="rollDice('d10')">d10</div>
             <div class="dice-opt" onclick="rollDice('d12')">d12</div>
             <div class="dice-opt" onclick="rollDice('d20')">d20</div>
-            <div class="dice-opt" onclick="rollDice('d100')">d%</div>
+            <div class="dice-opt" onclick="rollDice('d100')">d100</div>
           </div>
           <div class="dice-result-area">
             <div class="dice-result-label" id="diceResultLabel">tap a die to roll</div>
             <div class="dice-result-num" id="diceResultNum">—</div>
+            <div class="dice-result-breakdown" id="diceResultBreakdown"></div>
           </div>
           <div class="dice-history-wrap" id="diceHistoryWrap">
             <div class="dice-hist-empty" id="diceHistEmpty">No rolls yet</div>
@@ -1645,11 +1702,6 @@
             <button class="life-chip active" onclick="setLifePlayerCount(2)">2</button>
             <button class="life-chip"        onclick="setLifePlayerCount(3)">3</button>
             <button class="life-chip"        onclick="setLifePlayerCount(4)">4</button>
-          </div>
-          <div class="life-chip-group" id="startLifeChips">
-            <button class="life-chip active" onclick="setStartingLife(20)">20</button>
-            <button class="life-chip"        onclick="setStartingLife(30)">30</button>
-            <button class="life-chip"        onclick="setStartingLife(40)">40</button>
           </div>
         </div>
         <button class="life-reset-btn" onclick="resetLifeTotals()" title="Reset">↺</button>
@@ -3267,6 +3319,7 @@
     //  DICE ROLLER
     // ══════════════════════════════════════════════════════
     let diceHistory = [];
+    let _diceQty    = 1;
 
     function toggleDiceRoller() {
       const dd = document.getElementById('diceDropdown');
@@ -3286,39 +3339,70 @@
       if (!document.getElementById('diceMenuWrap')?.contains(e.target)) closeDiceRoller();
     }
 
+    function adjustDiceQty(delta) {
+      _diceQty = Math.max(1, Math.min(12, _diceQty + delta));
+      document.getElementById('diceQtyVal').textContent = _diceQty;
+    }
+
     function rollDice(type) {
-      let max, result, label;
+      let max, label;
+      const isCoin = type === 'coin';
       switch (type) {
-        case 'coin':  max = 2;   result = Math.random() < 0.5 ? 'Heads' : 'Tails'; label = '🪙 Coin'; break;
-        case 'd4':   max = 4;   result = Math.floor(Math.random() * 4)   + 1; label = 'd4';  break;
-        case 'd6':   max = 6;   result = Math.floor(Math.random() * 6)   + 1; label = 'd6';  break;
-        case 'd8':   max = 8;   result = Math.floor(Math.random() * 8)   + 1; label = 'd8';  break;
-        case 'd10':  max = 10;  result = Math.floor(Math.random() * 10)  + 1; label = 'd10'; break;
-        case 'd12':  max = 12;  result = Math.floor(Math.random() * 12)  + 1; label = 'd12'; break;
-        case 'd20':  max = 20;  result = Math.floor(Math.random() * 20)  + 1; label = 'd20'; break;
-        case 'd100': max = 100; result = Math.floor(Math.random() * 100) + 1; label = 'd%';  break;
+        case 'coin':  max = 2;   label = '🪙 Coin'; break;
+        case 'd4':    max = 4;   label = 'd4';   break;
+        case 'd6':    max = 6;   label = 'd6';   break;
+        case 'd8':    max = 8;   label = 'd8';   break;
+        case 'd10':   max = 10;  label = 'd10';  break;
+        case 'd12':   max = 12;  label = 'd12';  break;
+        case 'd20':   max = 20;  label = 'd20';  break;
+        case 'd100':  max = 100; label = 'd100'; break;
         default: return;
       }
+
+      // Roll qty times
+      const qty = isCoin ? 1 : _diceQty;
+      const rolls = [];
+      for (let i = 0; i < qty; i++) {
+        if (isCoin) {
+          rolls.push(Math.random() < 0.5 ? 'Heads' : 'Tails');
+        } else {
+          rolls.push(Math.floor(Math.random() * max) + 1);
+        }
+      }
+
+      const total   = isCoin ? rolls[0] : rolls.reduce((a, b) => a + b, 0);
+      const display = String(total);
+      const qtyLabel = (qty > 1) ? `${qty}×${label}` : label;
 
       // Animate result
       const numEl   = document.getElementById('diceResultNum');
       const lblEl   = document.getElementById('diceResultLabel');
+      const brkEl   = document.getElementById('diceResultBreakdown');
       numEl.classList.remove('rolling');
-      // Force reflow to restart animation
-      void numEl.offsetWidth;
+      void numEl.offsetWidth; // force reflow to restart animation
       numEl.classList.add('rolling');
-      numEl.textContent  = String(result);
-      lblEl.textContent  = label;
+      numEl.textContent = display;
+      lblEl.textContent = qtyLabel;
 
-      // Colour nat-20 gold, nat-1 red for dice (not coin)
-      if (type !== 'coin') {
-        numEl.style.color = result === max ? '#ffd966' : result === 1 ? '#ff7070' : 'var(--text)';
+      // Breakdown line for multi-roll
+      if (qty > 1) {
+        brkEl.textContent = rolls.join(' + ') + ' = ' + total;
+      } else {
+        brkEl.textContent = '';
+      }
+
+      // Colour: nat-20 (or max) gold, nat-1 red; coin neutral
+      if (!isCoin) {
+        const allMax = rolls.every(r => r === max);
+        const allOne = rolls.every(r => r === 1);
+        numEl.style.color = allMax ? '#ffd966' : allOne ? '#ff7070' : 'var(--text)';
       } else {
         numEl.style.color = 'var(--text)';
       }
 
-      // Add to history (most recent first, cap at 30)
-      diceHistory.unshift({ label, result, ts: Date.now() });
+      // History (most recent first, cap 30)
+      const histResult = (qty > 1) ? `${total} (${rolls.join(', ')})` : String(total);
+      diceHistory.unshift({ label: qtyLabel, result: histResult, ts: Date.now() });
       if (diceHistory.length > 30) diceHistory.pop();
       _renderDiceHistory();
     }
@@ -3397,6 +3481,8 @@
     let _lifeHoldFired = false;
     let _lifeHoldTimer = null;
     let _lifeHoldIval  = null;
+    let _lifeFloatX    = 0;
+    let _lifeFloatY    = 0;
 
     function openLifePanel() {
       renderLifePlayers();
@@ -3436,7 +3522,7 @@
     // Settings shortcuts — called from the header settings dropdown
     function settingsSetLife(n) {
       setStartingLife(n);
-      // no closeHeaderMenu() so the user can see the active chip update
+      resetLifeTotals();   // auto-apply new value to all players
     }
     function settingsSetPlayers(n) {
       setLifePlayerCount(n);
@@ -3452,6 +3538,18 @@
       renderLifePlayers();
     }
 
+    function _spawnLifeFloat(delta) {
+      const el = document.createElement('div');
+      el.className = 'life-float ' + (delta >= 0 ? 'positive' : 'negative');
+      el.textContent = (delta > 0 ? '+' : '') + delta;
+      // Scatter x slightly so rapid increments don't perfectly overlap
+      const jitter = (Math.random() - 0.5) * 28;
+      el.style.left = (_lifeFloatX + jitter) + 'px';
+      el.style.top  = (_lifeFloatY - 10) + 'px';
+      document.body.appendChild(el);
+      setTimeout(() => el.remove(), 2000);
+    }
+
     function changeLife(idx, delta) {
       lifeData[idx].life += delta;
       const el = document.getElementById(`lv-${idx}`);
@@ -3461,10 +3559,14 @@
         el.classList.add('bump');
         setTimeout(() => el.classList.remove('bump'), 75);
       }
+      _spawnLifeFloat(delta);
     }
 
     function onLifePointerDown(idx, delta, e) {
       e.preventDefault();
+      // Capture position for float animation
+      _lifeFloatX = e.clientX || (e.touches && e.touches[0] ? e.touches[0].clientX : 0);
+      _lifeFloatY = e.clientY || (e.touches && e.touches[0] ? e.touches[0].clientY : 0);
       _lifeHoldFired = false;
       _lifeHoldTimer = setTimeout(() => {
         _lifeHoldFired = true;

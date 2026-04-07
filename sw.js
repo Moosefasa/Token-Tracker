@@ -1,17 +1,19 @@
-// MTG Token Tracker — Service Worker v2
-const CACHE  = 'mtg-tokens-v2';
+// MTG Token Tracker — Service Worker v3
+const CACHE  = 'mtg-tokens-v3';
 const ASSETS = ['./index.html', './manifest.json', './icon-192.png', './icon-512.png'];
 
-// Install: pre-cache app shell, always fetch fresh copies
+// Install: pre-cache app shell, then WAIT — do NOT auto-skipWaiting.
+// The page will detect reg.waiting and show the update banner, then
+// send SKIP_WAITING when the user taps "Refresh".
 self.addEventListener('install', e => {
   e.waitUntil(
     caches.open(CACHE)
       .then(c => c.addAll(ASSETS.map(a => new Request(a, { cache: 'reload' }))))
-      .then(() => self.skipWaiting())
+    // intentionally no self.skipWaiting() here
   );
 });
 
-// Message: allow the page to trigger immediate activation
+// Message: page sends this after user taps "Refresh"
 self.addEventListener('message', event => {
   if (event.data && event.data.type === 'SKIP_WAITING') self.skipWaiting();
 });
