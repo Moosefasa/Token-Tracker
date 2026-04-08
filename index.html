@@ -1634,79 +1634,92 @@
     }
     .token-card.merge-flash { animation: mergeFlash .5s ease-out forwards; }
 
-    /* ── TOKEN WIZARD ──────────────────────────────────── */
-    .wiz-progress {
-      display: flex; gap: 6px; justify-content: center;
-      padding: 4px 0 16px;
-    }
-    .wiz-dot {
-      width: 8px; height: 8px; border-radius: 50%;
-      background: var(--border); transition: background .2s, transform .2s;
-    }
-    .wiz-dot.active { background: var(--accent); transform: scale(1.3); }
-    .wiz-dot.done   { background: var(--muted); }
+    /* ── TOKEN FORM ACCORDION ──────────────────────────── */
+    .wiz-accordion { display: flex; flex-direction: column; gap: 6px; }
 
-    .wiz-step { display: none; }
-    .wiz-step.active { display: block; }
+    .wiz-section {
+      background: var(--surface2); border: 1px solid var(--border);
+      border-radius: 10px; overflow: hidden;
+    }
+    .wiz-section.open { border-color: var(--muted); }
+
+    .wiz-sec-header {
+      display: flex; align-items: center; gap: 10px;
+      padding: 12px 14px; cursor: pointer;
+      user-select: none; -webkit-user-select: none;
+      transition: background .12s;
+    }
+    @media (hover: hover) { .wiz-sec-header:hover { background: var(--border); } }
+    .wiz-sec-header:active { background: var(--border); }
+
+    .wiz-sec-label {
+      font-size: .72rem; font-weight: 700; text-transform: uppercase;
+      letter-spacing: .06em; color: var(--muted); flex-shrink: 0; min-width: 72px;
+    }
+    .wiz-sec-value {
+      flex: 1; font-size: .85rem; font-weight: 600; color: var(--text);
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+      text-align: right; padding-right: 6px;
+    }
+    .wiz-sec-value.unset { color: var(--muted); font-weight: 400; }
+    .wiz-sec-arrow {
+      color: var(--muted); font-size: .7rem; flex-shrink: 0;
+      transition: transform .22s cubic-bezier(.4,0,.2,1);
+    }
+    .wiz-section.open .wiz-sec-arrow { transform: rotate(180deg); }
+
+    /* Smooth height animation via grid trick */
+    .wiz-sec-body {
+      display: grid; grid-template-rows: 0fr;
+      transition: grid-template-rows .22s cubic-bezier(.4,0,.2,1);
+    }
+    .wiz-section.open .wiz-sec-body { grid-template-rows: 1fr; }
+    .wiz-sec-inner { overflow: hidden; }
+    .wiz-sec-inner > * { padding: 0 14px 14px; }
+    /* First child gets top padding removed — sits right under header */
+    .wiz-sec-inner > .wiz-sec-pad { padding: 10px 14px 14px; }
 
     .wiz-type-grid {
-      display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding-bottom: 4px;
+      display: grid; grid-template-columns: 1fr 1fr; gap: 8px;
     }
     .wiz-type-tile {
-      background: var(--surface2); border: 2px solid var(--border);
-      border-radius: 12px; padding: 20px 10px 14px;
+      background: var(--surface); border: 2px solid var(--border);
+      border-radius: 10px; padding: 16px 8px 12px;
       text-align: center; cursor: pointer;
       transition: border-color .15s, background .15s, transform .1s;
       user-select: none; -webkit-user-select: none;
     }
     .wiz-type-tile:active { transform: scale(.96); }
     @media (hover: hover) { .wiz-type-tile:hover { border-color: var(--muted); } }
-    .wiz-type-tile.selected { border-color: var(--accent); background: rgba(200,75,49,.1); }
-    .wiz-type-icon  { font-size: 2rem; line-height: 1; margin-bottom: 7px; }
-    .wiz-type-label { font-size: .9rem; font-weight: 700; color: var(--text); }
-    .wiz-type-sub   { font-size: .7rem; color: var(--muted); margin-top: 3px; line-height: 1.3; }
+    .wiz-type-tile.selected { border-color: var(--accent); background: rgba(200,75,49,.12); }
+    .wiz-type-icon  { font-size: 1.7rem; line-height: 1; margin-bottom: 6px; }
+    .wiz-type-label { font-size: .85rem; font-weight: 700; color: var(--text); }
+    .wiz-type-sub   { font-size: .68rem; color: var(--muted); margin-top: 2px; line-height: 1.3; }
 
     .wiz-card-banner {
-      display: none; align-items: center; gap: 12px;
-      padding: 10px 12px; margin-bottom: 12px;
-      background: var(--surface2); border: 1px solid var(--border);
-      border-radius: 10px;
+      display: none; align-items: center; gap: 10px;
+      padding: 8px 10px; margin-bottom: 10px;
+      background: var(--bg); border: 1px solid var(--border);
+      border-radius: 8px;
     }
     .wiz-card-banner.visible { display: flex; }
-    .wiz-banner-img   { width: 40px; height: 56px; object-fit: cover; border-radius: 4px; flex-shrink: 0; background: var(--bg); }
+    .wiz-banner-img   { width: 36px; height: 50px; object-fit: cover; border-radius: 4px; flex-shrink: 0; background: var(--border); }
     .wiz-banner-info  { flex: 1; min-width: 0; }
-    .wiz-banner-name  { font-size: .88rem; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .wiz-banner-type  { font-size: .72rem; color: var(--muted); margin-top: 2px; }
-    .wiz-banner-clear { background: none; border: none; color: var(--muted); cursor: pointer; font-size: 1rem; padding: 4px; flex-shrink: 0; transition: color .15s; }
+    .wiz-banner-name  { font-size: .85rem; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .wiz-banner-type  { font-size: .7rem; color: var(--muted); margin-top: 1px; }
+    .wiz-banner-clear { background: none; border: none; color: var(--muted); cursor: pointer; font-size: .9rem; padding: 4px; flex-shrink: 0; transition: color .15s; }
     .wiz-banner-clear:hover { color: var(--text); }
 
-    .wiz-nav { display: flex; gap: 10px; margin-top: 18px; }
-    .btn-wiz-back {
-      background: var(--surface2); border: 1px solid var(--border);
-      color: var(--muted); border-radius: 9px; padding: 13px 16px;
-      font-size: .88rem; font-weight: 600; cursor: pointer; flex-shrink: 0;
-      transition: color .15s, border-color .15s;
-    }
-    .btn-wiz-back:hover { color: var(--text); border-color: var(--muted); }
-    .btn-wiz-next {
-      flex: 1; background: var(--accent); color: #fff;
-      border: none; border-radius: 9px; padding: 13px;
-      font-size: .95rem; font-weight: 700; cursor: pointer;
-      transition: background .15s, transform .1s;
-    }
-    .btn-wiz-next:hover { background: var(--accent-h); }
-    .btn-wiz-next:active { transform: scale(.97); }
-    .btn-wiz-next:disabled { background: var(--border); color: var(--muted); cursor: not-allowed; transform: none; }
     .btn-wiz-submit {
-      flex: 1; background: var(--green); color: var(--green-t);
-      border: 1px solid #4aaa7a; border-radius: 9px; padding: 13px;
+      width: 100%; background: var(--accent); color: #fff;
+      border: none; border-radius: 10px; padding: 15px;
       font-size: .95rem; font-weight: 700; cursor: pointer;
-      transition: background .15s, transform .1s;
+      transition: background .15s, transform .1s; margin-top: 4px;
     }
-    .btn-wiz-submit:hover { background: #2a5a2a; }
-    .btn-wiz-submit:active { transform: scale(.97); }
+    .btn-wiz-submit:hover  { background: var(--accent-h); }
+    .btn-wiz-submit:active { transform: scale(.98); }
 
-    .wiz-manual-hint { text-align: center; margin-top: 8px; }
+    .wiz-manual-hint { text-align: center; padding-top: 6px; }
     .wiz-manual-hint button {
       background: none; border: none; color: var(--muted);
       font-size: .78rem; cursor: pointer;
@@ -1714,10 +1727,6 @@
       padding: 4px; transition: color .15s;
     }
     .wiz-manual-hint button:hover { color: var(--text); }
-    .wiz-step-label {
-      font-size: .72rem; font-weight: 700; text-transform: uppercase;
-      letter-spacing: .06em; color: var(--muted); margin-bottom: 14px;
-    }
 
     /* ── SPLASH SCREEN ──────────────────────────────────── */
     .splash-overlay {
@@ -1759,20 +1768,31 @@
 
     /* ── LIGHT MODE ─────────────────────────────────────── */
     [data-theme="light"] {
-      --bg:      #ebebf4;
-      --surface: #ffffff;
-      --surface2:#f2f2fa;
-      --border:  #d4d4e6;
-      --text:    #1a1a2e;
-      --muted:   #828294;
+      --bg:      #d0d0d8;   /* dull mid-gray, not blinding */
+      --surface: #dcdce4;
+      --surface2:#d4d4dc;
+      --border:  #b8b8c8;
+      --text:    #14141e;
+      --muted:   #606070;
     }
-    [data-theme="light"] header { background: #fff; border-bottom-color: #d4d4e6; }
-    [data-theme="light"] .life-panel { background: #eeeef8; }
-    [data-theme="light"] .life-value { color: #1a1a2e !important; }
-    [data-theme="light"] .life-value.dead { color: #cc2222 !important; }
-    [data-theme="light"] .life-name { color: rgba(26,26,46,.55) !important; }
-    [data-theme="light"] .life-tally.positive { color: #2a8a2a; }
-    [data-theme="light"] .life-tally.negative { color: #cc2222; }
+    [data-theme="light"] header {
+      background: #d8d8e0;
+      border-bottom-color: #b8b8c8;
+    }
+    /* Life panel has colored player BGs so just use a neutral shell */
+    [data-theme="light"] .life-panel { background: #c8c8d0; }
+    [data-theme="light"] .life-panel-header { background: #c8c8d0; border-bottom-color: #aaaabc; }
+    /* Life value in light mode: dark text for contrast */
+    [data-theme="light"] .life-value { color: #fff !important; text-shadow: 0 1px 6px rgba(0,0,0,.45); }
+    [data-theme="light"] .life-value.dead { color: #ffe0e0 !important; }
+    /* Player name: white with slight shadow for vibrant BGs */
+    [data-theme="light"] .life-name { color: rgba(255,255,255,.85) !important; }
+    [data-theme="light"] .life-tally.positive { color: #e8ffe8; }
+    [data-theme="light"] .life-tally.negative { color: #ffe8e8; }
+    /* Modal / surfaces in light mode */
+    [data-theme="light"] .modal { background: #d8d8e0; }
+    [data-theme="light"] .header-dropdown { background: #d8d8e0; }
+    [data-theme="light"] .wiz-section { background: #d0d0d8; }
 
     /* Theme toggle in settings dropdown */
     .theme-toggle-row {
@@ -2023,233 +2043,267 @@
     </div>
   </div>
 
-  <!-- GENERATE TOKEN MODAL — 7-step wizard -->
+  <!-- GENERATE TOKEN MODAL — accordion form -->
   <div class="modal-overlay" id="modalOverlay" onclick="handleOverlayClick(event)">
     <div class="modal" id="modal">
       <div class="modal-drag"></div>
       <div class="modal-header">
-        <span class="modal-title" id="wizModalTitle">Token Type</span>
+        <span class="modal-title">Generate Token</span>
         <button class="modal-close" onclick="closeModal()">✕</button>
       </div>
       <div class="modal-body">
+        <div class="wiz-accordion">
 
-        <!-- Progress dots (7 steps) -->
-        <div class="wiz-progress" id="wizProgress">
-          <div class="wiz-dot"></div>
-          <div class="wiz-dot"></div>
-          <div class="wiz-dot"></div>
-          <div class="wiz-dot"></div>
-          <div class="wiz-dot"></div>
-          <div class="wiz-dot"></div>
-          <div class="wiz-dot"></div>
-        </div>
-
-        <!-- ── Step 1: Type ─────────────────────────────── -->
-        <div class="wiz-step" id="wizStep1">
-          <div class="wiz-step-label">What type of token?</div>
-          <div class="wiz-type-grid">
-            <div class="wiz-type-tile" data-type="Creature"    onclick="wizSelectType('Creature')">
-              <div class="wiz-type-icon">🐲</div>
-              <div class="wiz-type-label">Creature</div>
-              <div class="wiz-type-sub">Saproling, Goblin, Spirit…</div>
+          <!-- ── 1. Type ──────────────────────────────────── -->
+          <div class="wiz-section open" id="wizSec1">
+            <div class="wiz-sec-header" onclick="wizToggleSec(1)">
+              <span class="wiz-sec-label">Type</span>
+              <span class="wiz-sec-value unset" id="wizSecVal1">—</span>
+              <span class="wiz-sec-arrow">▾</span>
             </div>
-            <div class="wiz-type-tile" data-type="Artifact"    onclick="wizSelectType('Artifact')">
-              <div class="wiz-type-icon">⚙️</div>
-              <div class="wiz-type-label">Artifact</div>
-              <div class="wiz-type-sub">Treasure, Food, Clue…</div>
-            </div>
-            <div class="wiz-type-tile" data-type="Enchantment" onclick="wizSelectType('Enchantment')">
-              <div class="wiz-type-icon">✨</div>
-              <div class="wiz-type-label">Enchantment</div>
-              <div class="wiz-type-sub">Role, Shard, Cursed…</div>
-            </div>
-            <div class="wiz-type-tile" data-type="Copy"        onclick="wizSelectType('Copy')">
-              <div class="wiz-type-icon">📋</div>
-              <div class="wiz-type-label">Copy</div>
-              <div class="wiz-type-sub">Exact copy of a permanent</div>
-            </div>
-          </div>
-        </div>
-
-        <!-- ── Step 2: Search ───────────────────────────── -->
-        <div class="wiz-step" id="wizStep2">
-          <!-- Selected card banner -->
-          <div class="wiz-card-banner" id="wizBanner">
-            <img class="wiz-banner-img" id="wizBannerImg" src="" alt="">
-            <div class="wiz-banner-info">
-              <div class="wiz-banner-name" id="wizBannerName"></div>
-              <div class="wiz-banner-type" id="wizBannerType"></div>
-            </div>
-            <button class="wiz-banner-clear" onclick="wizClearCard()" title="Clear">✕</button>
-          </div>
-
-          <div class="form-group" id="wizSearchGroup">
-            <label class="form-label" id="wizSearchLabel">Token Name</label>
-            <input type="text" id="wizSearch" class="form-input"
-                   placeholder="Start typing…" autocomplete="off" spellcheck="false"
-                   oninput="wizOnSearchInput()">
-            <div class="search-drop" id="wizSearchDrop"></div>
-          </div>
-
-          <!-- Art version (shown when >1 printing) -->
-          <div id="wizArtSection" style="display:none">
-            <div class="section-divider"></div>
-            <div class="form-group">
-              <label class="form-label">Art Version</label>
-              <div class="art-dropdown-trigger" id="wizArtTrigger" onclick="wizToggleArtDrop()">
-                <img class="art-drop-thumb" id="wizArtThumb" src="" alt="">
-                <div class="art-drop-label">
-                  <div class="art-drop-name" id="wizArtName">Select version</div>
-                  <div class="art-drop-set"  id="wizArtSet"></div>
+            <div class="wiz-sec-body">
+              <div class="wiz-sec-inner">
+                <div class="wiz-sec-pad">
+                  <div class="wiz-type-grid">
+                    <div class="wiz-type-tile" data-type="Creature"    onclick="wizSelectType('Creature')">
+                      <div class="wiz-type-icon">🐲</div>
+                      <div class="wiz-type-label">Creature</div>
+                      <div class="wiz-type-sub">Saproling, Goblin…</div>
+                    </div>
+                    <div class="wiz-type-tile" data-type="Artifact"    onclick="wizSelectType('Artifact')">
+                      <div class="wiz-type-icon">⚙️</div>
+                      <div class="wiz-type-label">Artifact</div>
+                      <div class="wiz-type-sub">Treasure, Food…</div>
+                    </div>
+                    <div class="wiz-type-tile" data-type="Enchantment" onclick="wizSelectType('Enchantment')">
+                      <div class="wiz-type-icon">✨</div>
+                      <div class="wiz-type-label">Enchantment</div>
+                      <div class="wiz-type-sub">Role, Shard…</div>
+                    </div>
+                    <div class="wiz-type-tile" data-type="Copy"        onclick="wizSelectType('Copy')">
+                      <div class="wiz-type-icon">📋</div>
+                      <div class="wiz-type-label">Copy</div>
+                      <div class="wiz-type-sub">Copy of a permanent</div>
+                    </div>
+                  </div>
                 </div>
-                <span class="art-drop-arrow">▾</span>
-              </div>
-              <div class="art-dropdown-list" id="wizArtList"></div>
-            </div>
-          </div>
-
-          <div class="wiz-manual-hint" id="wizManualHint">
-            <button onmousedown="event.preventDefault();wizGoManual()">✏️ Create manually instead</button>
-          </div>
-
-          <div class="wiz-nav">
-            <button class="btn-wiz-back" onclick="wizGo(1)">← Back</button>
-            <button class="btn-wiz-next" id="wizNext2" onclick="wizGo(3)" disabled>Continue</button>
-          </div>
-        </div>
-
-        <!-- ── Step 3: Qty + P/T ────────────────────────── -->
-        <div class="wiz-step" id="wizStep3">
-          <div class="form-group">
-            <label class="form-label">Quantity</label>
-            <div class="modal-qty-row">
-              <button class="modal-qty-btn" onclick="wizAdjQty(-1)">−</button>
-              <input type="number" id="wizQty" class="form-input modal-qty-input"
-                     value="1" min="1" max="99" inputmode="numeric">
-              <button class="modal-qty-btn" onclick="wizAdjQty(1)">+</button>
-            </div>
-          </div>
-          <div class="pt-row" id="wizPtRow">
-            <div class="form-group">
-              <label class="form-label">Power</label>
-              <input type="text" id="wizPower" class="form-input" value="1" inputmode="decimal">
-            </div>
-            <div class="form-group">
-              <label class="form-label">Toughness</label>
-              <input type="text" id="wizToughness" class="form-input" value="1" inputmode="decimal">
-            </div>
-          </div>
-          <div class="wiz-nav">
-            <button class="btn-wiz-back" onclick="wizGo(2)">← Back</button>
-            <button class="btn-wiz-next" onclick="wizGo(4)">Continue</button>
-          </div>
-        </div>
-
-        <!-- ── Step 4: Colors ───────────────────────────── -->
-        <div class="wiz-step" id="wizStep4">
-          <div class="form-group">
-            <label class="form-label">Card Color</label>
-            <div class="color-chips" id="wizColorChips">
-              <div class="color-chip chip-w" data-color="W" onclick="wizToggleColor(this)" title="White">W</div>
-              <div class="color-chip chip-u" data-color="U" onclick="wizToggleColor(this)" title="Blue">U</div>
-              <div class="color-chip chip-b" data-color="B" onclick="wizToggleColor(this)" title="Black">B</div>
-              <div class="color-chip chip-r" data-color="R" onclick="wizToggleColor(this)" title="Red">R</div>
-              <div class="color-chip chip-g" data-color="G" onclick="wizToggleColor(this)" title="Green">G</div>
-              <div class="color-chip chip-c" data-color="C" onclick="wizToggleColor(this)" title="Colorless">∅</div>
-            </div>
-          </div>
-          <div class="wiz-nav">
-            <button class="btn-wiz-back" onclick="wizGo(3)">← Back</button>
-            <button class="btn-wiz-next" onclick="wizGo(5)">Continue</button>
-          </div>
-        </div>
-
-        <!-- ── Step 5: Subtypes ─────────────────────────── -->
-        <div class="wiz-step" id="wizStep5">
-          <div class="form-group">
-            <label class="form-label">Subtypes <span style="font-weight:400;text-transform:none;font-size:.75rem">(optional)</span></label>
-            <input type="text" id="wizSubtype" class="form-input"
-                   placeholder="e.g. Goblin Warrior, Treasure">
-          </div>
-          <div class="wiz-nav">
-            <button class="btn-wiz-back" onclick="wizGo(4)">← Back</button>
-            <button class="btn-wiz-next" onclick="wizGo(6)">Continue</button>
-          </div>
-        </div>
-
-        <!-- ── Step 6: Keywords ─────────────────────────── -->
-        <div class="wiz-step" id="wizStep6">
-          <div class="form-group">
-            <label class="form-label">Keywords <span style="font-weight:400;text-transform:none;font-size:.75rem">(tap to toggle)</span></label>
-            <div class="modifier-chips">
-              <div class="mod-chip" data-kw="Flying"         onclick="toggleModChip(this)">Flying</div>
-              <div class="mod-chip" data-kw="Trample"        onclick="toggleModChip(this)">Trample</div>
-              <div class="mod-chip" data-kw="Haste"          onclick="toggleModChip(this)">Haste</div>
-              <div class="mod-chip" data-kw="Vigilance"      onclick="toggleModChip(this)">Vigilance</div>
-              <div class="mod-chip" data-kw="Deathtouch"     onclick="toggleModChip(this)">Deathtouch</div>
-              <div class="mod-chip" data-kw="Lifelink"       onclick="toggleModChip(this)">Lifelink</div>
-              <div class="mod-chip" data-kw="Menace"         onclick="toggleModChip(this)">Menace</div>
-              <div class="mod-chip" data-kw="Reach"          onclick="toggleModChip(this)">Reach</div>
-              <div class="mod-chip" data-kw="First Strike"   onclick="toggleModChip(this)">First Strike</div>
-              <div class="mod-chip" data-kw="Double Strike"  onclick="toggleModChip(this)">Double Strike</div>
-              <div class="mod-chip" data-kw="Hexproof"       onclick="toggleModChip(this)">Hexproof</div>
-              <div class="mod-chip" data-kw="Indestructible" onclick="toggleModChip(this)">Indestructible</div>
-              <div class="mod-chip" data-kw="Ward"           onclick="toggleModChip(this)">Ward</div>
-              <div class="mod-chip" data-kw="Flash"          onclick="toggleModChip(this)">Flash</div>
-            </div>
-          </div>
-          <div class="wiz-nav">
-            <button class="btn-wiz-back" onclick="wizGo(5)">← Back</button>
-            <button class="btn-wiz-next" onclick="wizGo(7)">Continue</button>
-          </div>
-        </div>
-
-        <!-- ── Step 7: Ability Text ─────────────────────── -->
-        <div class="wiz-step" id="wizStep7">
-          <div class="form-group">
-            <label class="form-label">Ability Text <span style="font-weight:400;text-transform:none;font-size:.75rem">(optional)</span></label>
-            <textarea id="wizAbilities" class="form-textarea" rows="4"
-                      placeholder="Flying&#10;{T}: Add {G}&#10;When this enters, draw a card…"></textarea>
-          </div>
-
-          <details id="wizCounterDetails" style="margin-bottom:12px">
-            <summary style="list-style:none;cursor:pointer;display:flex;align-items:center;justify-content:space-between;padding:2px 0 8px">
-              <span class="form-label" style="margin:0">Starting Counters</span>
-              <span style="font-size:.75rem;color:var(--muted)">optional ▾</span>
-            </summary>
-            <div class="counter-row">
-              <div class="counter-group">
-                <span class="counter-label" style="color:#4aaa7a">+1/+1</span>
-                <input type="number" class="counter-num" id="wizCtrPlus"  value="0" min="0" max="99" inputmode="numeric">
-              </div>
-              <div class="counter-group">
-                <span class="counter-label" style="color:#aa4455">−1/−1</span>
-                <input type="number" class="counter-num" id="wizCtrMinus" value="0" min="0" max="99" inputmode="numeric">
-              </div>
-              <div class="counter-group" style="gap:6px">
-                <input type="text"   class="counter-num" id="wizCtrName"   placeholder="name" style="width:52px;font-size:.75rem">
-                <input type="number" class="counter-num" id="wizCtrCustom" value="0" min="0" max="99" inputmode="numeric">
               </div>
             </div>
-          </details>
+          </div>
 
-          <div class="toggle-row" style="padding:4px 0 14px">
-            <div>
-              <div class="toggle-label">Enters Tapped</div>
-              <div class="toggle-sub">All tokens enter already tapped</div>
+          <!-- ── 2. Token Search ──────────────────────────── -->
+          <div class="wiz-section" id="wizSec2">
+            <div class="wiz-sec-header" onclick="wizToggleSec(2)">
+              <span class="wiz-sec-label">Token</span>
+              <span class="wiz-sec-value unset" id="wizSecVal2">—</span>
+              <span class="wiz-sec-arrow">▾</span>
             </div>
-            <label class="toggle-switch">
-              <input type="checkbox" id="wizEntersTapped">
-              <span class="toggle-knob"></span>
-            </label>
+            <div class="wiz-sec-body">
+              <div class="wiz-sec-inner">
+                <div class="wiz-sec-pad">
+                  <!-- Selected card banner -->
+                  <div class="wiz-card-banner" id="wizBanner">
+                    <img class="wiz-banner-img" id="wizBannerImg" src="" alt="">
+                    <div class="wiz-banner-info">
+                      <div class="wiz-banner-name" id="wizBannerName"></div>
+                      <div class="wiz-banner-type" id="wizBannerType"></div>
+                    </div>
+                    <button class="wiz-banner-clear" onclick="wizClearCard()" title="Clear">✕</button>
+                  </div>
+
+                  <div id="wizSearchGroup">
+                    <label class="form-label" id="wizSearchLabel">Token Name</label>
+                    <input type="text" id="wizSearch" class="form-input"
+                           style="margin-top:5px"
+                           placeholder="Start typing…" autocomplete="off" spellcheck="false"
+                           oninput="wizOnSearchInput()">
+                    <div class="search-drop" id="wizSearchDrop"></div>
+                  </div>
+
+                  <!-- Art version (shown when >1 printing) -->
+                  <div id="wizArtSection" style="display:none;margin-top:10px">
+                    <label class="form-label">Art Version</label>
+                    <div class="art-dropdown-trigger" id="wizArtTrigger" onclick="wizToggleArtDrop()" style="margin-top:5px">
+                      <img class="art-drop-thumb" id="wizArtThumb" src="" alt="">
+                      <div class="art-drop-label">
+                        <div class="art-drop-name" id="wizArtName">Select version</div>
+                        <div class="art-drop-set"  id="wizArtSet"></div>
+                      </div>
+                      <span class="art-drop-arrow">▾</span>
+                    </div>
+                    <div class="art-dropdown-list" id="wizArtList"></div>
+                  </div>
+
+                  <div class="wiz-manual-hint" id="wizManualHint">
+                    <button onmousedown="event.preventDefault();wizGoManual()">✏️ Create manually instead</button>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
 
-          <div class="wiz-nav">
-            <button class="btn-wiz-back"   onclick="wizGo(6)">← Back</button>
-            <button class="btn-wiz-submit" onclick="wizGenerate()">Add to Battlefield</button>
+          <!-- ── 3. Qty + P/T ─────────────────────────────── -->
+          <div class="wiz-section" id="wizSec3">
+            <div class="wiz-sec-header" onclick="wizToggleSec(3)">
+              <span class="wiz-sec-label">Qty &amp; Size</span>
+              <span class="wiz-sec-value" id="wizSecVal3">1</span>
+              <span class="wiz-sec-arrow">▾</span>
+            </div>
+            <div class="wiz-sec-body">
+              <div class="wiz-sec-inner">
+                <div class="wiz-sec-pad">
+                  <div class="form-group">
+                    <label class="form-label">Quantity</label>
+                    <div class="modal-qty-row">
+                      <button class="modal-qty-btn" onclick="wizAdjQty(-1)">−</button>
+                      <input type="number" id="wizQty" class="form-input modal-qty-input"
+                             value="1" min="1" max="99" inputmode="numeric" oninput="_wizUpdateQtyVal()">
+                      <button class="modal-qty-btn" onclick="wizAdjQty(1)">+</button>
+                    </div>
+                  </div>
+                  <div class="pt-row" id="wizPtRow" style="display:none">
+                    <div class="form-group">
+                      <label class="form-label">Power</label>
+                      <input type="text" id="wizPower" class="form-input" value="1" inputmode="decimal" oninput="_wizUpdateQtyVal()">
+                    </div>
+                    <div class="form-group">
+                      <label class="form-label">Toughness</label>
+                      <input type="text" id="wizToughness" class="form-input" value="1" inputmode="decimal" oninput="_wizUpdateQtyVal()">
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
-        </div>
 
+          <!-- ── 4. Colors ─────────────────────────────────── -->
+          <div class="wiz-section" id="wizSec4">
+            <div class="wiz-sec-header" onclick="wizToggleSec(4)">
+              <span class="wiz-sec-label">Color</span>
+              <span class="wiz-sec-value unset" id="wizSecVal4">—</span>
+              <span class="wiz-sec-arrow">▾</span>
+            </div>
+            <div class="wiz-sec-body">
+              <div class="wiz-sec-inner">
+                <div class="wiz-sec-pad">
+                  <div class="color-chips" id="wizColorChips">
+                    <div class="color-chip chip-w" data-color="W" onclick="wizToggleColor(this)" title="White">W</div>
+                    <div class="color-chip chip-u" data-color="U" onclick="wizToggleColor(this)" title="Blue">U</div>
+                    <div class="color-chip chip-b" data-color="B" onclick="wizToggleColor(this)" title="Black">B</div>
+                    <div class="color-chip chip-r" data-color="R" onclick="wizToggleColor(this)" title="Red">R</div>
+                    <div class="color-chip chip-g" data-color="G" onclick="wizToggleColor(this)" title="Green">G</div>
+                    <div class="color-chip chip-c" data-color="C" onclick="wizToggleColor(this)" title="Colorless">∅</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- ── 5. Subtypes ───────────────────────────────── -->
+          <div class="wiz-section" id="wizSec5">
+            <div class="wiz-sec-header" onclick="wizToggleSec(5)">
+              <span class="wiz-sec-label">Subtypes</span>
+              <span class="wiz-sec-value unset" id="wizSecVal5">—</span>
+              <span class="wiz-sec-arrow">▾</span>
+            </div>
+            <div class="wiz-sec-body">
+              <div class="wiz-sec-inner">
+                <div class="wiz-sec-pad">
+                  <input type="text" id="wizSubtype" class="form-input"
+                         placeholder="Goblin Warrior, Treasure…"
+                         oninput="_wizUpdateSubtypeVal()">
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- ── 6. Keywords ───────────────────────────────── -->
+          <div class="wiz-section" id="wizSec6">
+            <div class="wiz-sec-header" onclick="wizToggleSec(6)">
+              <span class="wiz-sec-label">Keywords</span>
+              <span class="wiz-sec-value unset" id="wizSecVal6">—</span>
+              <span class="wiz-sec-arrow">▾</span>
+            </div>
+            <div class="wiz-sec-body">
+              <div class="wiz-sec-inner">
+                <div class="wiz-sec-pad">
+                  <div class="modifier-chips">
+                    <div class="mod-chip" data-kw="Flying"         onclick="toggleModChip(this)">Flying</div>
+                    <div class="mod-chip" data-kw="Trample"        onclick="toggleModChip(this)">Trample</div>
+                    <div class="mod-chip" data-kw="Haste"          onclick="toggleModChip(this)">Haste</div>
+                    <div class="mod-chip" data-kw="Vigilance"      onclick="toggleModChip(this)">Vigilance</div>
+                    <div class="mod-chip" data-kw="Deathtouch"     onclick="toggleModChip(this)">Deathtouch</div>
+                    <div class="mod-chip" data-kw="Lifelink"       onclick="toggleModChip(this)">Lifelink</div>
+                    <div class="mod-chip" data-kw="Menace"         onclick="toggleModChip(this)">Menace</div>
+                    <div class="mod-chip" data-kw="Reach"          onclick="toggleModChip(this)">Reach</div>
+                    <div class="mod-chip" data-kw="First Strike"   onclick="toggleModChip(this)">First Strike</div>
+                    <div class="mod-chip" data-kw="Double Strike"  onclick="toggleModChip(this)">Double Strike</div>
+                    <div class="mod-chip" data-kw="Hexproof"       onclick="toggleModChip(this)">Hexproof</div>
+                    <div class="mod-chip" data-kw="Indestructible" onclick="toggleModChip(this)">Indestructible</div>
+                    <div class="mod-chip" data-kw="Ward"           onclick="toggleModChip(this)">Ward</div>
+                    <div class="mod-chip" data-kw="Flash"          onclick="toggleModChip(this)">Flash</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- ── 7. Abilities + Extras ─────────────────────── -->
+          <div class="wiz-section" id="wizSec7">
+            <div class="wiz-sec-header" onclick="wizToggleSec(7)">
+              <span class="wiz-sec-label">Abilities</span>
+              <span class="wiz-sec-value unset" id="wizSecVal7">—</span>
+              <span class="wiz-sec-arrow">▾</span>
+            </div>
+            <div class="wiz-sec-body">
+              <div class="wiz-sec-inner">
+                <div class="wiz-sec-pad">
+                  <div class="form-group">
+                    <label class="form-label">Ability Text <span style="font-weight:400;text-transform:none;font-size:.75rem">(optional)</span></label>
+                    <textarea id="wizAbilities" class="form-textarea" rows="3"
+                              placeholder="Flying&#10;{T}: Add {G}&#10;When this enters…"
+                              oninput="_wizUpdateAbilityVal()"></textarea>
+                  </div>
+
+                  <details id="wizCounterDetails" style="margin-bottom:10px">
+                    <summary style="list-style:none;cursor:pointer;display:flex;align-items:center;justify-content:space-between;padding:2px 0 8px">
+                      <span class="form-label" style="margin:0">Starting Counters</span>
+                      <span style="font-size:.75rem;color:var(--muted)">optional ▾</span>
+                    </summary>
+                    <div class="counter-row">
+                      <div class="counter-group">
+                        <span class="counter-label" style="color:#4aaa7a">+1/+1</span>
+                        <input type="number" class="counter-num" id="wizCtrPlus"  value="0" min="0" max="99" inputmode="numeric">
+                      </div>
+                      <div class="counter-group">
+                        <span class="counter-label" style="color:#aa4455">−1/−1</span>
+                        <input type="number" class="counter-num" id="wizCtrMinus" value="0" min="0" max="99" inputmode="numeric">
+                      </div>
+                      <div class="counter-group" style="gap:6px">
+                        <input type="text"   class="counter-num" id="wizCtrName"   placeholder="name" style="width:52px;font-size:.75rem">
+                        <input type="number" class="counter-num" id="wizCtrCustom" value="0" min="0" max="99" inputmode="numeric">
+                      </div>
+                    </div>
+                  </details>
+
+                  <div class="toggle-row" style="padding:4px 0 6px">
+                    <div>
+                      <div class="toggle-label">Enters Tapped</div>
+                      <div class="toggle-sub">All tokens enter already tapped</div>
+                    </div>
+                    <label class="toggle-switch">
+                      <input type="checkbox" id="wizEntersTapped">
+                      <span class="toggle-knob"></span>
+                    </label>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <button class="btn-wiz-submit" onclick="wizGenerate()">Add to Battlefield</button>
+
+        </div><!-- /.wiz-accordion -->
       </div><!-- /.modal-body -->
     </div><!-- /.modal -->
   </div>
@@ -2402,7 +2456,6 @@
     })();
 
     // ── Wizard state ──────────────────────────────────────
-    let wizStep       = 1;
     let wizType       = '';        // 'Creature'|'Artifact'|'Enchantment'|'Copy'
     let wizCardData   = null;      // selected Scryfall card
     let wizArtOptions = [];        // all art printings
@@ -2446,7 +2499,6 @@
     //  WIZARD CORE
     // ══════════════════════════════════════════════════════
     function wizReset() {
-      wizStep      = 1;
       wizType      = '';
       wizCardData  = null;
       wizArtOptions = [];
@@ -2457,17 +2509,16 @@
       wizActiveKws = new Set();
 
       document.getElementById('wizSearch').value           = '';
-      document.getElementById('wizSearch').oninput         = null;  // will be reassigned below
       document.getElementById('wizSearchDrop').className   = 'search-drop';
       document.getElementById('wizSearchDrop').innerHTML   = '';
       document.getElementById('wizBanner').className       = 'wiz-card-banner';
       document.getElementById('wizSearchGroup').style.display  = 'block';
       document.getElementById('wizManualHint').style.display   = 'block';
       document.getElementById('wizArtSection').style.display   = 'none';
-      document.getElementById('wizNext2').disabled         = true;
       document.getElementById('wizQty').value              = '1';
       document.getElementById('wizPower').value            = '1';
       document.getElementById('wizToughness').value        = '1';
+      document.getElementById('wizPtRow').style.display    = 'none';
       document.getElementById('wizSubtype').value          = '';
       document.getElementById('wizAbilities').value        = '';
       document.getElementById('wizCtrPlus').value          = '0';
@@ -2476,45 +2527,94 @@
       document.getElementById('wizCtrCustom').value        = '0';
       document.getElementById('wizEntersTapped').checked   = false;
       document.querySelectorAll('#wizColorChips .color-chip').forEach(c => c.classList.remove('active'));
-      document.querySelectorAll('#wizStep6 .mod-chip').forEach(c => c.classList.remove('active'));
+      document.querySelectorAll('#wizSec6 .mod-chip').forEach(c => c.classList.remove('active'));
       document.querySelectorAll('.wiz-type-tile').forEach(t => t.classList.remove('selected'));
       const det = document.getElementById('wizCounterDetails');
       if (det && det.open) det.open = false;
 
-      // Restore default oninput handler for search
-      document.getElementById('wizSearch').oninput = wizOnSearchInput;
-
-      _wizShowStep(1);
-    }
-
-    function _wizShowStep(n) {
-      wizStep = n;
-      document.querySelectorAll('.wiz-step').forEach((el, i) => {
-        el.classList.toggle('active', i + 1 === n);
+      // Reset all section value displays
+      const unsetVals = [1,2,4,5,6,7];
+      unsetVals.forEach(n => {
+        const el = document.getElementById('wizSecVal' + n);
+        if (el) { el.textContent = '—'; el.classList.add('unset'); }
       });
-      const dots = document.querySelectorAll('#wizProgress .wiz-dot');
-      dots.forEach((d, i) => {
-        d.classList.remove('active','done');
-        if (i + 1 === n) d.classList.add('active');
-        else if (i + 1 < n) d.classList.add('done');
-      });
-      const titles = ['Token Type','Token Search','Quantity & Size','Card Color','Subtypes','Keywords','Ability Text'];
-      document.getElementById('wizModalTitle').textContent = titles[n - 1] || 'Generate Token';
-      if (n === 3) {
-        const showPT = wizType === 'Creature'
-          || (wizCardData && (wizCardData.type_line || '').includes('Creature'));
-        document.getElementById('wizPtRow').style.display = showPT ? 'flex' : 'none';
+      document.getElementById('wizSecVal3').textContent = '1';
+      document.getElementById('wizSecVal3').classList.remove('unset');
+
+      // Close all sections, open only sec1
+      for (let i = 1; i <= 7; i++) {
+        const sec = document.getElementById('wizSec' + i);
+        if (sec) sec.classList.toggle('open', i === 1);
       }
-      if (n === 2) setTimeout(() => { if (!wizCardData) document.getElementById('wizSearch').focus(); }, 280);
     }
 
-    function wizGo(n) { _wizShowStep(n); }
+    // ── Accordion toggle ──────────────────────────────────
+    function wizToggleSec(n) {
+      const sec = document.getElementById('wizSec' + n);
+      if (!sec) return;
+      sec.classList.toggle('open');
+    }
 
-    // ── Step 1: type selection ────────────────────────────
+    function _wizOpenSec(n) {
+      const sec = document.getElementById('wizSec' + n);
+      if (sec && !sec.classList.contains('open')) sec.classList.add('open');
+    }
+
+    // ── Section header value updaters ─────────────────────
+    function _wizUpdateQtyVal() {
+      const qty = document.getElementById('wizQty').value || '1';
+      const ptRow = document.getElementById('wizPtRow');
+      const showPT = ptRow && ptRow.style.display !== 'none';
+      const pow = showPT ? document.getElementById('wizPower').value : null;
+      const tou = showPT ? document.getElementById('wizToughness').value : null;
+      const label = (showPT && pow != null) ? `${qty} × ${pow}/${tou}` : `${qty}`;
+      const el = document.getElementById('wizSecVal3');
+      el.textContent = label;
+      el.classList.remove('unset');
+    }
+
+    function _wizUpdateSubtypeVal() {
+      const v = document.getElementById('wizSubtype').value.trim();
+      const el = document.getElementById('wizSecVal5');
+      if (v) { el.textContent = v; el.classList.remove('unset'); }
+      else   { el.textContent = '—'; el.classList.add('unset'); }
+    }
+
+    function _wizUpdateAbilityVal() {
+      const v = document.getElementById('wizAbilities').value.trim();
+      const el = document.getElementById('wizSecVal7');
+      if (v) {
+        const line = v.split('\n')[0];
+        el.textContent = line.length > 28 ? line.slice(0, 27) + '…' : line;
+        el.classList.remove('unset');
+      } else {
+        el.textContent = '—'; el.classList.add('unset');
+      }
+    }
+
+    function _wizUpdateColorVal() {
+      const el = document.getElementById('wizSecVal4');
+      const names = { W: 'White', U: 'Blue', B: 'Black', R: 'Red', G: 'Green', C: 'Colorless' };
+      if (wizColors.size === 0) { el.textContent = '—'; el.classList.add('unset'); }
+      else { el.textContent = [...wizColors].map(c => names[c] || c).join(', '); el.classList.remove('unset'); }
+    }
+
+    function _wizUpdateKwVal() {
+      const el = document.getElementById('wizSecVal6');
+      if (wizActiveKws.size === 0) { el.textContent = '—'; el.classList.add('unset'); }
+      else { el.textContent = [...wizActiveKws].join(', '); el.classList.remove('unset'); }
+    }
+
+    // ── Section 1: type selection ─────────────────────────
     function wizSelectType(type) {
       wizType = type;
       document.querySelectorAll('.wiz-type-tile').forEach(t => t.classList.toggle('selected', t.dataset.type === type));
       const isCopy = type === 'Copy';
+
+      // Update sec1 header value
+      const val1 = document.getElementById('wizSecVal1');
+      val1.textContent = type; val1.classList.remove('unset');
+
       document.getElementById('wizSearchLabel').textContent = isCopy ? 'Card Being Copied' : 'Token Name';
       document.getElementById('wizSearch').placeholder      = isCopy ? 'Search any permanent…' : 'Saproling, Treasure, Spirit…';
       document.getElementById('wizSearch').value = '';
@@ -2525,15 +2625,27 @@
       document.getElementById('wizSearchGroup').style.display = 'block';
       document.getElementById('wizManualHint').style.display  = isCopy ? 'none' : 'block';
       document.getElementById('wizArtSection').style.display  = 'none';
-      document.getElementById('wizNext2').disabled = true;
-      _wizShowStep(2);
+
+      // Reset sec2 value, then open sec2
+      const val2 = document.getElementById('wizSecVal2');
+      val2.textContent = '—'; val2.classList.add('unset');
+
+      // Show/hide P/T based on type
+      const showPT = type === 'Creature';
+      document.getElementById('wizPtRow').style.display = showPT ? 'flex' : 'none';
+      _wizUpdateQtyVal();
+
+      _wizOpenSec(2);
+      setTimeout(() => document.getElementById('wizSearch').focus(), 200);
     }
 
     // ── Step 2: search ────────────────────────────────────
     function wizOnSearchInput() {
       if (wizIsManual) {
         wizManualName = document.getElementById('wizSearch').value.trim();
-        document.getElementById('wizNext2').disabled = wizManualName.length === 0;
+        const val2 = document.getElementById('wizSecVal2');
+        if (wizManualName) { val2.textContent = wizManualName; val2.classList.remove('unset'); }
+        else                { val2.textContent = '—'; val2.classList.add('unset'); }
         return;
       }
       const q = document.getElementById('wizSearch').value.trim();
@@ -2602,7 +2714,11 @@
       _wizUpdateBanner();
       _wizRenderArtSection();
       _wizAutoFill(wizCardData);
-      document.getElementById('wizNext2').disabled = false;
+
+      // Update sec2 header value, open sec3
+      const val2 = document.getElementById('wizSecVal2');
+      val2.textContent = wizCardData.name; val2.classList.remove('unset');
+      _wizOpenSec(3);
     }
 
     function _wizUpdateBanner() {
@@ -2625,7 +2741,8 @@
       document.getElementById('wizManualHint').style.display  = wizType === 'Copy' ? 'none' : 'block';
       document.getElementById('wizArtSection').style.display  = 'none';
       document.getElementById('wizSearch').value              = '';
-      document.getElementById('wizNext2').disabled            = true;
+      const val2 = document.getElementById('wizSecVal2');
+      val2.textContent = '—'; val2.classList.add('unset');
       setTimeout(() => document.getElementById('wizSearch').focus(), 50);
     }
 
@@ -2663,7 +2780,9 @@
 
     function _wizAutoFill(card) {
       if (!card) return;
-      // P/T
+      // P/T — show/hide row based on card type
+      const isCreatureCard = (card.type_line || '').includes('Creature') || wizType === 'Creature';
+      document.getElementById('wizPtRow').style.display = isCreatureCard ? 'flex' : 'none';
       if (card.power != null) {
         document.getElementById('wizPower').value     = card.power;
         document.getElementById('wizToughness').value = card.toughness;
@@ -2682,13 +2801,19 @@
       const oracle = card.oracle_text || '';
       const kwList = ['Flying','Trample','Haste','Vigilance','Deathtouch','Lifelink','Menace','Reach','First Strike','Double Strike','Hexproof','Indestructible','Ward','Flash'];
       wizActiveKws = new Set();
-      document.querySelectorAll('#wizStep6 .mod-chip').forEach(chip => {
+      document.querySelectorAll('#wizSec6 .mod-chip').forEach(chip => {
         const on = kwList.includes(chip.dataset.kw) && oracle.includes(chip.dataset.kw);
         chip.classList.toggle('active', on);
         if (on) wizActiveKws.add(chip.dataset.kw);
       });
       // Ability text
       document.getElementById('wizAbilities').value = oracle;
+      // Refresh all section header values
+      _wizUpdateQtyVal();
+      _wizUpdateColorVal();
+      _wizUpdateSubtypeVal();
+      _wizUpdateKwVal();
+      _wizUpdateAbilityVal();
     }
 
     function wizGoManual() {
@@ -2702,7 +2827,9 @@
       document.getElementById('wizBanner').className        = 'wiz-card-banner';
       document.getElementById('wizArtSection').style.display = 'none';
       document.getElementById('wizManualHint').style.display = 'none';
-      document.getElementById('wizNext2').disabled          = true;
+      // Reset sec2 header — will update when user types
+      const val2 = document.getElementById('wizSecVal2');
+      val2.textContent = '—'; val2.classList.add('unset');
       document.getElementById('wizSearch').focus();
     }
 
@@ -2710,17 +2837,20 @@
       const c = chip.dataset.color;
       if (wizColors.has(c)) { wizColors.delete(c); chip.classList.remove('active'); }
       else                   { wizColors.add(c);    chip.classList.add('active');    }
+      _wizUpdateColorVal();
     }
 
     function toggleModChip(chip) {
       const kw = chip.dataset.kw;
       if (wizActiveKws.has(kw)) { wizActiveKws.delete(kw); chip.classList.remove('active'); }
       else                       { wizActiveKws.add(kw);    chip.classList.add('active');    }
+      _wizUpdateKwVal();
     }
 
     function wizAdjQty(delta) {
       const inp = document.getElementById('wizQty');
       inp.value = Math.max(1, Math.min(99, (parseInt(inp.value) || 1) + delta));
+      _wizUpdateQtyVal();
     }
 
     // ── Delegated listeners for wizard ───────────────────
@@ -2786,7 +2916,7 @@
       const isCreature = wizType === 'Creature' || (!!(wizCardData && (wizCardData.type_line||'').includes('Creature')));
       // Read keyword chips fresh
       const finalKws = [];
-      document.querySelectorAll('#wizStep6 .mod-chip.active').forEach(c => finalKws.push(c.dataset.kw));
+      document.querySelectorAll('#wizSec6 .mod-chip.active').forEach(c => finalKws.push(c.dataset.kw));
 
       let token;
       if (wizIsManual || !wizCardData) {
@@ -3994,10 +4124,11 @@
 
     function _palGradient(pal) {
       if (appTheme === 'light') {
-        // Light tint: swatch color at low opacity over white
-        return `linear-gradient(175deg, ${pal.swatch}28 0%, ${pal.swatch}0e 100%)`;
+        // Vibrant solid-ish swatch colour so players really pop
+        return `linear-gradient(165deg, ${pal.swatch}ff 0%, ${pal.swatch}cc 100%)`;
       }
-      return `linear-gradient(175deg, ${pal.bg} 0%, #07070f 100%)`;
+      // Dark mode: start with a richer swatch glow, fade to near-black
+      return `linear-gradient(165deg, ${pal.swatch}55 0%, ${pal.bg} 45%, #06060e 100%)`;
     }
 
     function renderLifePlayers() {
