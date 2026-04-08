@@ -286,19 +286,22 @@
     /* Controls */
     .card-controls {
       display: flex;
-      gap: 5px;
+      gap: 4px;
       padding: 0 8px 5px;
     }
     .ctrl-btn {
       flex: 1;
       border: none;
       border-radius: 7px;
-      padding: 6px 0;
-      font-size: 0.72rem;
+      padding: 6px 2px;
+      font-size: 0.68rem;
       font-weight: 600;
       cursor: pointer;
       transition: background .15s, transform .1s;
-      line-height: 1;
+      line-height: 1.15;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
     .ctrl-btn:active { transform: scale(0.95); }
 
@@ -315,6 +318,8 @@
       color: var(--green-t);
     }
     .btn-untap:hover { background: #1a2a1a; border-color: var(--green-t); }
+    .btn-untap-all { opacity: 0.75; }
+    .btn-untap-all:hover { opacity: 1; }
 
     .qty-row {
       display: flex;
@@ -2678,12 +2683,13 @@
       try {
         let cards;
         if (wizIsCopy) {
-          // Copy mode: search non-token permanents
+          // Copy mode: one card per name, small payload
           cards = await scryfallSearch(
             `not:token (t:creature OR t:artifact OR t:enchantment OR t:planeswalker OR t:land) name:${q}`, 'cards');
         } else {
-          // Token mode: single combined query (was two sequential calls)
-          cards = await scryfallSearch(`(layout:token OR is:token) name:${q}`, 'prints');
+          // Token mode: unique=cards → ONE result per token name, fast small payload
+          // Prints are fetched lazily only after the user picks a token
+          cards = await scryfallSearch(`(layout:token OR is:token) name:${q}`, 'cards');
         }
         if (!cards.length) {
           drop.innerHTML = `<div style="padding:12px 14px;color:var(--muted);font-size:.85rem">
@@ -2693,21 +2699,10 @@
           </div>`;
           return;
         }
+        // Cache one card-object per name for instant display on selection
+        cards.forEach(c => { _wizNameCache[c.name] = c; });
 
-        // Cache ALL prints per name so wizSelectCard needs no extra API call
-        const byName = {};
-        cards.forEach(c => {
-          if (!byName[c.name]) byName[c.name] = [];
-          byName[c.name].push(c);
-        });
-        Object.assign(_wizPrintsCache, byName);
-        // Also keep single-entry name cache for quick lookup
-        cards.forEach(c => { if (!_wizNameCache[c.name]) _wizNameCache[c.name] = c; });
-
-        // Deduplicate by name for the dropdown list
-        const seen = new Set();
-        const uniq = cards.filter(c => { if (seen.has(c.name)) return false; seen.add(c.name); return true; }).slice(0, 12);
-        drop.innerHTML = uniq.map(card => {
+        drop.innerHTML = cards.slice(0, 12).map(card => {
           const img = getSmallImg(card);
           const pt  = card.power != null ? ` ${card.power}/${card.toughness}` : '';
           return `<div class="search-item" tabindex="0" data-wiz-name="${esc(card.name)}">
@@ -2723,49 +2718,71 @@
       }
     }
 
-    async function wizSelectCard(name) {
+    // Stage 1: instant display from name cache
+    function wizSelectCard(name) {
       document.getElementById('wizSearchDrop').className = 'search-drop';
       wizIsManual = false;
 
-      // Use cached prints if available — avoids a second API call
-      let prints = _wizPrintsCache[name] || [];
-      if (!prints.length) {
-        try {
-          if (wizIsCopy) {
-            prints = _wizNameCache[name] ? [_wizNameCache[name]] : await scryfallSearch(`!"${name}" not:token`, 'cards');
-          } else {
-            prints = await scryfallSearch(`(layout:token OR is:token) !"${name}"`, 'prints');
-            if (!prints.length && _wizNameCache[name]) prints = [_wizNameCache[name]];
-          }
-        } catch(e) { prints = _wizNameCache[name] ? [_wizNameCache[name]] : []; }
-        if (prints.length) _wizPrintsCache[name] = prints;
-      }
-      if (!prints.length) return;
+      const baseCard = _wizNameCache[name];
+      if (!baseCard) return;
 
+      wizCardData   = baseCard;
+      wizArtOptions = [baseCard];
+      wizArtIdx     = 0;
+
+      // Auto-detect type immediately from card data
+      if (!wizIsCopy) {
+        const tl = (baseCard.type_line || '').toLowerCase();
+        if      (tl.includes('creature'))    wizType = 'Creature';
+        else if (tl.includes('artifact'))    wizType = 'Artifact';
+        else if (tl.includes('enchantment')) wizType = 'Enchantment';
+        else                                  wizType = 'Token';
+      }
+
+      // Show token + Options immediately — no waiting
+      _wizUpdateBanner();
+      _wizAutoFill(baseCard);
+      const val1 = document.getElementById('wizSecVal1');
+      val1.textContent = baseCard.name; val1.classList.remove('unset');
+      _wizShowSec2(false);
+
+      // Stage 2: fetch all prints lazily for art picker (non-blocking)
+      if (!wizIsCopy) _wizLoadPrints(name, baseCard);
+    }
+
+    // Stage 2: load art variants in background
+    async function _wizLoadPrints(name, baseCard) {
+      // If already cached, render immediately
+      if (_wizPrintsCache[name]) {
+        _wizApplyPrints(name, _wizPrintsCache[name]);
+        return;
+      }
+      // Show a subtle "loading art" placeholder
+      const artSec = document.getElementById('wizArtSection');
+      artSec.style.display = 'block';
+      document.getElementById('wizArtList').innerHTML = '';
+      document.getElementById('wizArtTrigger').innerHTML =
+        `<span style="color:var(--muted);font-size:.8rem;padding:4px 0">Loading art variants…</span>`;
+
+      try {
+        const prints = await scryfallSearch(
+          `(layout:token OR is:token) !"${name}"`, 'prints');
+        const all = prints.length ? prints : [baseCard];
+        _wizPrintsCache[name] = all;
+        // Only apply if the user hasn't changed their selection
+        if (wizCardData && wizCardData.name === name) _wizApplyPrints(name, all);
+      } catch(e) {
+        artSec.style.display = 'none';
+      }
+    }
+
+    function _wizApplyPrints(name, prints) {
       wizArtOptions = prints.filter(c => getNormalImg(c));
       if (!wizArtOptions.length) wizArtOptions = prints;
       wizArtIdx   = 0;
       wizCardData = wizArtOptions[0] || prints[0];
-
-      // Auto-detect type from card data (no manual type selection needed for Scryfall)
-      if (!wizIsCopy) {
-        const tl = (wizCardData.type_line || '').toLowerCase();
-        if (tl.includes('creature'))     wizType = 'Creature';
-        else if (tl.includes('artifact')) wizType = 'Artifact';
-        else if (tl.includes('enchantment')) wizType = 'Enchantment';
-        else wizType = 'Token';
-      }
-
       _wizUpdateBanner();
       _wizRenderArtSection();
-      _wizAutoFill(wizCardData);
-
-      // Update sec1 header value with card name
-      const val1 = document.getElementById('wizSecVal1');
-      val1.textContent = wizCardData.name; val1.classList.remove('unset');
-
-      // Show sec2 (Options) in condensed Scryfall mode
-      _wizShowSec2(false);
     }
 
     function _wizUpdateBanner() {
@@ -3077,7 +3094,8 @@
 
         <div class="card-controls">
           <button class="ctrl-btn btn-tap-one" onclick="tapOne(${token.id})">Tap +1</button>
-          <button class="ctrl-btn btn-untap"   onclick="untapToken(${token.id})">Untap</button>
+          <button class="ctrl-btn btn-untap"   onclick="untapOne(${token.id})">Untap −1</button>
+          <button class="ctrl-btn btn-untap btn-untap-all" onclick="untapToken(${token.id})">Untap All</button>
         </div>
 
         <div class="qty-row">
@@ -3088,7 +3106,7 @@
     }
 
     function counterBadgesHTML(token) {
-      return (token.counters || []).map(c => {
+      return (token.counters || []).filter(c => c.count > 0).map(c => {
         const cls = c.type === '+1/+1' ? 'plus' : c.type === '−1/−1' ? 'minus' : 'charge';
         return `<span class="ctr-badge ${cls}">${esc(c.type)} ×${c.count}</span>`;
       }).join('');
