@@ -1708,6 +1708,29 @@
     /* First child gets top padding removed — sits right under header */
     .wiz-sec-inner > .wiz-sec-pad { padding: 10px 14px 14px; }
 
+    /* Token / Copy mode selector (compact, inside search section) */
+    .wiz-mode-row {
+      display: flex; gap: 6px; margin-bottom: 10px;
+    }
+    .wiz-mode-btn {
+      flex: 1;
+      padding: 6px 10px;
+      border-radius: 7px;
+      border: 1px solid var(--border);
+      background: var(--surface2);
+      color: var(--muted);
+      font-size: .8rem; font-weight: 600;
+      cursor: pointer; text-align: center;
+      transition: border-color .15s, background .15s, color .15s;
+      user-select: none;
+    }
+    .wiz-mode-btn.selected {
+      border-color: var(--accent);
+      background: rgba(200,75,49,.13);
+      color: var(--accent);
+    }
+    .wiz-mode-btn:hover:not(.selected) { border-color: var(--muted); color: var(--text); }
+
     .wiz-type-row {
       display: flex; gap: 8px; flex-wrap: wrap;
     }
@@ -2108,37 +2131,23 @@
       <div class="modal-body">
         <div class="wiz-accordion">
 
-          <!-- ── 1. Type ──────────────────────────────────── -->
+          <!-- ── 1. Search ────────────────────────────────── -->
           <div class="wiz-section open" id="wizSec1">
             <div class="wiz-sec-header" onclick="wizToggleSec(1)">
-              <span class="wiz-sec-label">Type</span>
+              <span class="wiz-sec-label">Token</span>
               <span class="wiz-sec-value unset" id="wizSecVal1">—</span>
               <span class="wiz-sec-arrow">▾</span>
             </div>
             <div class="wiz-sec-body">
               <div class="wiz-sec-inner">
                 <div class="wiz-sec-pad">
-                  <div class="wiz-type-row">
-                    <button class="wiz-type-btn" data-type="Creature"    onclick="wizSelectType('Creature')">Creature</button>
-                    <button class="wiz-type-btn" data-type="Artifact"    onclick="wizSelectType('Artifact')">Artifact</button>
-                    <button class="wiz-type-btn" data-type="Enchantment" onclick="wizSelectType('Enchantment')">Enchantment</button>
-                    <button class="wiz-type-btn" data-type="Copy"        onclick="wizSelectType('Copy')">Copy</button>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
 
-          <!-- ── 2. Token Search ──────────────────────────── -->
-          <div class="wiz-section" id="wizSec2">
-            <div class="wiz-sec-header" onclick="wizToggleSec(2)">
-              <span class="wiz-sec-label">Token</span>
-              <span class="wiz-sec-value unset" id="wizSecVal2">—</span>
-              <span class="wiz-sec-arrow">▾</span>
-            </div>
-            <div class="wiz-sec-body">
-              <div class="wiz-sec-inner">
-                <div class="wiz-sec-pad">
+                  <!-- Token vs Copy mode chips -->
+                  <div class="wiz-mode-row">
+                    <button class="wiz-mode-btn selected" id="wizModeToken" onclick="wizSetMode('token')">Token</button>
+                    <button class="wiz-mode-btn" id="wizModeCopy"  onclick="wizSetMode('copy')">Copy of Permanent</button>
+                  </div>
+
                   <!-- Selected card banner -->
                   <div class="wiz-card-banner" id="wizBanner">
                     <img class="wiz-banner-img" id="wizBannerImg" src="" alt="">
@@ -2150,10 +2159,8 @@
                   </div>
 
                   <div id="wizSearchGroup">
-                    <label class="form-label" id="wizSearchLabel">Token Name</label>
                     <input type="text" id="wizSearch" class="form-input"
-                           style="margin-top:5px"
-                           placeholder="Start typing…" autocomplete="off" spellcheck="false"
+                           placeholder="Search for a token…" autocomplete="off" spellcheck="false"
                            oninput="wizOnSearchInput()">
                     <div class="search-drop" id="wizSearchDrop"></div>
                   </div>
@@ -2180,16 +2187,27 @@
             </div>
           </div>
 
-          <!-- ── 3. Options — appears after token selected ── -->
-          <div class="wiz-section" id="wizSec3" style="display:none">
-            <div class="wiz-sec-header" onclick="wizToggleSec(3)">
+          <!-- ── 2. Options — appears after token selected ── -->
+          <div class="wiz-section" id="wizSec2" style="display:none">
+            <div class="wiz-sec-header" onclick="wizToggleSec(2)">
               <span class="wiz-sec-label">Options</span>
-              <span class="wiz-sec-value" id="wizSecVal3">1</span>
+              <span class="wiz-sec-value" id="wizSecVal2">1</span>
               <span class="wiz-sec-arrow">▾</span>
             </div>
             <div class="wiz-sec-body">
               <div class="wiz-sec-inner">
                 <div class="wiz-sec-pad">
+
+                  <!-- MANUAL ONLY: Type selector -->
+                  <div id="wizTypeRow" style="display:none;margin-bottom:14px">
+                    <label class="form-label" style="display:block;margin-bottom:7px">Type</label>
+                    <div class="wiz-type-row">
+                      <button class="wiz-type-btn" data-type="Creature"    onclick="wizSelectType('Creature')">Creature</button>
+                      <button class="wiz-type-btn" data-type="Artifact"    onclick="wizSelectType('Artifact')">Artifact</button>
+                      <button class="wiz-type-btn" data-type="Enchantment" onclick="wizSelectType('Enchantment')">Enchantment</button>
+                      <button class="wiz-type-btn" data-type="Copy"        onclick="wizSelectType('Copy')">Copy</button>
+                    </div>
+                  </div>
 
                   <!-- Quantity (always) -->
                   <div class="form-group">
@@ -2460,16 +2478,18 @@
     })();
 
     // ── Wizard state ──────────────────────────────────────
-    let wizType       = '';        // 'Creature'|'Artifact'|'Enchantment'|'Copy'
-    let wizCardData   = null;      // selected Scryfall card
-    let wizArtOptions = [];        // all art printings
-    let wizArtIdx     = 0;
+    let wizType        = '';       // 'Creature'|'Artifact'|'Enchantment'|'Copy'
+    let wizIsCopy      = false;    // true when "Copy of Permanent" mode selected
+    let wizCardData    = null;     // selected Scryfall card
+    let wizArtOptions  = [];       // all art printings
+    let wizArtIdx      = 0;
     let wizSearchTimer = null;
-    let wizIsManual   = false;
-    let wizManualName = '';
-    let wizColors     = new Set();
-    let wizActiveKws  = new Set();
-    let _wizNameCache = {};
+    let wizIsManual    = false;
+    let wizManualName  = '';
+    let wizColors      = new Set();
+    let wizActiveKws   = new Set();
+    let _wizNameCache  = {};       // name → one card object (for search drop display)
+    let _wizPrintsCache = {};      // name → array of all prints (avoids re-fetch)
     let activeDetailId = null;     // which token the detail sheet is open for
 
     // ══════════════════════════════════════════════════════
@@ -2503,14 +2523,15 @@
     //  WIZARD CORE
     // ══════════════════════════════════════════════════════
     function wizReset() {
-      wizType       = '';
-      wizCardData   = null;
-      wizArtOptions = [];
-      wizArtIdx     = 0;
-      wizIsManual   = false;
-      wizManualName = '';
-      wizColors     = new Set();
-      wizActiveKws  = new Set();
+      wizType        = '';
+      wizIsCopy      = false;
+      wizCardData    = null;
+      wizArtOptions  = [];
+      wizArtIdx      = 0;
+      wizIsManual    = false;
+      wizManualName  = '';
+      wizColors      = new Set();
+      wizActiveKws   = new Set();
 
       document.getElementById('wizSearch').value          = '';
       document.getElementById('wizSearchDrop').className  = 'search-drop';
@@ -2536,20 +2557,47 @@
       const det = document.getElementById('wizCounterDetails');
       if (det && det.open) det.open = false;
 
-      // Reset section header values
-      ['wizSecVal1','wizSecVal2'].forEach(id => {
-        const el = document.getElementById(id);
-        if (el) { el.textContent = '—'; el.classList.add('unset'); }
-      });
-      document.getElementById('wizSecVal3').textContent = '1';
-      document.getElementById('wizSecVal3').classList.remove('unset');
+      // Reset sec1 header, hide sec2
+      const val1 = document.getElementById('wizSecVal1');
+      if (val1) { val1.textContent = '—'; val1.classList.add('unset'); }
+      document.getElementById('wizSecVal2').textContent = '1';
+      document.getElementById('wizSecVal2').classList.remove('unset');
 
-      // Sec1 open, sec2 closed, sec3 hidden
+      // Sec1 open, sec2 hidden
       document.getElementById('wizSec1').classList.add('open');
-      document.getElementById('wizSec2').classList.remove('open');
-      const sec3 = document.getElementById('wizSec3');
-      sec3.classList.remove('open');
-      sec3.style.display = 'none';
+      const sec2 = document.getElementById('wizSec2');
+      sec2.classList.remove('open');
+      sec2.style.display = 'none';
+
+      // Reset mode chips to Token
+      document.getElementById('wizModeToken').classList.add('selected');
+      document.getElementById('wizModeCopy').classList.remove('selected');
+      document.getElementById('wizSearch').placeholder = 'Search for a token…';
+    }
+
+    // ── Mode: Token vs Copy of Permanent ─────────────────
+    function wizSetMode(mode) {
+      wizIsCopy = (mode === 'copy');
+      wizType   = wizIsCopy ? 'Copy' : '';
+      document.getElementById('wizModeToken').classList.toggle('selected', !wizIsCopy);
+      document.getElementById('wizModeCopy').classList.toggle('selected',  wizIsCopy);
+      document.getElementById('wizSearch').placeholder = wizIsCopy
+        ? 'Search any permanent…'
+        : 'Search for a token…';
+      document.getElementById('wizManualHint').style.display = wizIsCopy ? 'none' : 'block';
+      // Reset search state
+      document.getElementById('wizSearch').value         = '';
+      document.getElementById('wizSearchDrop').className = 'search-drop';
+      document.getElementById('wizSearchDrop').innerHTML = '';
+      document.getElementById('wizBanner').className     = 'wiz-card-banner';
+      document.getElementById('wizArtSection').style.display = 'none';
+      // Hide options until new card selected
+      const sec2 = document.getElementById('wizSec2');
+      sec2.classList.remove('open');
+      sec2.style.display = 'none';
+      const val1 = document.getElementById('wizSecVal1');
+      val1.textContent = '—'; val1.classList.add('unset');
+      wizCardData = null; wizArtOptions = [];
     }
 
     // ── Accordion toggle ──────────────────────────────────
@@ -2564,18 +2612,22 @@
       if (sec && !sec.classList.contains('open')) sec.classList.add('open');
     }
 
-    // Show/configure sec3 — isManual true = all options, false = condensed Scryfall options
-    function _wizShowSec3(isManual) {
-      const sec3 = document.getElementById('wizSec3');
-      sec3.style.display = '';
-      sec3.classList.add('open');
+    // Show/configure sec2 (Options) — isManual=true shows all rows
+    function _wizShowSec2(isManual) {
+      const sec2 = document.getElementById('wizSec2');
+      sec2.style.display = '';
+      sec2.classList.add('open');
 
       // P/T: show if creature type or card has creature type
       const isCreature = wizType === 'Creature'
         || (wizCardData && (wizCardData.type_line || '').includes('Creature'));
       document.getElementById('wizPtRow').style.display = isCreature ? 'flex' : 'none';
 
-      // Manual-only rows
+      // Type row (manual only)
+      const typeRow = document.getElementById('wizTypeRow');
+      if (typeRow) typeRow.style.display = isManual ? '' : 'none';
+
+      // Other manual-only rows
       ['wizColorRow','wizSubtypeRow','wizAbilitiesRow','wizCounterRow'].forEach(id => {
         const el = document.getElementById(id);
         if (el) el.style.display = isManual ? '' : 'none';
@@ -2585,56 +2637,32 @@
 
     // ── Section header value updater ──────────────────────
     function _wizUpdateQtyVal() {
-      const qty   = document.getElementById('wizQty').value || '1';
-      const ptRow = document.getElementById('wizPtRow');
+      const qty    = document.getElementById('wizQty').value || '1';
+      const ptRow  = document.getElementById('wizPtRow');
       const showPT = ptRow && ptRow.style.display !== 'none';
       const pow = showPT ? document.getElementById('wizPower').value : null;
       const tou = showPT ? document.getElementById('wizToughness').value : null;
       const label = (showPT && pow != null) ? `${qty} × ${pow}/${tou}` : `${qty}`;
-      const el = document.getElementById('wizSecVal3');
+      const el = document.getElementById('wizSecVal2');
       if (el) { el.textContent = label; el.classList.remove('unset'); }
     }
 
-    // ── Section 1: type selection ─────────────────────────
+    // ── Manual type selection (inside Options section) ────
     function wizSelectType(type) {
       wizType = type;
       document.querySelectorAll('.wiz-type-btn').forEach(t => t.classList.toggle('selected', t.dataset.type === type));
-      const isCopy = type === 'Copy';
-
-      // Update sec1 header value
-      const val1 = document.getElementById('wizSecVal1');
-      val1.textContent = type; val1.classList.remove('unset');
-
-      document.getElementById('wizSearchLabel').textContent = isCopy ? 'Card Being Copied' : 'Token Name';
-      document.getElementById('wizSearch').placeholder      = isCopy ? 'Search any permanent…' : 'Saproling, Treasure, Spirit…';
-      document.getElementById('wizSearch').value = '';
-      document.getElementById('wizSearchDrop').className = 'search-drop';
-      document.getElementById('wizSearchDrop').innerHTML = '';
-      wizCardData = null; wizArtOptions = [];
-      wizIsManual  = false;
-      document.getElementById('wizBanner').className = 'wiz-card-banner';
-      document.getElementById('wizSearchGroup').style.display = 'block';
-      document.getElementById('wizManualHint').style.display  = isCopy ? 'none' : 'block';
-      document.getElementById('wizArtSection').style.display  = 'none';
-
-      // Reset sec2 and sec3 on re-type
-      const val2 = document.getElementById('wizSecVal2');
-      val2.textContent = '—'; val2.classList.add('unset');
-      const sec3 = document.getElementById('wizSec3');
-      sec3.classList.remove('open');
-      sec3.style.display = 'none';
-
-      _wizOpenSec(2);
-      setTimeout(() => document.getElementById('wizSearch').focus(), 200);
+      // Update P/T visibility
+      const isCreature = type === 'Creature';
+      document.getElementById('wizPtRow').style.display = isCreature ? 'flex' : 'none';
+      _wizUpdateQtyVal();
     }
 
     // ── Step 2: search ────────────────────────────────────
     function wizOnSearchInput() {
       if (wizIsManual) {
         wizManualName = document.getElementById('wizSearch').value.trim();
-        const val2 = document.getElementById('wizSecVal2');
-        if (wizManualName) { val2.textContent = wizManualName; val2.classList.remove('unset'); }
-        else               { val2.textContent = 'Manual'; val2.classList.remove('unset'); }
+        const val1 = document.getElementById('wizSecVal1');
+        val1.textContent = wizManualName || 'Manual'; val1.classList.remove('unset');
         return;
       }
       const q = document.getElementById('wizSearch').value.trim();
@@ -2649,23 +2677,36 @@
       drop.innerHTML = '<div class="spinner"></div>';
       try {
         let cards;
-        if (wizType === 'Copy') {
-          cards = await scryfallSearch(`not:token (t:creature OR t:artifact OR t:enchantment OR t:planeswalker OR t:land) name:${q}`, 'cards');
+        if (wizIsCopy) {
+          // Copy mode: search non-token permanents
+          cards = await scryfallSearch(
+            `not:token (t:creature OR t:artifact OR t:enchantment OR t:planeswalker OR t:land) name:${q}`, 'cards');
         } else {
-          cards = await scryfallSearch(`layout:token name:${q}`, 'prints');
-          if (!cards.length) cards = await scryfallSearch(`t:token name:${q}`, 'prints');
+          // Token mode: single combined query (was two sequential calls)
+          cards = await scryfallSearch(`(layout:token OR is:token) name:${q}`, 'prints');
         }
         if (!cards.length) {
           drop.innerHTML = `<div style="padding:12px 14px;color:var(--muted);font-size:.85rem">
             No results for "<strong style="color:var(--text)">${esc(q)}</strong>"
-            ${wizType !== 'Copy' ? `— <span style="color:var(--accent);cursor:pointer;text-decoration:underline"
+            ${!wizIsCopy ? `— <span style="color:var(--accent);cursor:pointer;text-decoration:underline"
               onmousedown="event.preventDefault();wizGoManual()">create manually</span>` : ''}
           </div>`;
           return;
         }
+
+        // Cache ALL prints per name so wizSelectCard needs no extra API call
+        const byName = {};
+        cards.forEach(c => {
+          if (!byName[c.name]) byName[c.name] = [];
+          byName[c.name].push(c);
+        });
+        Object.assign(_wizPrintsCache, byName);
+        // Also keep single-entry name cache for quick lookup
+        cards.forEach(c => { if (!_wizNameCache[c.name]) _wizNameCache[c.name] = c; });
+
+        // Deduplicate by name for the dropdown list
         const seen = new Set();
         const uniq = cards.filter(c => { if (seen.has(c.name)) return false; seen.add(c.name); return true; }).slice(0, 12);
-        uniq.forEach(c => { _wizNameCache[c.name] = c; });
         drop.innerHTML = uniq.map(card => {
           const img = getSmallImg(card);
           const pt  = card.power != null ? ` ${card.power}/${card.toughness}` : '';
@@ -2685,31 +2726,46 @@
     async function wizSelectCard(name) {
       document.getElementById('wizSearchDrop').className = 'search-drop';
       wizIsManual = false;
-      // Fetch printings
-      let prints = [];
-      try {
-        if (wizType === 'Copy') {
-          prints = _wizNameCache[name] ? [_wizNameCache[name]] : await scryfallSearch(`!"${name}" not:token`, 'cards');
-        } else {
-          prints = await scryfallSearch(`layout:token !"${name}"`, 'prints');
-          if (!prints.length) prints = _wizNameCache[name] ? [_wizNameCache[name]] : [];
-        }
-      } catch(e) { prints = _wizNameCache[name] ? [_wizNameCache[name]] : []; }
+
+      // Use cached prints if available — avoids a second API call
+      let prints = _wizPrintsCache[name] || [];
+      if (!prints.length) {
+        try {
+          if (wizIsCopy) {
+            prints = _wizNameCache[name] ? [_wizNameCache[name]] : await scryfallSearch(`!"${name}" not:token`, 'cards');
+          } else {
+            prints = await scryfallSearch(`(layout:token OR is:token) !"${name}"`, 'prints');
+            if (!prints.length && _wizNameCache[name]) prints = [_wizNameCache[name]];
+          }
+        } catch(e) { prints = _wizNameCache[name] ? [_wizNameCache[name]] : []; }
+        if (prints.length) _wizPrintsCache[name] = prints;
+      }
       if (!prints.length) return;
+
       wizArtOptions = prints.filter(c => getNormalImg(c));
       if (!wizArtOptions.length) wizArtOptions = prints;
       wizArtIdx   = 0;
       wizCardData = wizArtOptions[0] || prints[0];
+
+      // Auto-detect type from card data (no manual type selection needed for Scryfall)
+      if (!wizIsCopy) {
+        const tl = (wizCardData.type_line || '').toLowerCase();
+        if (tl.includes('creature'))     wizType = 'Creature';
+        else if (tl.includes('artifact')) wizType = 'Artifact';
+        else if (tl.includes('enchantment')) wizType = 'Enchantment';
+        else wizType = 'Token';
+      }
+
       _wizUpdateBanner();
       _wizRenderArtSection();
       _wizAutoFill(wizCardData);
 
-      // Update sec2 header value
-      const val2 = document.getElementById('wizSecVal2');
-      val2.textContent = wizCardData.name; val2.classList.remove('unset');
+      // Update sec1 header value with card name
+      const val1 = document.getElementById('wizSecVal1');
+      val1.textContent = wizCardData.name; val1.classList.remove('unset');
 
-      // Show sec3 in Scryfall mode (limited options)
-      _wizShowSec3(false);
+      // Show sec2 (Options) in condensed Scryfall mode
+      _wizShowSec2(false);
     }
 
     function _wizUpdateBanner() {
@@ -2726,19 +2782,19 @@
     }
 
     function wizClearCard() {
-      wizCardData   = null; wizArtOptions = [];
-      wizIsManual   = false;
+      wizCardData = null; wizArtOptions = [];
+      wizIsManual = false; wizType = wizIsCopy ? 'Copy' : '';
       document.getElementById('wizBanner').className          = 'wiz-card-banner';
       document.getElementById('wizSearchGroup').style.display = 'block';
-      document.getElementById('wizManualHint').style.display  = wizType === 'Copy' ? 'none' : 'block';
+      document.getElementById('wizManualHint').style.display  = wizIsCopy ? 'none' : 'block';
       document.getElementById('wizArtSection').style.display  = 'none';
       document.getElementById('wizSearch').value              = '';
-      const val2 = document.getElementById('wizSecVal2');
-      val2.textContent = '—'; val2.classList.add('unset');
-      // Hide sec3 until a new card is selected
-      const sec3 = document.getElementById('wizSec3');
-      sec3.classList.remove('open');
-      sec3.style.display = 'none';
+      const val1 = document.getElementById('wizSecVal1');
+      val1.textContent = '—'; val1.classList.add('unset');
+      // Hide sec2 (Options) until a new card is selected
+      const sec2 = document.getElementById('wizSec2');
+      sec2.classList.remove('open');
+      sec2.style.display = 'none';
       setTimeout(() => document.getElementById('wizSearch').focus(), 50);
     }
 
@@ -2808,7 +2864,7 @@
       wizIsManual   = true;
       wizCardData   = null;
       wizArtOptions = [];
-      document.getElementById('wizSearchLabel').textContent  = 'Token Name';
+      wizType       = '';
       document.getElementById('wizSearch').placeholder      = 'Enter token name…';
       document.getElementById('wizSearch').value            = '';
       document.getElementById('wizSearchDrop').className    = 'search-drop';
@@ -2816,11 +2872,11 @@
       document.getElementById('wizBanner').className        = 'wiz-card-banner';
       document.getElementById('wizArtSection').style.display = 'none';
       document.getElementById('wizManualHint').style.display = 'none';
-      // Update sec2 header to show "Manual"
-      const val2 = document.getElementById('wizSecVal2');
-      val2.textContent = 'Manual'; val2.classList.remove('unset');
-      // Show sec3 in full manual mode
-      _wizShowSec3(true);
+      // Update sec1 header to show "Manual"
+      const val1 = document.getElementById('wizSecVal1');
+      val1.textContent = 'Manual'; val1.classList.remove('unset');
+      // Show sec2 (Options) in full manual mode
+      _wizShowSec2(true);
       document.getElementById('wizSearch').focus();
     }
 
@@ -3293,7 +3349,7 @@
       const kwChipsHTML = `<div class="modifier-chips" style="margin-top:4px">
         ${kwList.map(kw => `<div class="mod-chip ${tokenKws.has(kw) ? 'active' : ''}"
           data-token-kw="${t.id}-${encodeURIComponent(kw)}"
-          onclick="editTokenKw(${t.id},'${kw.replace(/'/g,"\\'")}'">${esc(kw)}</div>`).join('')}
+          onclick="editTokenKw(${t.id},'${kw.replace(/'/g,"\\'")}')">` + esc(kw) + `</div>`).join('')}
       </div>`;
 
       const copiedSection = t.copiedFrom
@@ -3331,9 +3387,21 @@
         ${counterRows}
         ${addCtrRow}
 
+        ${t.imageUri ? `
+        <div class="detail-section-title">Art</div>
+        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+          <img src="${esc(t.imageUri)}" style="width:56px;height:78px;object-fit:cover;border-radius:5px;border:1px solid var(--border);flex-shrink:0" alt="">
+          <div style="flex:1;min-width:0">
+            <div style="font-size:.78rem;color:var(--muted);margin-bottom:6px">Paste a card image URL to change art</div>
+            <input class="detail-edit wide" id="dart-${t.id}" placeholder="https://…" value="${esc(t.imageUri)}"
+              style="font-size:.72rem" onchange="editTokenArt(${t.id})">
+          </div>
+        </div>` : ''}
+
         <div class="detail-section-title">Actions</div>
         <div class="detail-action-grid">
-          <button class="detail-action-btn" onclick="tapOne(${t.id});closeDetail()">Tap +1</button>
+          <button class="detail-action-btn" onclick="tapOne(${t.id});openDetail(${t.id})">Tap +1</button>
+          <button class="detail-action-btn" onclick="untapOne(${t.id});openDetail(${t.id})">Untap −1</button>
           <button class="detail-action-btn" onclick="untapToken(${t.id});closeDetail()">Untap All</button>
           <button class="detail-action-btn" onclick="changeQty(${t.id},1);openDetail(${t.id})">Add Token</button>
           <button class="detail-action-btn" onclick="changeQty(${t.id},-1);openDetail(${t.id})">Remove Token</button>
@@ -3390,6 +3458,24 @@
       // Update chip UI without full re-render
       const chip = document.querySelector(`[data-token-kw="${id}-${encodeURIComponent(kw)}"]`);
       if (chip) chip.classList.toggle('active', idx < 0);
+    }
+
+    function untapOne(id) {
+      const t = tokenById(id);
+      if (!t || t.tapped <= 0) return;
+      t.tapped = Math.max(0, t.tapped - 1);
+      refreshCard(t);
+    }
+
+    function editTokenArt(id) {
+      const t = tokenById(id);
+      if (!t) return;
+      const url = document.getElementById(`dart-${id}`)?.value.trim();
+      if (url) {
+        t.imageUri = url;
+        t.smallUri = url;
+        refreshCard(t);
+      }
     }
 
     function adjustCounter(id, idx, delta) {
