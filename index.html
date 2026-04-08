@@ -287,7 +287,7 @@
     .card-controls {
       display: flex;
       gap: 4px;
-      padding: 0 8px 5px;
+      padding: 0 8px 3px;
     }
     .ctrl-btn {
       flex: 1;
@@ -318,8 +318,11 @@
       color: var(--green-t);
     }
     .btn-untap:hover { background: #1a2a1a; border-color: var(--green-t); }
-    .btn-untap-all { opacity: 0.75; }
+    .card-controls-all { padding-top: 0; padding-bottom: 6px; }
+    .card-controls-all .ctrl-btn { font-size: 0.7rem; padding: 5px 0; }
+    .btn-untap-all { opacity: 0.8; }
     .btn-untap-all:hover { opacity: 1; }
+    .btn-untap-all.disabled { opacity: 0.28; cursor: not-allowed; pointer-events: none; }
 
     .qty-row {
       display: flex;
@@ -3095,7 +3098,10 @@
         <div class="card-controls">
           <button class="ctrl-btn btn-tap-one" onclick="tapOne(${token.id})">Tap +1</button>
           <button class="ctrl-btn btn-untap"   onclick="untapOne(${token.id})">Untap −1</button>
-          <button class="ctrl-btn btn-untap btn-untap-all" onclick="untapToken(${token.id})">Untap All</button>
+        </div>
+        <div class="card-controls card-controls-all">
+          <button class="ctrl-btn btn-untap btn-untap-all ${token.tapped === 0 ? 'disabled' : ''}"
+                  onclick="untapToken(${token.id})" ${token.tapped === 0 ? 'disabled' : ''}>Untap All</button>
         </div>
 
         <div class="qty-row">
@@ -3308,6 +3314,7 @@
       document.getElementById('detailTitle').textContent = t.name;
       document.getElementById('detailBody').innerHTML = buildDetailHTML(t);
       document.getElementById('detailOverlay').classList.add('open');
+      detailLoadArt(id);
     }
 
     function closeDetail() {
@@ -3405,16 +3412,18 @@
         ${counterRows}
         ${addCtrRow}
 
-        ${t.imageUri ? `
         <div class="detail-section-title">Art</div>
-        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
-          <img src="${esc(t.imageUri)}" style="width:56px;height:78px;object-fit:cover;border-radius:5px;border:1px solid var(--border);flex-shrink:0" alt="">
-          <div style="flex:1;min-width:0">
-            <div style="font-size:.78rem;color:var(--muted);margin-bottom:6px">Paste a card image URL to change art</div>
-            <input class="detail-edit wide" id="dart-${t.id}" placeholder="https://…" value="${esc(t.imageUri)}"
-              style="font-size:.72rem" onchange="editTokenArt(${t.id})">
+        <div id="detail-art-wrap-${t.id}">
+          <div class="art-dropdown-trigger" id="dart-trig-${t.id}" onclick="detailToggleArtDrop(${t.id})">
+            <img class="art-drop-thumb" id="dart-thumb-${t.id}" src="${esc(t.imageUri||t.smallUri||'')}" alt="">
+            <div class="art-drop-label">
+              <div class="art-drop-name" id="dart-name-${t.id}">Loading variants…</div>
+              <div class="art-drop-set"  id="dart-set-${t.id}"></div>
+            </div>
+            <span class="art-drop-arrow">▾</span>
           </div>
-        </div>` : ''}
+          <div class="art-dropdown-list" id="dart-list-${t.id}"></div>
+        </div>
 
         <div class="detail-section-title">Actions</div>
         <div class="detail-action-grid">
@@ -3485,16 +3494,121 @@
       refreshCard(t);
     }
 
-    function editTokenArt(id) {
+    // ── Detail sheet art picker ──
+    const _detailArtCache = {};  // tokenName → [{card}, …]
+
+    async function detailLoadArt(id) {
       const t = tokenById(id);
       if (!t) return;
-      const url = document.getElementById(`dart-${id}`)?.value.trim();
-      if (url) {
-        t.imageUri = url;
-        t.smallUri = url;
-        refreshCard(t);
+      const name = t.name;
+      // Use wizard prints cache if available (token was just created from Scryfall)
+      if (_wizPrintsCache[name]) {
+        _detailApplyPrints(id, _wizPrintsCache[name]); return;
+      }
+      if (_detailArtCache[name]) {
+        _detailApplyPrints(id, _detailArtCache[name]); return;
+      }
+      // Fetch fresh
+      try {
+        const q = t.isCopy
+          ? `not:token !"${name}"`
+          : `(layout:token OR is:token) !"${name}"`;
+        const prints = await scryfallSearch(q, 'prints');
+        const all = prints.length ? prints : [];
+        _detailArtCache[name] = all;
+        _wizPrintsCache[name] = all;  // share cache
+        if (activeDetailId === id) _detailApplyPrints(id, all);
+      } catch(e) {
+        const el = document.getElementById(`dart-name-${id}`);
+        if (el) el.textContent = 'Could not load variants';
       }
     }
+
+    function _detailApplyPrints(id, prints) {
+      const t = tokenById(id);
+      if (!t) return;
+      const withImg = prints.filter(c => getNormalImg(c));
+      if (!withImg.length) {
+        // No Scryfall variants — show a single placeholder tile using the token's stored image
+        const trigName = document.getElementById(`dart-name-${id}`);
+        if (trigName) trigName.textContent = 'No variants found';
+        return;
+      }
+      // Find the currently-selected art index
+      let selIdx = withImg.findIndex(c => getNormalImg(c) === t.imageUri);
+      if (selIdx < 0) selIdx = 0;
+      // Update trigger bar
+      const selCard = withImg[selIdx];
+      const thumbEl = document.getElementById(`dart-thumb-${id}`);
+      const nameEl  = document.getElementById(`dart-name-${id}`);
+      const setEl   = document.getElementById(`dart-set-${id}`);
+      if (thumbEl) thumbEl.src = getSmallImg(selCard) || getNormalImg(selCard);
+      if (nameEl)  nameEl.textContent  = selCard.set_name || 'Unknown Set';
+      if (setEl)   setEl.textContent   = (selCard.set||'').toUpperCase() + (selCard.collector_number ? ` · #${selCard.collector_number}` : '');
+      // Render tiles
+      const list = document.getElementById(`dart-list-${id}`);
+      if (!list) return;
+      list.innerHTML = withImg.map((card, i) => {
+        const thumb = getSmallImg(card) || getNormalImg(card);
+        const full  = getNormalImg(card);
+        const code  = (card.set || '').toUpperCase();
+        return `<div class="art-drop-item ${i === selIdx ? 'selected' : ''}"
+                     data-detail-id="${id}" data-detail-art-idx="${i}"
+                     data-full-img="${esc(full)}" data-small-img="${esc(getSmallImg(card))}"
+                     data-set-name="${esc(card.set_name||code)}" data-set-code="${esc(code)}"
+                     data-collector="${esc(card.collector_number||'')}"
+                     title="${esc(card.set_name||code)}">
+          <img src="${esc(thumb)}" alt="" loading="lazy">
+          <div class="art-drop-item-code">${esc(code)}</div>
+        </div>`;
+      }).join('');
+    }
+
+    function detailToggleArtDrop(id) {
+      const list = document.getElementById(`dart-list-${id}`);
+      const trig = document.getElementById(`dart-trig-${id}`);
+      if (!list) return;
+      const opening = !list.classList.contains('open');
+      list.classList.toggle('open', opening);
+      trig.classList.toggle('open', opening);
+    }
+
+    function detailSelectArt(id, idx) {
+      const t = tokenById(id); if (!t) return;
+      const name = t.name;
+      const prints = _detailArtCache[name] || _wizPrintsCache[name] || [];
+      const withImg = prints.filter(c => getNormalImg(c));
+      const card = withImg[idx]; if (!card) return;
+      // Update token data
+      t.imageUri = getNormalImg(card);
+      t.smallUri = getSmallImg(card) || getNormalImg(card);
+      refreshCard(t);
+      // Update trigger bar
+      const thumbEl = document.getElementById(`dart-thumb-${id}`);
+      const nameEl  = document.getElementById(`dart-name-${id}`);
+      const setEl   = document.getElementById(`dart-set-${id}`);
+      if (thumbEl) thumbEl.src = t.smallUri;
+      if (nameEl)  nameEl.textContent = card.set_name || 'Unknown Set';
+      if (setEl)   setEl.textContent  = (card.set||'').toUpperCase() + (card.collector_number ? ` · #${card.collector_number}` : '');
+      // Update selection highlight
+      document.querySelectorAll(`#dart-list-${id} .art-drop-item`).forEach((el, i) => {
+        el.classList.toggle('selected', i === idx);
+      });
+      // Close dropdown
+      const list = document.getElementById(`dart-list-${id}`);
+      const trig = document.getElementById(`dart-trig-${id}`);
+      if (list) list.classList.remove('open');
+      if (trig) trig.classList.remove('open');
+    }
+
+    // Delegate clicks inside detail art lists
+    document.addEventListener('click', e => {
+      const item = e.target.closest('.art-drop-item[data-detail-id]');
+      if (!item) return;
+      const id  = parseInt(item.dataset.detailId, 10);
+      const idx = parseInt(item.dataset.detailArtIdx, 10);
+      detailSelectArt(id, idx);
+    });
 
     function adjustCounter(id, idx, delta) {
       const t = tokenById(id);
