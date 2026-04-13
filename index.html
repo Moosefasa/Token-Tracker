@@ -12,365 +12,418 @@
   <meta name="apple-mobile-web-app-title" content="Token Tracker">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@700;800;900&family=Sora:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@300;400;500;600;700&family=Bebas+Neue&family=Big+Shoulders+Display:wght@700;800;900&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
-      /* Surfaces */
-      --bg:       #080810;
-      --surface:  #0d0d1a;
-      --surface2: #131320;
-      --surface3: #1a1a28;
-      --border:   #1e1e32;
-      --border-hi: #2a2a42;
+      /* ── Surfaces ── */
+      --bg:        #0c0c10;
+      --surface:   #111118;
+      --surface2:  #17171e;
+      --surface3:  #1d1d26;
+      --border:    #27273a;
+      --border-hi: #34344a;
 
-      /* Accent */
-      --accent:     #e03535;
-      --accent-h:   #f04040;
-      --accent-dim: rgba(224,53,53,.12);
-      --accent-glow: rgba(224,53,53,.22);
+      /* ── Accent ── */
+      --accent:      #b83236;
+      --accent-h:    #cc3a3e;
+      --accent-dim:  rgba(184,50,54,.14);
+      --accent-glow: rgba(184,50,54,.28);
 
-      /* Text */
-      --text:   #eeeef8;
-      --text-2: #9090b0;
-      --text-3: #4a4a6a;
-      --muted:  #9090b0;
+      /* ── Text ── */
+      --text:   #ddd6c8;
+      --text-2: #706860;
+      --text-3: #3c3834;
+      --muted:  #706860;
 
-      /* Semantic colors */
-      --amber:     #f5a623;
-      --amber-dim: rgba(245,166,35,.12);
-      --green:     #2ecc71;
-      --green-dim: rgba(46,204,113,.1);
-      --green-t:   #2ecc71;
-      --tap-color: #f5a623;
+      /* ── Semantic ── */
+      --amber:     #b89040;
+      --amber-dim: rgba(184,144,64,.14);
+      --green:     #3a8060;
+      --green-dim: rgba(58,128,96,.13);
+      --green-t:   #3a8060;
+      --tap-color: #b89040;
 
-      /* Type scale */
-      --text-xs:   0.7rem;   /* 11.2px */
-      --text-sm:   0.8rem;   /* 12.8px */
-      --text-base: 0.9rem;   /* 14.4px */
-      --text-md:   1rem;     /* 16px   */
-      --text-lg:   1.15rem;  /* 18.4px */
-      --text-xl:   1.35rem;  /* 21.6px */
+      /* ── Type scale ── */
+      --text-xs:   0.68rem;
+      --text-sm:   0.77rem;
+      --text-base: 0.87rem;
+      --text-md:   0.97rem;
+      --text-lg:   1.1rem;
+      --text-xl:   1.28rem;
 
-      /* Radius scale */
-      --r-sm:   6px;
-      --r-md:   10px;
-      --r-lg:   16px;
-      --r-xl:   24px;
+      /* ── Radii ── */
+      --r-sm:   4px;
+      --r-md:   8px;
+      --r-lg:   12px;
+      --r-xl:   18px;
       --r-full: 999px;
 
-      /* Spacing */
+      /* ── Spacing ── */
       --sp-1: 4px;
       --sp-2: 8px;
       --sp-3: 12px;
       --sp-4: 16px;
-      --sp-5: 20px;
-      --sp-6: 24px;
+      --sp-5: 24px;
+      --sp-6: 32px;
 
-      /* Legacy aliases (keep so JS-referenced colors still work) */
+      /* ── Font stacks ── */
+      --font-display: 'Cormorant Garamond', Georgia, serif;
+      --font-mono:    'JetBrains Mono', 'Courier New', monospace;
+      --font-counter: 'Bebas Neue', sans-serif;
+
       --radius: var(--r-lg);
     }
 
     html, body {
       height: 100%;
-      font-family: 'Sora', -apple-system, sans-serif;
+      font-family: 'Barlow', -apple-system, sans-serif;
       background: var(--bg);
       color: var(--text);
       overflow-x: hidden;
     }
 
+    /* Subtle dot-grid background texture */
+    body::before {
+      content: '';
+      position: fixed; inset: 0; z-index: 0;
+      background-image: radial-gradient(circle, rgba(255,255,255,.028) 1px, transparent 1px);
+      background-size: 22px 22px;
+      pointer-events: none;
+    }
+    #canvas, header, .life-panel-overlay, .modal-overlay, .panel-overlay { position: relative; z-index: 1; }
+
     /* ── HEADER ────────────────────────────────────────────── */
     header {
       position: sticky; top: 0; z-index: 20;
-      background: var(--surface);
+      background: rgba(12,12,16,.92);
+      backdrop-filter: blur(18px) saturate(1.5);
+      -webkit-backdrop-filter: blur(18px) saturate(1.5);
       border-bottom: 1px solid var(--border);
-      padding: 0 16px;
+      padding: 0 18px;
       display: flex; align-items: center;
       justify-content: space-between;
-      height: 52px;
+      height: 56px;
       gap: 8px;
     }
 
     .app-title {
-      font-size: var(--text-md);
-      font-weight: 700;
-      color: var(--text);
-      letter-spacing: -0.3px;
-      display: flex; align-items: center; gap: 8px;
-      flex-shrink: 0;
+      display: flex; align-items: center; gap: 10px; flex-shrink: 0;
+    }
+    .app-wordmark {
+      display: flex; flex-direction: column; gap: 0;
+    }
+    .app-eyebrow {
+      font-family: 'Barlow', sans-serif;
+      font-size: .52rem; font-weight: 600;
+      letter-spacing: 2.8px; text-transform: uppercase;
+      color: var(--accent); line-height: 1; margin-bottom: 1px;
+    }
+    .app-name {
+      font-family: var(--font-display);
+      font-size: 1.18rem; font-weight: 600;
+      color: var(--text); letter-spacing: .2px; line-height: 1;
     }
 
-    .header-actions { display: flex; gap: 4px; align-items: center; }
+    .header-actions { display: flex; gap: 2px; align-items: center; }
 
     .btn-icon {
-      background: transparent;
-      border: none;
+      background: transparent; border: none;
       color: var(--text-2);
       border-radius: var(--r-sm);
-      width: 40px; height: 40px;
-      display: flex; flex-direction: column;
-      align-items: center; justify-content: center;
-      gap: 2px;
+      width: 36px; height: 36px;
+      display: flex; align-items: center; justify-content: center;
       cursor: pointer;
       transition: color .15s, background .15s;
       flex-shrink: 0;
-      font-size: 9px;
-      font-weight: 600;
-      letter-spacing: 0.2px;
     }
-    .btn-icon:hover { color: var(--text); background: var(--surface3); border-radius: var(--r-sm); }
+    .btn-icon:hover { color: var(--text); background: rgba(255,255,255,.06); }
     .btn-icon svg { flex-shrink: 0; }
-    .btn-icon-label { font-size: 8px; font-weight: 600; letter-spacing: 0.3px; line-height: 1; opacity: 0.7; }
+    .btn-icon-label { display: none; } /* icon-only — clean */
 
     .btn-generate {
-      background: var(--accent);
-      color: #fff;
-      border: none;
-      border-radius: var(--r-full);
-      padding: 8px 16px;
-      font-size: var(--text-sm);
-      font-weight: 700;
-      cursor: pointer;
-      display: flex; align-items: center; gap: 6px;
-      white-space: nowrap;
-      transition: background .15s, transform .1s;
-      font-family: inherit;
-      letter-spacing: -0.1px;
+      background: var(--accent); color: #fff; border: none;
+      border-radius: var(--r-full); padding: 8px 18px;
+      font-size: var(--text-sm); font-weight: 700;
+      cursor: pointer; display: flex; align-items: center; gap: 6px;
+      white-space: nowrap; transition: background .15s, transform .1s;
+      font-family: 'Barlow', sans-serif; letter-spacing: .3px;
     }
     .btn-generate:hover { background: var(--accent-h); }
     .btn-generate:active { transform: scale(0.97); }
 
     /* ── CANVAS ─────────────────────────────────── */
     #canvas {
-      min-height: calc(100dvh - 52px);
+      min-height: calc(100dvh - 56px);
       padding: var(--sp-4);
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+      grid-template-columns: repeat(auto-fill, minmax(138px, 1fr));
       gap: var(--sp-3);
       align-content: start;
-      padding-bottom: 100px;
+      padding-bottom: 110px;
     }
-    @media (min-width: 480px) { #canvas { grid-template-columns: repeat(auto-fill, minmax(155px, 1fr)); } }
-    @media (min-width: 768px) { #canvas { grid-template-columns: repeat(auto-fill, minmax(165px, 1fr)); padding: var(--sp-5); gap: var(--sp-4); } }
+    @media (min-width: 480px) { #canvas { grid-template-columns: repeat(auto-fill, minmax(152px, 1fr)); } }
+    @media (min-width: 768px) { #canvas { grid-template-columns: repeat(auto-fill, minmax(162px, 1fr)); padding: var(--sp-5); gap: var(--sp-4); } }
 
     /* ── EMPTY STATE ───────────────────────────────────────── */
     #emptyState {
       grid-column: 1 / -1;
       display: flex; flex-direction: column;
       align-items: center; justify-content: center;
-      padding: 80px 24px; text-align: center; gap: 16px;
+      padding: 80px 24px; text-align: center; gap: 14px;
     }
-    #emptyState .empty-icon {
-      width: 64px; height: 64px; border-radius: 20px;
-      background: var(--surface3); border: 1px solid var(--border-hi);
+    .empty-icon {
+      width: 56px; height: 56px; border-radius: 14px;
+      background: var(--surface2); border: 1px solid var(--border);
       display: flex; align-items: center; justify-content: center;
       color: var(--text-3);
     }
-    #emptyState .empty-title {
-      font-size: var(--text-lg); font-weight: 700;
-      color: var(--text); letter-spacing: -0.3px; margin-top: 4px;
+    .empty-title {
+      font-family: var(--font-display);
+      font-size: 1.4rem; font-weight: 600;
+      color: var(--text); letter-spacing: .2px;
     }
-    #emptyState .empty-sub {
+    .empty-sub {
       font-size: var(--text-sm); color: var(--text-2);
-      line-height: 1.6; max-width: 220px;
+      line-height: 1.7; max-width: 210px;
     }
-    #emptyState .empty-cta {
-      margin-top: 8px; background: var(--accent); color: #fff;
-      border: none; border-radius: var(--r-full); padding: 10px 22px;
+    .empty-cta {
+      margin-top: 6px; background: var(--accent); color: #fff;
+      border: none; border-radius: var(--r-full); padding: 10px 24px;
       font-size: var(--text-sm); font-weight: 700; cursor: pointer;
-      font-family: inherit; transition: background .15s;
+      font-family: 'Barlow', sans-serif; transition: background .15s;
+      letter-spacing: .3px;
     }
-    #emptyState .empty-cta:hover { background: var(--accent-h); }
+    .empty-cta:hover { background: var(--accent-h); }
 
-    /* ── TOKEN CARD ─────────────────────── */
+    /* ══ TOKEN CARD — ART-FIRST DESIGN ════════════════════════ */
     .token-card {
-      background: var(--surface2);
-      border: 1px solid var(--border);
-      border-radius: var(--r-lg);
-      overflow: hidden;
-      position: relative;
-      display: flex; flex-direction: column;
-      transition: box-shadow .2s, border-color .2s;
-      touch-action: manipulation;
+      display: flex; flex-direction: column; gap: 6px;
       cursor: pointer;
       user-select: none; -webkit-user-select: none;
+      touch-action: manipulation;
     }
-    .token-card:hover { border-color: var(--border-hi); }
-    .token-card.card-active { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent); }
-    .token-card.all-tapped { border-color: var(--amber); box-shadow: 0 0 12px var(--amber-dim); }
 
-    /* Art area — portrait, fills most of card */
+    /* The visible card frame (portrait, art-filled) */
+    .card-frame {
+      position: relative;
+      border-radius: var(--r-lg);
+      overflow: hidden;
+      aspect-ratio: 5 / 7;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      transition: border-color .2s, box-shadow .2s;
+      flex-shrink: 0;
+    }
+    .token-card:hover .card-frame { border-color: var(--border-hi); }
+    .token-card.card-active .card-frame {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 1px var(--accent), 0 6px 28px rgba(184,50,54,.2);
+    }
+    .token-card.all-tapped .card-frame {
+      border-color: var(--amber);
+      box-shadow: 0 0 0 1px var(--amber), 0 6px 24px rgba(184,144,64,.18);
+    }
+
+    /* Full-bleed art */
     .card-art-wrap {
-      position: relative; width: 100%;
-      aspect-ratio: 3 / 4;
-      overflow: hidden; background: var(--surface3); flex-shrink: 0;
+      position: absolute; inset: 0;
+      background: var(--surface3);
     }
     .card-art {
       width: 100%; height: 100%;
-      object-fit: cover; object-position: top;
+      object-fit: cover; object-position: top center;
       display: block; transition: opacity .3s;
     }
     .card-art-placeholder {
       width: 100%; height: 100%;
       display: flex; align-items: center; justify-content: center;
-      font-size: var(--text-xs); color: var(--text-3); padding: 8px; text-align: center;
+      font-family: var(--font-display);
+      font-size: 1rem; font-weight: 500; font-style: italic;
+      color: var(--text-2); padding: 14px; text-align: center;
     }
-
-    /* Tapped art overlay */
     .token-card.all-tapped .card-art-wrap::after {
       content: '';
       position: absolute; inset: 0;
-      background: rgba(245,166,35,.1);
+      background: linear-gradient(135deg, rgba(184,144,64,.12) 0%, transparent 60%);
       pointer-events: none;
     }
 
-    /* Qty badge */
-    .qty-badge {
-      position: absolute; top: 8px; right: 8px;
-      background: var(--accent);
-      color: #fff; font-size: var(--text-xs); font-weight: 700;
-      border-radius: var(--r-full);
-      min-width: 22px; height: 22px; padding: 0 6px;
-      display: flex; align-items: center; justify-content: center;
-      box-shadow: 0 2px 8px rgba(0,0,0,.5);
-      z-index: 3;
+    /* Top chips row (quantity + tapped) */
+    .card-chips {
+      position: absolute; top: 8px; left: 8px; right: 8px;
+      display: flex; align-items: flex-start;
+      justify-content: space-between;
+      z-index: 3; pointer-events: none;
     }
-
-    /* Tapped badge */
-    .tap-badge {
-      position: absolute; top: 8px; left: 8px;
-      background: rgba(10,10,20,.85);
-      color: var(--amber);
-      font-size: var(--text-xs); font-weight: 700;
-      border-radius: var(--r-sm); padding: 3px 6px;
+    .tap-chip {
+      background: rgba(8,8,12,.84);
+      color: var(--amber); font-size: var(--text-xs); font-weight: 700;
+      border-radius: 4px; padding: 3px 7px;
       display: none; align-items: center; gap: 3px;
-      backdrop-filter: blur(4px);
-      z-index: 3;
+      backdrop-filter: blur(6px);
+      border: 1px solid rgba(184,144,64,.22);
     }
-    .tap-badge.visible { display: flex; }
+    .tap-chip.visible { display: flex; }
+    .qty-chip {
+      background: var(--accent); color: #fff;
+      font-family: var(--font-counter);
+      font-size: 1.05rem; letter-spacing: .5px;
+      border-radius: 5px; min-width: 26px; height: 26px; padding: 0 8px;
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 2px 10px rgba(0,0,0,.55);
+    }
+    .etap-chip {
+      position: absolute; top: 40px; left: 8px; z-index: 3;
+      background: rgba(8,8,12,.84);
+      color: var(--amber); border: 1px solid rgba(184,144,64,.28);
+      border-radius: 3px; font-size: .6rem; font-weight: 700; padding: 2px 5px;
+      display: none; backdrop-filter: blur(6px);
+    }
+    .etap-chip.visible { display: block; }
 
-    /* ETap badge */
-    .etap-badge {
-      position: absolute; top: 36px; left: 8px;
-      background: rgba(10,10,20,.8); color: var(--amber);
-      border: 1px solid var(--amber); border-radius: var(--r-sm);
-      font-size: 9px; font-weight: 700; padding: 1px 5px;
-      display: none; z-index: 3;
+    /* Bottom gradient foot with name + PT + counters */
+    .card-foot {
+      position: absolute; bottom: 0; left: 0; right: 0;
+      background: linear-gradient(to top,
+        rgba(8,8,12,.97) 0%,
+        rgba(8,8,12,.75) 52%,
+        transparent 100%);
+      padding: 32px 10px 9px; z-index: 2;
     }
-    .etap-badge.visible { display: block; }
-
-    /* ── Card quick-action overlay (tap-to-reveal) ── */
-    .card-actions-overlay {
-      position: absolute; inset: 0;
-      background: rgba(8,8,16,.78);
-      backdrop-filter: blur(2px);
-      display: flex; flex-direction: column;
-      align-items: center; justify-content: center;
-      gap: var(--sp-2); padding: var(--sp-3);
-      opacity: 0; pointer-events: none;
-      transition: opacity .18s;
-      z-index: 5;
-    }
-    .card-actions-overlay.open { opacity: 1; pointer-events: all; }
-
-    .card-action-row {
-      display: flex; gap: var(--sp-2); width: 100%;
-    }
-    .card-act-btn {
-      flex: 1; padding: 10px 4px;
-      border-radius: var(--r-md); border: 1px solid var(--border-hi);
-      background: rgba(19,19,32,.9);
-      font-size: var(--text-xs); font-weight: 700;
-      cursor: pointer; transition: background .12s, transform .1s;
-      font-family: inherit; color: var(--text);
-      text-align: center; line-height: 1.3;
-    }
-    .card-act-btn:active { transform: scale(.94); }
-    .card-act-btn.tap    { color: var(--amber); border-color: rgba(245,166,35,.3); }
-    .card-act-btn.tap:hover    { background: var(--amber-dim); }
-    .card-act-btn.untap  { color: var(--green); border-color: rgba(46,204,113,.3); }
-    .card-act-btn.untap:hover  { background: var(--green-dim); }
-    .card-act-btn.detail { color: var(--text-2); }
-    .card-act-btn.detail:hover { background: var(--surface3); }
-    .card-act-btn.counter { color: var(--green); border-color: rgba(46,204,113,.3); font-size: 10px; }
-    .card-act-btn.counter:hover { background: var(--green-dim); }
-
-    .card-act-divider {
-      width: 100%; height: 1px; background: var(--border); opacity: .5;
-    }
-
-    /* ── Info strip at card bottom ── */
-    .card-info {
-      padding: 8px 10px 5px;
-      display: flex; align-items: center;
-      justify-content: space-between; gap: 4px;
-      background: var(--surface2);
+    .card-name-pt {
+      display: flex; align-items: baseline;
+      gap: 5px; margin-bottom: 4px;
     }
     .card-name {
       font-size: var(--text-sm); font-weight: 600;
-      color: var(--text);
-      white-space: nowrap; overflow: hidden; text-overflow: ellipsis; flex: 1;
-      letter-spacing: -0.2px;
+      color: rgba(221,214,200,.95);
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+      flex: 1; letter-spacing: .1px;
     }
     .card-pt {
-      font-size: var(--text-xs); font-weight: 700;
-      color: var(--text-2);
-      background: var(--surface3); border: 1px solid var(--border);
-      border-radius: var(--r-sm); padding: 2px 6px;
-      white-space: nowrap; flex-shrink: 0;
+      font-family: var(--font-mono);
+      font-size: .62rem; font-weight: 700;
+      color: rgba(255,255,255,.45);
+      white-space: nowrap; flex-shrink: 0; letter-spacing: -.2px;
     }
-    .card-pt.pt-modified { color: var(--amber); border-color: rgba(245,166,35,.4); }
-
-    /* Counter badges */
+    .card-pt.pt-modified { color: var(--amber); }
     .card-counters {
-      display: flex; flex-wrap: wrap; gap: 3px;
-      padding: 0 10px 6px; min-height: 0;
+      display: flex; flex-wrap: wrap; gap: 3px; min-height: 0;
     }
     .ctr-badge {
-      background: var(--surface3); border: 1px solid var(--border-hi);
-      border-radius: var(--r-full); padding: 2px 8px;
-      font-size: var(--text-xs); font-weight: 700; white-space: nowrap;
-      letter-spacing: -0.1px;
+      border-radius: 3px; padding: 1px 6px;
+      font-family: var(--font-mono);
+      font-size: .58rem; font-weight: 700; white-space: nowrap;
     }
-    .ctr-badge.plus   { border-color: rgba(46,204,113,.4);   color: var(--green); background: var(--green-dim); }
-    .ctr-badge.minus  { border-color: rgba(200,70,80,.4);    color: #e06070; background: rgba(200,70,80,.08); }
-    .ctr-badge.charge { border-color: rgba(245,166,35,.4);   color: var(--amber); background: var(--amber-dim); }
-    .ctr-badge.kw     { border-color: rgba(120,160,220,.3);  color: #90b8e8; background: rgba(120,160,220,.07); }
+    .ctr-badge.plus   { color: var(--green); background: var(--green-dim); }
+    .ctr-badge.minus  { color: #b86070; background: rgba(184,96,112,.1); }
+    .ctr-badge.charge { color: var(--amber); background: var(--amber-dim); }
+    .ctr-badge.kw     { color: #8aaad0; background: rgba(138,170,208,.08); }
 
-    /* Tap dots — replaced by amber border on tapped cards, dots kept small */
-    .tap-dots { padding: 0 10px 5px; display: flex; flex-wrap: wrap; gap: 3px; min-height: 0; }
-    .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--border-hi); transition: background .15s; }
-    .dot.tapped { background: var(--amber); }
+    /* Tap-to-reveal action overlay */
+    .card-actions-overlay {
+      position: absolute; inset: 0;
+      background: rgba(8,8,14,.88);
+      backdrop-filter: blur(4px) saturate(1.1);
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      gap: 7px; padding: 14px 12px;
+      opacity: 0; pointer-events: none;
+      transition: opacity .2s; z-index: 5;
+    }
+    .card-actions-overlay.open { opacity: 1; pointer-events: all; }
 
-    /* Qty row (always visible, compact) */
-    .qty-row {
-      display: flex; align-items: center;
-      padding: 4px 10px 8px; gap: 4px;
-      border-top: 1px solid var(--border);
+    .cao-group { display: flex; gap: 6px; width: 100%; }
+    .cao-btn {
+      flex: 1; height: 40px; padding: 0;
+      border-radius: var(--r-md); border: 1px solid var(--border-hi);
+      background: rgba(17,17,24,.9);
+      cursor: pointer; font-family: 'Barlow', sans-serif;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center; gap: 0;
+      transition: background .12s, transform .1s; color: var(--text);
+    }
+    .cao-btn:active { transform: scale(.93); }
+    .cao-btn-label {
+      font-size: .52rem; font-weight: 600;
+      text-transform: uppercase; letter-spacing: 1px;
+      opacity: .5; line-height: 1; margin-bottom: 1px;
+    }
+    .cao-btn-val {
+      font-family: var(--font-counter);
+      font-size: 1.05rem; letter-spacing: .3px; line-height: 1;
+    }
+    .cao-btn.tap { color: var(--amber); border-color: rgba(184,144,64,.28); }
+    .cao-btn.tap:hover { background: var(--amber-dim); }
+    .cao-btn.untap { color: var(--green); border-color: rgba(58,128,96,.28); }
+    .cao-btn.untap:hover { background: var(--green-dim); }
+    .cao-btn.counter {
+      font-family: var(--font-mono);
+      font-size: .72rem; font-weight: 700;
+      flex-direction: row; gap: 0;
+    }
+    .cao-btn.counter .cao-btn-label { display: none; }
+    .cao-btn.counter .cao-btn-val { font-family: var(--font-mono); font-size: .72rem; }
+    .cao-btn.counter.minus { color: #b86070; border-color: rgba(184,96,112,.28); }
+    .cao-btn.counter.minus:hover { background: rgba(184,96,112,.1); }
+    .cao-btn.counter.plus { color: var(--green); border-color: rgba(58,128,96,.28); }
+    .cao-btn.counter.plus:hover { background: var(--green-dim); }
+
+    .cao-btn-wide {
+      width: 100%; padding: 8px 12px;
+      border-radius: var(--r-md); border: 1px solid var(--border-hi);
+      background: rgba(17,17,24,.9);
+      font-family: 'Barlow', sans-serif;
+      font-size: .7rem; font-weight: 600;
+      text-transform: uppercase; letter-spacing: .7px;
+      cursor: pointer; color: var(--text-2);
+      transition: background .12s, color .12s;
+    }
+    .cao-btn-wide:hover { color: var(--text); background: var(--surface3); }
+    .cao-btn-wide.untap-all { color: var(--green); border-color: rgba(58,128,96,.28); }
+    .cao-btn-wide.untap-all:hover { background: var(--green-dim); }
+    .cao-btn-wide.untap-all.dim { color: var(--text-3); border-color: var(--border); }
+    .cao-btn-wide.untap-all.dim:hover { color: var(--text-2); }
+    .cao-btn-wide.detail { letter-spacing: 1px; }
+    .cao-divider {
+      width: 100%; height: 1px; background: var(--border); opacity: .5;
+    }
+
+    /* Qty strip (below the frame) */
+    .card-qty-strip {
+      display: flex; align-items: center; gap: 6px;
     }
     .qty-adj {
-      background: var(--surface3); border: 1px solid var(--border);
-      color: var(--text-2); border-radius: var(--r-sm);
-      width: 26px; height: 26px; font-size: var(--text-md);
-      cursor: pointer; display: flex; align-items: center;
-      justify-content: center; flex-shrink: 0; transition: background .15s;
-      font-family: inherit;
+      background: var(--surface2); border: 1px solid var(--border);
+      color: var(--text-3); border-radius: var(--r-sm);
+      width: 28px; height: 28px; font-size: 1.1rem;
+      cursor: pointer; display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0; transition: background .12s, color .12s; font-family: inherit;
     }
     .qty-adj:hover { background: var(--border-hi); color: var(--text); }
-    .qty-label { flex: 1; text-align: center; font-size: var(--text-xs); color: var(--text-3); }
+    .qty-adj:active { transform: scale(.9); }
+    .qty-label {
+      flex: 1; text-align: center;
+      font-family: var(--font-counter);
+      font-size: 1.1rem; letter-spacing: 1px;
+      color: var(--text-2);
+    }
 
-    /* Remove the old card-controls / ctrl-btn (replaced by overlay) */
-    .card-controls, .ctrl-btn, .card-controls-all, .btn-tap-one, .btn-untap, .btn-untap-all { display: none !important; }
+    /* Remove old card controls (replaced by overlay) */
+    .card-controls, .ctrl-btn, .card-controls-all, .btn-tap-one,
+    .btn-untap, .btn-untap-all, .plus-row, .btn-remove,
+    .card-menu-btn, .tap-dots, .qty-row, .card-info,
+    .card-act-btn, .card-action-row, .card-act-divider { display: none !important; }
 
-    /* Plus row (counter quick-adjust, now inside overlay) */
-    .plus-row { display: none !important; }
-
-    /* Remove button — keep as hidden emergency escape */
-    .btn-remove { display: none !important; }
-
-    /* Card menu btn — replaced by overlay */
-    .card-menu-btn { display: none !important; }
+    /* EOT badge */
+    .eot-badge {
+      font-size: .6rem; font-weight: 700;
+      color: var(--tap-color); background: rgba(184,144,64,.15);
+      border: 1px solid var(--tap-color); border-radius: 3px;
+      padding: 1px 5px; white-space: nowrap;
+    }
 
     /* ── MODAL ─────────────────────────────────────────────── */
     .modal-overlay {
@@ -2234,6 +2287,142 @@
     [data-theme="light"] .auth-input  { background: #f0f0f8; border-color: #b0b0c8; color: #1a1a2e; }
     [data-theme="light"] .fav-search  { background: #f0f0f8; border-color: #b0b0c8; color: #1a1a2e; }
     [data-theme="light"] .cat-picker  { background: #e8e8f0; border-color: #aaaabc; }
+
+    /* ══ BESPOKE REFINEMENTS ══════════════════════════════════ */
+
+    /* Modal: serif title, refined drag handle */
+    .modal-drag {
+      width: 32px; height: 3px;
+      background: var(--border-hi);
+      border-radius: 2px; margin: 12px auto 0;
+    }
+    .modal-header { border-bottom: 1px solid var(--border); padding-bottom: 14px; }
+    .modal-title {
+      font-family: var(--font-display);
+      font-size: 1.3rem; font-weight: 600;
+      color: var(--text); letter-spacing: .1px;
+    }
+    .modal-close {
+      background: none; border: none;
+      color: var(--text-3); border-radius: var(--r-full);
+      width: 30px; height: 30px; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      transition: color .15s, background .15s;
+    }
+    .modal-close:hover { color: var(--text); background: var(--surface3); }
+    .modal-body { padding: 18px 20px 36px; }
+
+    /* Form labels: eyebrow style throughout */
+    .form-label {
+      font-family: 'Barlow', sans-serif;
+      font-size: .6rem; font-weight: 700;
+      letter-spacing: 1.8px; color: var(--muted);
+      text-transform: uppercase; margin-bottom: 6px;
+    }
+
+    /* Form inputs: warmer/darker base */
+    .form-input, .form-textarea {
+      background: var(--bg);
+      border-color: var(--border-hi);
+    }
+    .form-input:focus, .form-textarea:focus { border-color: var(--accent); }
+
+    /* Submit button: pill shape, Barlow uppercase */
+    .btn-submit, .btn-wiz-submit {
+      font-family: 'Barlow', sans-serif;
+      font-size: .82rem; font-weight: 700;
+      letter-spacing: 1.6px; text-transform: uppercase;
+      border-radius: var(--r-full);
+      padding: 14px 24px;
+      background: var(--accent);
+    }
+
+    /* Wiz section header: refined label */
+    .wiz-sec-label {
+      font-family: 'Barlow', sans-serif;
+      font-size: .58rem; letter-spacing: 1.6px;
+      color: var(--text-3);
+    }
+    .wiz-section.open .wiz-sec-label { color: var(--muted); }
+    .wiz-section.open .wiz-sec-header { background: rgba(255,255,255,.02); }
+
+    /* Dice: Bebas Neue for the big result + mono for breakdown */
+    .dice-result-num {
+      font-family: var(--font-counter);
+      font-size: 3.2rem; font-weight: 400; letter-spacing: 2px;
+    }
+    .dice-result-breakdown { font-family: var(--font-mono); }
+    .dice-dd-header { font-family: 'Barlow', sans-serif; font-size: .58rem; letter-spacing: 1.6px; }
+
+    /* Panel title: serif */
+    .panel-title {
+      font-family: var(--font-display);
+      font-size: 1.15rem; font-weight: 600; letter-spacing: .1px;
+    }
+
+    /* Bottom nav: refined active state */
+    @media (max-width: 639px) {
+      .bn-item {
+        font-family: 'Barlow', sans-serif;
+        font-size: 7px; letter-spacing: .8px;
+        color: var(--text-3);
+      }
+      .bn-item.active { color: var(--accent); }
+      .bn-item.active::before {
+        content: '';
+        position: absolute;
+        top: 0; left: 20%; right: 20%;
+        height: 2px;
+        background: var(--accent);
+        border-radius: 0 0 2px 2px;
+      }
+    }
+
+    /* Card: counters inside card-foot need no extra side padding */
+    .card-foot .card-counters { padding: 0; margin-bottom: 4px; }
+    .card-foot { gap: 3px; }
+
+    /* Empty state: more dramatic serif headline */
+    .empty-title {
+      font-size: 1.65rem; font-weight: 600;
+      font-style: italic; letter-spacing: .1px;
+    }
+    .empty-cta {
+      font-family: 'Barlow', sans-serif;
+      font-size: .75rem; letter-spacing: 1.5px;
+      text-transform: uppercase; padding: 11px 28px;
+    }
+
+    /* Canvas grid: slightly looser on mobile */
+    #canvas { gap: 12px; padding: 16px 14px; }
+    @media (max-width: 639px) { #canvas { gap: 10px; padding: 12px 10px 80px; } }
+
+    /* Splash screen: refined */
+    .splash-title {
+      font-family: var(--font-display);
+      font-size: 2rem; font-weight: 600; font-style: italic;
+      letter-spacing: .2px; margin-bottom: 8px;
+    }
+    .btn-splash-start {
+      font-family: 'Barlow', sans-serif;
+      font-size: .78rem; letter-spacing: 1.8px;
+      text-transform: uppercase; border-radius: var(--r-full);
+    }
+
+    /* Qty strip: slightly more refined */
+    .card-qty-strip { padding: 0 2px; }
+    .qty-adj {
+      font-family: var(--font-counter);
+      font-size: 1.1rem; letter-spacing: 0;
+    }
+    .qty-label {
+      font-family: var(--font-counter);
+      font-size: 1.15rem; color: var(--text);
+      min-width: 24px; text-align: center;
+    }
+
+    /* Header border-bottom: slightly more visible */
+    header { border-bottom-color: var(--border-hi); }
   </style>
 </head>
 <body>
@@ -2262,9 +2451,12 @@
   <header>
     <div class="app-title">
       <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-        <path d="M10 2L12.5 7.5H18L13.5 11L15.5 17L10 13.5L4.5 17L6.5 11L2 7.5H7.5L10 2Z" fill="#e03535"/>
+        <path d="M10 2L12.5 7.5H18L13.5 11L15.5 17L10 13.5L4.5 17L6.5 11L2 7.5H7.5L10 2Z" fill="#b83236"/>
       </svg>
-      Token Tracker
+      <div class="app-wordmark">
+        <span class="app-eyebrow">MTG</span>
+        <span class="app-name">Token Tracker</span>
+      </div>
     </div>
     <div class="header-actions">
       <!-- Life tracker -->
@@ -3552,57 +3744,62 @@
 
     function cardHTML(token) {
       const { str: ptStr, modified: ptMod } = effectivePT(token);
-      const dotsN  = Math.min(token.quantity, 30);
-      const dots   = Array.from({length: dotsN}, (_, i) =>
-        `<div class="dot ${i < token.tapped ? 'tapped' : ''}"></div>`).join('');
       const ctrBadges = counterBadgesHTML(token);
       const modBadges = (token.modifiers || []).map(k =>
         `<span class="ctr-badge kw">${esc(k)}</span>`).join('');
+      const tapSVG = `<svg width="10" height="10" viewBox="0 0 10 10"><path d="M5 1V5L8 8" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" fill="none"/></svg>`;
+      const isAllTapped = token.tapped >= token.quantity && token.quantity > 0;
 
       return `
-  <div class="card-art-wrap">
-    ${token.imageUri
-      ? `<img class="card-art" src="${esc(token.imageUri)}" alt="${esc(token.name)}" loading="lazy">`
-      : `<div class="card-art-placeholder">${esc(token.name)}</div>`}
-    <div class="qty-badge" id="qb-${token.id}">${token.quantity}</div>
-    <div class="tap-badge ${token.tapped > 0 ? 'visible' : ''}" id="tpb-${token.id}">
-      <svg width="9" height="9" viewBox="0 0 10 10"><path d="M5 1V5L8 8" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
-      ${token.tapped}
+  <div class="card-frame">
+    <div class="card-art-wrap">
+      ${token.imageUri
+        ? `<img class="card-art" src="${esc(token.imageUri)}" alt="${esc(token.name)}" loading="lazy">`
+        : `<div class="card-art-placeholder">${esc(token.name)}</div>`}
     </div>
-    <div class="etap-badge ${token.entersTapped ? 'visible' : ''}" id="etb-${token.id}">ETap</div>
-
-    <!-- Tap-to-reveal quick actions -->
+    <div class="card-chips">
+      <div class="tap-chip ${token.tapped > 0 ? 'visible' : ''}" id="tpb-${token.id}">
+        ${tapSVG}<span>${token.tapped}</span>
+      </div>
+      <div class="qty-chip" id="qb-${token.id}">${token.quantity}</div>
+    </div>
+    <div class="etap-chip ${token.entersTapped ? 'visible' : ''}" id="etb-${token.id}">ETap</div>
+    <div class="card-foot">
+      <div class="card-counters" id="cbadges-${token.id}">${ctrBadges}${modBadges}</div>
+      <div class="card-name-pt">
+        <span class="card-name">${esc(token.name)}</span>
+        ${ptStr ? `<span class="card-pt ${ptMod ? 'pt-modified' : ''}" id="pt-${token.id}">${esc(ptStr)}</span>` : ''}
+      </div>
+    </div>
     <div class="card-actions-overlay" id="cao-${token.id}">
-      <div class="card-action-row">
-        <button class="card-act-btn tap"   onclick="event.stopPropagation();tapOne(${token.id});_refreshCardOverlay(${token.id})">Tap +1</button>
-        <button class="card-act-btn untap" onclick="event.stopPropagation();untapOne(${token.id});_refreshCardOverlay(${token.id})">Untap −1</button>
+      <div class="cao-group">
+        <button class="cao-btn tap" onclick="event.stopPropagation();tapOne(${token.id});_refreshCardOverlay(${token.id})">
+          <span class="cao-btn-label">Tap</span><span class="cao-btn-val">+1</span>
+        </button>
+        <button class="cao-btn untap" onclick="event.stopPropagation();untapOne(${token.id});_refreshCardOverlay(${token.id})">
+          <span class="cao-btn-label">Untap</span><span class="cao-btn-val">−1</span>
+        </button>
       </div>
-      <div class="card-action-row">
-        <button class="card-act-btn untap" style="opacity:.7" onclick="event.stopPropagation();untapToken(${token.id});closeCardActions()">Untap All</button>
+      <button class="cao-btn-wide untap-all ${isAllTapped ? '' : 'dim'}" onclick="event.stopPropagation();untapToken(${token.id});_refreshCardOverlay(${token.id})">
+        Untap All
+      </button>
+      <div class="cao-divider"></div>
+      <div class="cao-group">
+        <button class="cao-btn counter minus" onclick="event.stopPropagation();quickCounter(${token.id},-1);_refreshCardOverlay(${token.id})">
+          <span class="cao-btn-label">Counter</span><span class="cao-btn-val">−1/−1</span>
+        </button>
+        <button class="cao-btn counter plus" onclick="event.stopPropagation();quickCounter(${token.id},1);_refreshCardOverlay(${token.id})">
+          <span class="cao-btn-label">Counter</span><span class="cao-btn-val">+1/+1</span>
+        </button>
       </div>
-      <div class="card-act-divider"></div>
-      <div class="card-action-row">
-        <button class="card-act-btn counter" onclick="event.stopPropagation();quickCounter(${token.id},-1);_refreshCardOverlay(${token.id})">−1/−1</button>
-        <button class="card-act-btn counter" onclick="event.stopPropagation();quickCounter(${token.id},1);_refreshCardOverlay(${token.id})">+1/+1</button>
-      </div>
-      <div class="card-action-row">
-        <button class="card-act-btn detail" onclick="event.stopPropagation();closeCardActions();openDetail(${token.id})">⋮ Details</button>
-      </div>
+      <button class="cao-btn-wide detail" onclick="event.stopPropagation();closeCardActions();openDetail(${token.id})">
+        Details
+      </button>
     </div>
   </div>
-
-  <div class="card-info">
-    <span class="card-name">${esc(token.name)}</span>
-    ${ptStr ? `<span class="card-pt ${ptMod ? 'pt-modified' : ''}" id="pt-${token.id}">${esc(ptStr)}</span>` : ''}
-  </div>
-
-  <div class="card-counters" id="cbadges-${token.id}">${ctrBadges}${modBadges}</div>
-
-  <div class="tap-dots" id="dots-${token.id}">${dots}</div>
-
-  <div class="qty-row">
+  <div class="card-qty-strip">
     <button class="qty-adj" onclick="event.stopPropagation();changeQty(${token.id},-1)">−</button>
-    <span class="qty-label" id="ql-${token.id}">${token.quantity} in play</span>
+    <span class="qty-label" id="ql-${token.id}">${token.quantity}</span>
     <button class="qty-adj" onclick="event.stopPropagation();changeQty(${token.id},1)">+</button>
   </div>`;
     }
@@ -3666,32 +3863,20 @@
       const el = document.getElementById(`tc-${token.id}`);
       if (!el) return;
 
-      // Qty badge
+      // Qty chip
       const qb = document.getElementById(`qb-${token.id}`);
       if (qb) qb.textContent = token.quantity;
 
-      // Tap badge
+      // Tap chip
       const tpb = document.getElementById(`tpb-${token.id}`);
       if (tpb) {
-        tpb.innerHTML = `
-          <svg width="10" height="10" viewBox="0 0 10 10">
-            <path d="M5 1V5L8 8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-          </svg>
-          ${token.tapped}`;
+        tpb.innerHTML = `<svg width="10" height="10" viewBox="0 0 10 10"><path d="M5 1V5L8 8" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" fill="none"/></svg><span>${token.tapped}</span>`;
         tpb.classList.toggle('visible', token.tapped > 0);
       }
 
-      // Dots
-      const dots = document.getElementById(`dots-${token.id}`);
-      if (dots) {
-        const n = Math.min(token.quantity, 30);
-        dots.innerHTML = Array.from({length: n}, (_, i) =>
-          `<div class="dot ${i < token.tapped ? 'tapped' : ''}"></div>`).join('');
-      }
-
-      // Qty label
+      // Qty strip label
       const ql = document.getElementById(`ql-${token.id}`);
-      if (ql) ql.textContent = `${token.quantity} in play`;
+      if (ql) ql.textContent = token.quantity;
 
       // Counter + modifier badges
       const cb = document.getElementById(`cbadges-${token.id}`);
