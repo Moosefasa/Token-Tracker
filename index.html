@@ -2714,6 +2714,150 @@
       color: var(--text-3);
     }
     .wiz-manual-hint button:hover { color: var(--muted); }
+
+    /* ── STEP INDICATOR BAR ──────────────────────────────── */
+    .wiz-step-bar {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0;
+      padding: 16px 24px 4px;
+    }
+    .wiz-step {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      flex-shrink: 0;
+      transition: opacity .2s;
+    }
+    .wiz-step-num {
+      width: 28px; height: 28px;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'Barlow', sans-serif;
+      font-size: .72rem; font-weight: 700; letter-spacing: .5px;
+      border: 1.5px solid var(--border);
+      color: var(--text-3);
+      background: var(--surface2);
+      transition: all .22s;
+    }
+    .wiz-step-label {
+      font-family: 'Barlow', sans-serif;
+      font-size: .57rem; font-weight: 700;
+      letter-spacing: 1.4px; text-transform: uppercase;
+      color: var(--text-3);
+      white-space: nowrap;
+      transition: color .22s;
+    }
+    /* Active step */
+    .wiz-step.wiz-step-active .wiz-step-num {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: #fff;
+      box-shadow: 0 0 12px var(--accent-glow);
+    }
+    .wiz-step.wiz-step-active .wiz-step-label { color: var(--text); }
+    /* Completed step */
+    .wiz-step.wiz-step-done .wiz-step-num {
+      background: var(--surface3);
+      border-color: var(--green);
+      color: var(--green);
+    }
+    .wiz-step.wiz-step-done .wiz-step-label { color: var(--muted); }
+    /* Connector line between steps */
+    .wiz-step-connector {
+      flex: 1;
+      height: 1.5px;
+      background: var(--border);
+      margin: 0 10px;
+      margin-bottom: 22px; /* align with num center */
+      max-width: 60px;
+      min-width: 24px;
+    }
+
+    /* ── WIZARD SECTION HEADER (non-interactive in step mode) ── */
+    .wiz-sec-header {
+      cursor: default;
+    }
+    .wiz-sec-arrow { display: none; }
+
+    /* ── NAV FOOTER ──────────────────────────────────────── */
+    .wiz-nav-footer {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 16px 0 4px;
+    }
+    .wiz-nav-back {
+      display: flex; align-items: center; gap: 6px;
+      background: none;
+      border: 1px solid var(--border);
+      border-radius: var(--r-full);
+      color: var(--text-2);
+      font-family: 'Barlow', sans-serif;
+      font-size: .75rem; font-weight: 700; letter-spacing: .6px;
+      text-transform: uppercase;
+      padding: 11px 18px;
+      cursor: pointer;
+      flex-shrink: 0;
+      transition: border-color .15s, color .15s, background .15s;
+      visibility: hidden;
+    }
+    .wiz-nav-back:hover {
+      border-color: var(--border-hi);
+      color: var(--text);
+      background: var(--surface2);
+    }
+    .wiz-nav-next {
+      flex: 1;
+      display: flex; align-items: center; justify-content: center; gap: 7px;
+      background: var(--accent);
+      border: none;
+      border-radius: var(--r-full);
+      color: #fff;
+      font-family: 'Barlow', sans-serif;
+      font-size: .78rem; font-weight: 700; letter-spacing: 1.8px;
+      text-transform: uppercase;
+      padding: 14px 20px;
+      cursor: pointer;
+      position: relative; overflow: hidden;
+      box-shadow: 0 4px 20px rgba(184,50,54,.35);
+      transition: background .18s, box-shadow .2s, transform .1s, opacity .15s;
+    }
+    .wiz-nav-next::before {
+      content: '';
+      position: absolute;
+      top: -10%; left: -80%;
+      width: 50%; height: 120%;
+      background: linear-gradient(105deg,
+        transparent 0%, rgba(255,255,255,.18) 50%, transparent 100%);
+      transform: skewX(-15deg);
+      transition: left .55s ease;
+      pointer-events: none;
+    }
+    .wiz-nav-next:hover { background: var(--accent-h); box-shadow: 0 6px 30px rgba(184,50,54,.5); }
+    .wiz-nav-next:hover::before { left: 140%; }
+    .wiz-nav-next:active { transform: scale(.98); }
+    .wiz-nav-next:disabled {
+      background: var(--surface3);
+      border: 1px solid var(--border);
+      color: var(--text-3);
+      box-shadow: none;
+      cursor: not-allowed;
+      pointer-events: none;
+    }
+    .wiz-nav-next:disabled::before { display: none; }
+
+    /* ── SHAKE ANIMATION (validation error) ─────────────── */
+    @keyframes wizShake {
+      0%, 100% { transform: translateX(0); }
+      20%       { transform: translateX(-5px); }
+      40%       { transform: translateX(5px); }
+      60%       { transform: translateX(-4px); }
+      80%       { transform: translateX(4px); }
+    }
+    .wiz-shake { animation: wizShake .38s ease; border-color: var(--accent) !important; }
   </style>
 </head>
 <body>
@@ -3089,8 +3233,22 @@
   <div class="modal-overlay" id="modalOverlay" onclick="handleOverlayClick(event)">
     <div class="modal" id="modal">
       <div class="modal-drag"></div>
-      <div class="modal-header">
-        <span class="modal-title">Generate Token</span>
+
+      <!-- Step indicator -->
+      <div class="wiz-step-bar">
+        <div class="wiz-step wiz-step-active" id="wizStepDot1">
+          <div class="wiz-step-num">1</div>
+          <span class="wiz-step-label">Find Token</span>
+        </div>
+        <div class="wiz-step-connector"></div>
+        <div class="wiz-step" id="wizStepDot2">
+          <div class="wiz-step-num">2</div>
+          <span class="wiz-step-label">Configure</span>
+        </div>
+      </div>
+
+      <div class="modal-header" style="padding-top:10px">
+        <span class="modal-title" id="wizModalTitle">Find a Token</span>
         <button class="modal-close" onclick="closeModal()">✕</button>
       </div>
       <div class="modal-body">
@@ -3098,10 +3256,9 @@
 
           <!-- ── 1. Search ────────────────────────────────── -->
           <div class="wiz-section open" id="wizSec1">
-            <div class="wiz-sec-header" onclick="wizToggleSec(1)">
+            <div class="wiz-sec-header">
               <span class="wiz-sec-label">Token</span>
               <span class="wiz-sec-value unset" id="wizSecVal1">—</span>
-              <span class="wiz-sec-arrow">▾</span>
             </div>
             <div class="wiz-sec-body">
               <div class="wiz-sec-inner">
@@ -3154,10 +3311,9 @@
 
           <!-- ── 2. Options — appears after token selected ── -->
           <div class="wiz-section" id="wizSec2" style="display:none">
-            <div class="wiz-sec-header" onclick="wizToggleSec(2)">
+            <div class="wiz-sec-header">
               <span class="wiz-sec-label">Options</span>
               <span class="wiz-sec-value" id="wizSecVal2">1</span>
-              <span class="wiz-sec-arrow">▾</span>
             </div>
             <div class="wiz-sec-body">
               <div class="wiz-sec-inner">
@@ -3288,9 +3444,23 @@
             </div>
           </div>
 
-          <button class="btn-wiz-submit" onclick="wizGenerate()">Add to Battlefield</button>
-
         </div><!-- /.wiz-accordion -->
+
+        <!-- Step navigation footer -->
+        <div class="wiz-nav-footer">
+          <button class="wiz-nav-back" id="wizNavBack" onclick="wizStepBack()">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+              <path d="M9 2L4 7l5 5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            Back
+          </button>
+          <button class="wiz-nav-next" id="wizNavNext" onclick="wizStepNext()" disabled>
+            Continue
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+              <path d="M5 2l5 5-5 5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </button>
+        </div>
       </div><!-- /.modal-body -->
     </div><!-- /.modal -->
   </div>
@@ -3487,6 +3657,8 @@
     // ══════════════════════════════════════════════════════
     //  WIZARD CORE
     // ══════════════════════════════════════════════════════
+    let _wizCurrentStep = 1;  // step-based wizard state
+
     function wizReset() {
       wizType        = '';
       wizIsCopy      = false;
@@ -3538,6 +3710,84 @@
       document.getElementById('wizModeToken').classList.add('selected');
       document.getElementById('wizModeCopy').classList.remove('selected');
       document.getElementById('wizSearch').placeholder = 'Search for a token…';
+
+      // Reset step to 1
+      _wizCurrentStep = 1;
+      _wizUpdateStepUI();
+      _wizUpdateNavUI();
+    }
+
+    // ── Step navigation (linear step-based wizard) ────────
+
+    function wizGoToStep(n) {
+      _wizCurrentStep = n;
+      const sec1 = document.getElementById('wizSec1');
+      const sec2 = document.getElementById('wizSec2');
+      if (n === 1) {
+        sec1.style.display = '';
+        sec2.style.display = 'none';
+      } else {
+        sec1.style.display = 'none';
+        sec2.style.display = '';
+        sec2.classList.add('open');
+      }
+      _wizUpdateStepUI();
+      _wizUpdateNavUI();
+      const modal = document.getElementById('modal');
+      if (modal) modal.scrollTop = 0;
+    }
+
+    function wizStepBack() {
+      if (_wizCurrentStep > 1) wizGoToStep(_wizCurrentStep - 1);
+    }
+
+    function wizStepNext() {
+      if (_wizCurrentStep === 1) {
+        // Must have a card selected or be in manual mode
+        if (!wizCardData && !wizIsManual) {
+          const s = document.getElementById('wizSearch');
+          s.focus(); s.classList.add('wiz-shake');
+          setTimeout(() => s.classList.remove('wiz-shake'), 400);
+          return;
+        }
+        wizGoToStep(2);
+      } else {
+        wizGenerate();
+      }
+    }
+
+    function _wizUpdateStepUI() {
+      for (let i = 1; i <= 2; i++) {
+        const dot = document.getElementById('wizStepDot' + i);
+        if (!dot) continue;
+        dot.classList.toggle('wiz-step-active', i === _wizCurrentStep);
+        dot.classList.toggle('wiz-step-done',   i <  _wizCurrentStep);
+      }
+      const titleEl = document.getElementById('wizModalTitle');
+      if (titleEl) {
+        titleEl.textContent = _wizCurrentStep === 1 ? 'Find a Token' : 'Configure Token';
+      }
+    }
+
+    function _wizUpdateNavUI() {
+      const btnBack = document.getElementById('wizNavBack');
+      const btnNext = document.getElementById('wizNavNext');
+      if (!btnBack || !btnNext) return;
+
+      btnBack.style.visibility = _wizCurrentStep > 1 ? 'visible' : 'hidden';
+
+      const canContinue = _wizCurrentStep === 1
+        ? (wizCardData !== null || wizIsManual)
+        : true;
+
+      if (_wizCurrentStep === 2) {
+        btnNext.textContent = 'Add to Battlefield';
+        btnNext.classList.add('wiz-btn-submit');
+      } else {
+        btnNext.textContent = 'Continue';
+        btnNext.classList.remove('wiz-btn-submit');
+      }
+      btnNext.disabled = !canContinue && _wizCurrentStep === 1;
     }
 
     // ── Mode: Token vs Copy of Permanent ─────────────────
@@ -3563,6 +3813,7 @@
       const val1 = document.getElementById('wizSecVal1');
       val1.textContent = '—'; val1.classList.add('unset');
       wizCardData = null; wizArtOptions = [];
+      if (typeof _wizUpdateNavUI === 'function') _wizUpdateNavUI();
     }
 
     // ── Accordion toggle ──────────────────────────────────
@@ -3578,9 +3829,10 @@
     }
 
     // Show/configure sec2 (Options) — isManual=true shows all rows
+    // NOTE: display/visibility is now controlled by wizGoToStep()
     function _wizShowSec2(isManual) {
+      // Ensure sec2 is initialized (display set by wizGoToStep)
       const sec2 = document.getElementById('wizSec2');
-      sec2.style.display = '';
       sec2.classList.add('open');
 
       // P/T: show if creature type or card has creature type
@@ -3598,6 +3850,7 @@
         if (el) el.style.display = isManual ? '' : 'none';
       });
       _wizUpdateQtyVal();
+      _wizUpdateNavUI();  // enable Continue now that token/mode is set
     }
 
     // ── Section header value updater ──────────────────────
@@ -3872,9 +4125,9 @@
       // Update sec1 header to show "Manual"
       const val1 = document.getElementById('wizSecVal1');
       val1.textContent = 'Manual'; val1.classList.remove('unset');
-      // Show sec2 (Options) in full manual mode
+      // Set up and advance to step 2
       _wizShowSec2(true);
-      document.getElementById('wizSearch').focus();
+      wizGoToStep(2);
     }
 
     function wizToggleColor(chip) {
