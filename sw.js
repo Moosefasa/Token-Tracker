@@ -1,5 +1,5 @@
-// MTG Token Tracker — Service Worker v16
-const CACHE  = 'mtg-tokens-v16';
+// MTG Token Tracker — Service Worker v17
+const CACHE  = 'mtg-tokens-v17';
 const ASSETS = [
   './index.html',
   './manifest.json',

@@ -2423,6 +2423,297 @@
 
     /* Header border-bottom: slightly more visible */
     header { border-bottom-color: var(--border-hi); }
+
+    /* ══ WIZARD — SUMMON FROM THE AETHER ══════════════════════ */
+
+    /* Modal: deeper bg, tighter drag handle, serif header */
+    .modal {
+      background: var(--bg);
+      border: 1px solid var(--border-hi);
+      border-bottom: none;
+      border-radius: 22px 22px 0 0;
+    }
+    .modal-body { padding: 14px 18px 40px; }
+
+    /* Wizard accordion: breathe */
+    .wiz-accordion { display: flex; flex-direction: column; gap: 8px; }
+
+    /* Sections: bg=bg, open gets accent border + depth */
+    .wiz-section {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      overflow: hidden;
+    }
+    .wiz-section.open {
+      border-color: var(--border-hi);
+      box-shadow: 0 2px 20px rgba(0,0,0,.35);
+    }
+
+    /* Section header: refined spacing */
+    .wiz-sec-header { padding: 13px 16px; gap: 10px; }
+    .wiz-section.open .wiz-sec-header {
+      background: rgba(255,255,255,.024);
+      border-bottom: 1px solid var(--border);
+    }
+
+    /* Step label: accent when open */
+    .wiz-sec-label {
+      font-family: 'Barlow', sans-serif;
+      font-size: .57rem; letter-spacing: 2.2px;
+      color: var(--text-3); min-width: 56px;
+    }
+    .wiz-section.open .wiz-sec-label { color: var(--accent); }
+
+    /* Value: serif read-out */
+    .wiz-sec-value {
+      font-family: var(--font-display);
+      font-size: .95rem; font-weight: 500;
+      color: var(--text); font-style: italic;
+    }
+    .wiz-sec-value.unset { font-family: 'Barlow', sans-serif; font-style: normal; font-size: .8rem; color: var(--text-3); }
+
+    /* Section body inner padding */
+    .wiz-sec-inner > .wiz-sec-pad { padding: 8px 16px 18px; }
+
+    /* Mode toggle: inset segmented control */
+    .wiz-mode-row {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 3px;
+      gap: 3px;
+    }
+    .wiz-mode-btn {
+      background: none;
+      border: 1px solid transparent;
+      border-radius: 7px;
+      font-family: 'Barlow', sans-serif;
+      font-size: .78rem; font-weight: 700;
+      letter-spacing: .4px;
+      text-transform: uppercase;
+      color: var(--text-3);
+      padding: 7px 10px;
+      transition: all .18s;
+    }
+    .wiz-mode-btn.selected {
+      background: var(--surface2);
+      border-color: var(--border-hi);
+      color: var(--text);
+      box-shadow: 0 1px 5px rgba(0,0,0,.5);
+    }
+    .wiz-mode-btn:hover:not(.selected) { color: var(--text-2); }
+
+    /* Search: the hero — serif placeholder, commanding */
+    #wizSearch {
+      background: var(--surface2);
+      border: 1px solid var(--border-hi);
+      border-radius: 10px;
+      padding: 14px 16px;
+      font-size: .97rem;
+      color: var(--text);
+      letter-spacing: .15px;
+      height: auto;
+    }
+    #wizSearch::placeholder {
+      font-family: var(--font-display);
+      font-style: italic;
+      font-size: .97rem;
+      color: var(--text-3);
+    }
+    #wizSearch:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px var(--accent-dim), 0 4px 20px rgba(0,0,0,.3);
+      outline: none;
+    }
+
+    /* Search dropdown: refined */
+    .search-drop {
+      background: var(--surface);
+      border: 1px solid var(--border-hi);
+      border-radius: 10px;
+      margin-top: 6px;
+      box-shadow: 0 8px 32px rgba(0,0,0,.5);
+    }
+    .search-item {
+      padding: 10px 14px;
+      border-bottom: 1px solid var(--border);
+    }
+    .search-item-name { font-size: .9rem; font-weight: 600; }
+    .search-item:hover, .search-item:focus {
+      background: rgba(255,255,255,.04);
+    }
+
+    /* Selected card banner: feels like a card reveal */
+    .wiz-card-banner {
+      background: var(--surface2);
+      border: 1px solid var(--border-hi);
+      border-radius: 10px;
+      padding: 10px 12px;
+      margin-bottom: 12px;
+      gap: 12px;
+    }
+    .wiz-banner-img {
+      border-radius: 5px;
+      width: 38px; height: 53px;
+    }
+    .wiz-banner-name {
+      font-family: var(--font-display);
+      font-size: 1rem; font-weight: 600;
+      font-style: italic;
+    }
+    .wiz-banner-type { font-size: .72rem; color: var(--muted); }
+
+    /* Type buttons: compact uppercase pill row */
+    .wiz-type-row { gap: 5px; }
+    .wiz-type-btn {
+      font-family: 'Barlow', sans-serif;
+      font-size: .7rem; font-weight: 700; letter-spacing: .8px;
+      text-transform: uppercase;
+      padding: 9px 6px;
+      border-radius: 9px;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      color: var(--muted);
+      transition: all .15s;
+    }
+    .wiz-type-btn:hover { border-color: var(--border-hi); color: var(--text); }
+    .wiz-type-btn.selected {
+      border-color: var(--accent);
+      background: var(--accent-dim);
+      color: var(--accent);
+    }
+
+    /* Keyword chips: MTG ability feel — tactile, uppercase */
+    .modifier-chips { gap: 5px; }
+    .mod-chip {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 7px;
+      padding: 6px 11px;
+      font-family: 'Barlow', sans-serif;
+      font-size: .68rem; font-weight: 700; letter-spacing: .8px;
+      text-transform: uppercase;
+      color: var(--text-2);
+      transition: all .15s;
+      cursor: pointer;
+    }
+    .mod-chip:hover { border-color: var(--border-hi); color: var(--text); }
+    .mod-chip.active {
+      background: var(--accent-dim);
+      border-color: var(--accent);
+      color: var(--accent);
+      box-shadow: 0 0 10px var(--accent-glow);
+    }
+
+    /* Quantity: theatrical large-number stepper */
+    .modal-qty-row {
+      background: var(--bg);
+      border: 1px solid var(--border-hi);
+      border-radius: 12px;
+      overflow: hidden;
+      height: 60px;
+      padding: 0;
+      gap: 0;
+    }
+    .modal-qty-btn {
+      background: none;
+      border: none;
+      width: 56px; height: 100%;
+      border-radius: 0;
+      color: var(--text-2);
+      font-size: 1.6rem; font-weight: 200;
+      flex-shrink: 0;
+      cursor: pointer;
+      transition: background .12s, color .12s;
+    }
+    .modal-qty-btn:first-child { border-right: 1px solid var(--border); }
+    .modal-qty-btn:last-child  { border-left: 1px solid var(--border); }
+    .modal-qty-btn:hover { background: var(--surface2); color: var(--text); }
+    .modal-qty-btn:active { background: var(--surface3); }
+    .modal-qty-input {
+      flex: 1; height: 100%; padding: 0;
+      text-align: center;
+      font-family: var(--font-counter);
+      font-size: 2.2rem; font-weight: 400;
+      letter-spacing: 3px;
+      background: none;
+      border: none; outline: none;
+      border-radius: 0;
+      color: var(--text);
+      -moz-appearance: textfield;
+    }
+    .modal-qty-input::-webkit-outer-spin-button,
+    .modal-qty-input::-webkit-inner-spin-button { -webkit-appearance: none; }
+
+    /* P/T inputs: centered, large counter font */
+    .pt-row .form-input {
+      text-align: center;
+      font-family: var(--font-counter);
+      font-size: 1.6rem; letter-spacing: 2px;
+      height: 52px; padding: 0;
+    }
+
+    /* Toggle row: subtle divider on top */
+    .toggle-row {
+      border-top: 1px solid var(--border);
+      padding: 10px 0 2px; margin-top: 12px;
+    }
+    .toggle-label { font-weight: 600; font-size: .88rem; }
+
+    /* Art dropdown: more refined */
+    .art-dropdown-trigger {
+      background: var(--bg);
+      border-color: var(--border-hi);
+      border-radius: 10px;
+    }
+    .art-drop-name { font-weight: 600; font-size: .88rem; }
+
+    /* Submit button: cinematic — shimmer sweep on hover */
+    .btn-wiz-submit {
+      width: 100%;
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      border-radius: var(--r-full);
+      padding: 16px 24px;
+      font-family: 'Barlow', sans-serif;
+      font-size: .78rem; font-weight: 700;
+      letter-spacing: 2.5px; text-transform: uppercase;
+      cursor: pointer;
+      margin-top: 12px;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 4px 24px rgba(184,50,54,.35);
+      transition: background .18s, box-shadow .2s, transform .1s;
+    }
+    /* shimmer element */
+    .btn-wiz-submit::before {
+      content: '';
+      position: absolute;
+      top: -10%; left: -80%;
+      width: 50%; height: 120%;
+      background: linear-gradient(105deg,
+        transparent 0%, rgba(255,255,255,.18) 50%, transparent 100%);
+      transform: skewX(-15deg);
+      transition: left .55s ease;
+      pointer-events: none;
+    }
+    .btn-wiz-submit:hover {
+      background: var(--accent-h);
+      box-shadow: 0 6px 36px rgba(184,50,54,.5);
+    }
+    .btn-wiz-submit:hover::before { left: 140%; }
+    .btn-wiz-submit:active { transform: scale(.98); }
+
+    /* Manual toggle link */
+    .wiz-manual-hint { margin-top: 10px; }
+    .wiz-manual-hint button {
+      font-family: 'Barlow', sans-serif;
+      font-size: .72rem; letter-spacing: .3px;
+      color: var(--text-3);
+    }
+    .wiz-manual-hint button:hover { color: var(--muted); }
   </style>
 </head>
 <body>
