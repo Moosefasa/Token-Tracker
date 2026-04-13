@@ -12,7 +12,7 @@
   <meta name="apple-mobile-web-app-title" content="Token Tracker">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@700;800;900&family=Sora:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -1390,180 +1390,236 @@
     .dice-hist-empty { padding: 10px 14px; font-size: .78rem; color: var(--muted); text-align: center; }
 
     /* ── LIFE TRACKER PANEL ─────────────────────────────── */
+    /* ══ LIFE TRACKER — FULL-SCREEN IMMERSIVE OVERLAY ══════════════════ */
     .life-panel-overlay {
-      position: fixed;
-      inset: 0;
-      background: rgba(0,0,0,.55);
-      z-index: 180;
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity .25s;
+      position: fixed; inset: 0; z-index: 180;
+      opacity: 0; pointer-events: none;
+      transition: opacity .3s cubic-bezier(.2,.8,.4,1);
     }
     .life-panel-overlay.open { opacity: 1; pointer-events: all; }
+
+    /* Full-screen panel — no longer a sidebar drawer */
     .life-panel {
-      position: absolute;
-      top: 0; left: 0;
-      width: 260px;
-      max-width: 82vw;
-      height: 100%;
-      background: #090910;
-      display: flex;
-      flex-direction: column;
-      transform: translateX(-100%);
-      transition: transform .3s cubic-bezier(.2,.8,.4,1);
-      overflow: hidden;
-      box-shadow: 4px 0 40px rgba(0,0,0,.7);
+      position: absolute; inset: 0;
+      transform: scale(.96);
+      transition: transform .35s cubic-bezier(.15,.85,.35,1);
     }
-    .life-panel-overlay.open .life-panel { transform: translateX(0); }
-    .life-panel-header {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      padding: 13px 14px 11px;
-      border-bottom: 1px solid #1c1c28;
-      flex-shrink: 0;
+    .life-panel-overlay.open .life-panel { transform: scale(1); }
+
+    /* Player grid container */
+    .life-players {
+      position: absolute; inset: 0;
+      display: grid;
+      gap: 2px;
+      background: rgba(0,0,0,.5); /* gap color = dark divider */
     }
-    .life-panel-title {
-      font-size: .75rem; font-weight: 700;
-      color: #484860; text-transform: uppercase; letter-spacing: 1px;
-    }
-    .life-config { display: flex; gap: 6px; flex: 1; justify-content: center; }
-    .life-chip-group {
-      display: flex;
-      background: #13131e;
-      border-radius: 6px;
-      overflow: hidden;
-      border: 1px solid #1e1e2e;
-    }
-    .life-chip {
-      background: none; border: none;
-      color: #484860; font-size: .75rem; font-weight: 700;
-      padding: 4px 9px; cursor: pointer;
-      transition: background .12s, color .12s;
-      border-right: 1px solid #1e1e2e; line-height: 1;
-    }
-    .life-chip:last-child { border-right: none; }
-    .life-chip.active { background: #1e1e2e; color: #dddde8; }
-    .life-reset-btn {
-      background: none; border: 1px solid #1e1e2e;
-      color: #484860; border-radius: 6px;
-      width: 26px; height: 26px; cursor: pointer;
-      font-size: .95rem; display: flex; align-items: center;
-      justify-content: center; transition: color .15s, border-color .15s; flex-shrink: 0;
-    }
-    .life-reset-btn:hover { color: #dddde8; border-color: #484860; }
-    .life-players { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
-    .life-player {
-      flex: 1; display: flex; flex-direction: column;
+    .life-players[data-players="1"] { grid-template: "a" 1fr / 1fr; }
+    .life-players[data-players="2"] { grid-template: "a" 1fr "b" 1fr / 1fr; }
+    .life-players[data-players="3"] { grid-template: "a a" 1fr "b c" 1fr / 1fr 1fr; }
+    .life-players[data-players="4"] { grid-template: "a b" 1fr "c d" 1fr / 1fr 1fr; }
+
+    /* Individual player zones */
+    .life-zone {
       position: relative; overflow: hidden;
+      display: flex; flex-direction: column;
       user-select: none; -webkit-user-select: none;
-    }
-    .life-player:not(:last-child) { border-bottom: 1px solid rgba(255,255,255,.06); }
-    .life-tap-area {
-      flex: 1; display: flex; align-items: center;
-      justify-content: center; cursor: pointer;
       -webkit-tap-highlight-color: transparent;
-      touch-action: none;
     }
-    .life-tap-area:active { background: rgba(255,255,255,.04); }
-    .life-tap-hint {
-      font-size: 1.5rem; font-weight: 200;
+    .life-zone[data-rotate="1"] { transform: rotate(180deg); }
+
+    /* Tap zones — top half = increase, bottom half = decrease */
+    .life-zone-inc,
+    .life-zone-dec {
+      flex: 1; display: flex; align-items: center; justify-content: center;
+      cursor: pointer; touch-action: none;
+      position: relative; z-index: 2;
+    }
+    .life-zone-inc::after,
+    .life-zone-dec::after {
+      content: ''; position: absolute; inset: 0;
+      transition: background .12s; border-radius: 0;
+    }
+    .life-zone-inc:active::after { background: rgba(255,255,255,.12); }
+    .life-zone-dec:active::after { background: rgba(0,0,0,.18); }
+
+    /* +/- hints that appear on hover */
+    .life-zone-hint {
+      font-size: 2.2rem; font-weight: 200;
+      color: rgba(255,255,255,.22); line-height: 1;
+      pointer-events: none;
       opacity: 0; transition: opacity .15s;
-      pointer-events: none; color: rgba(255,255,255,.45); line-height: 1;
     }
-    @media (hover: hover) { .life-tap-area:hover .life-tap-hint { opacity: 1; } }
-    .life-center {
-      position: absolute; top: 50%; left: 0; right: 0;
-      transform: translateY(-50%); text-align: center;
-      pointer-events: none; z-index: 1;
+    @media (hover: hover) {
+      .life-zone-inc:hover .life-zone-hint,
+      .life-zone-dec:hover .life-zone-hint { opacity: 1; }
     }
-    .life-name {
+
+    /* Centred life info block (overlay over tap areas) */
+    .life-zone-center {
+      position: absolute; inset: 0;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      pointer-events: none; z-index: 3; gap: 0;
+    }
+
+    .life-zone-name {
       font-size: .6rem; font-weight: 700;
-      text-transform: uppercase; letter-spacing: 1.2px;
-      margin-bottom: 2px; pointer-events: all; cursor: text;
+      text-transform: uppercase; letter-spacing: 1.6px;
+      color: rgba(255,255,255,.45);
+      pointer-events: all; cursor: text;
+      margin-bottom: 6px;
     }
-    .life-value {
-      font-size: clamp(3.2rem, 13vw, 4.8rem);
-      font-weight: 700; color: var(--life-val-col, #fff); line-height: 1;
-      letter-spacing: -3px; transition: transform .07s;
+    .life-zone-value {
+      font-family: 'Big Shoulders Display', sans-serif;
+      font-size: clamp(5.5rem, 18vw, 9.5rem);
+      font-weight: 900; color: rgba(255,255,255,.95); line-height: .85;
+      letter-spacing: -4px;
+      text-shadow: 0 4px 40px rgba(0,0,0,.4);
+      transition: transform .07s;
       font-variant-numeric: tabular-nums;
     }
-    .life-value.bump { transform: scale(1.1); }
-    .life-value.dead { color: #ff5555; }
+    .life-zone-value.bump { transform: scale(1.07); }
+    .life-zone-value.dead { color: rgba(255,80,80,.9); }
 
-    /* Life change tally (net delta, persists 3 s) */
+    /* Delta tally (persists 3 s) */
     .life-tally {
-      font-size: 1rem;
-      font-weight: 700;
-      letter-spacing: -.5px;
-      min-height: 1.25rem;
-      opacity: 0;
-      transform: translateY(4px);
-      transition: opacity .2s, transform .2s;
-      pointer-events: none;
+      font-size: 1rem; font-weight: 700; letter-spacing: -.4px;
+      min-height: 1.3rem;
+      opacity: 0; transform: translateY(4px);
+      transition: opacity .22s, transform .22s;
+      pointer-events: none; margin-top: 4px;
     }
     .life-tally.visible { opacity: 1; transform: translateY(0); }
-    .life-tally.positive { color: #80dd80; }
-    .life-tally.negative { color: #ff8080; }
+    .life-tally.positive { color: rgba(160,255,160,.9); }
+    .life-tally.negative { color: rgba(255,120,120,.9); }
+
+    /* Status indicators (poison, monarch, etc.) */
+    .life-zone-indicators {
+      display: flex; gap: 5px; align-items: center;
+      margin-top: 5px; flex-wrap: wrap; justify-content: center;
+      min-height: 16px; pointer-events: none;
+    }
+    .life-zone-ind {
+      font-size: .62rem; font-weight: 700;
+      padding: 2px 7px; border-radius: 10px;
+      background: rgba(0,0,0,.3); color: rgba(255,255,255,.65);
+    }
 
     /* Status effect SVG overlays */
     .life-status-overlay {
-      position: absolute;
-      bottom: 0; left: 0; right: 0;
-      pointer-events: none;
-      z-index: 0;
-      transform: translateY(110%);
-      opacity: 0;
+      position: absolute; inset: 0;
+      pointer-events: none; z-index: 1;
+      transform: translateY(110%); opacity: 0;
       transition: transform .5s cubic-bezier(.2,.8,.4,1), opacity .35s;
     }
-    .life-status-overlay.active {
-      transform: translateY(0);
-      opacity: 1;
+    .life-status-overlay.active { transform: translateY(0); opacity: 1; }
+    .life-status-overlay svg { width: 100%; height: auto; display: block; }
+    .overlay-monarch { color: rgba(255,210,60,.22); }
+    .overlay-citys   { color: rgba(150,210,255,.22); }
+
+    /* Detail button (⋯) tucked in zone corner */
+    .life-zone-detail-btn {
+      position: absolute; bottom: 10px; right: 12px; z-index: 5;
+      background: rgba(0,0,0,.28); border: 1px solid rgba(255,255,255,.12);
+      border-radius: 50%; width: 30px; height: 30px;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; color: rgba(255,255,255,.48); font-size: .9rem;
+      pointer-events: all;
+      transition: background .15s, color .15s;
     }
-    .life-status-overlay svg {
-      width: 100%; height: auto;
-      display: block;
+    .life-zone-detail-btn:hover { background: rgba(0,0,0,.5); color: rgba(255,255,255,.9); }
+
+    /* ── HEXAGONAL CENTER BUTTON ───────────────────────── */
+    .life-hex-btn {
+      position: absolute; left: 50%; top: 50%; z-index: 200;
+      transform: translate(-50%, -50%);
+      width: 50px; height: 50px;
+      background: rgba(6,6,16,.88);
+      backdrop-filter: blur(12px) saturate(1.5);
+      -webkit-backdrop-filter: blur(12px) saturate(1.5);
+      border: 1.5px solid rgba(255,255,255,.13);
+      clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; color: rgba(255,255,255,.6);
+      transition: background .2s, color .2s, transform .15s;
     }
-    .overlay-monarch  { color: rgba(255, 210, 60,  .2); }
-    .overlay-citys    { color: rgba(150, 210, 255, .2); }
+    .life-hex-btn:hover { background: rgba(20,20,40,.94); color: rgba(255,255,255,.9); }
+    .life-hex-btn:active { transform: translate(-50%, -50%) scale(.88); }
+
+    /* ── LIFE SETTINGS POPUP ───────────────────────────── */
+    .life-settings-popup {
+      position: absolute; left: 50%; top: 50%; z-index: 201;
+      transform: translate(-50%, calc(-50% - 40px)) scale(.9);
+      background: rgba(6,6,18,.95);
+      backdrop-filter: blur(22px) saturate(1.6);
+      -webkit-backdrop-filter: blur(22px) saturate(1.6);
+      border: 1px solid rgba(255,255,255,.1);
+      border-radius: 18px; padding: 18px 20px 16px; min-width: 220px;
+      opacity: 0; pointer-events: none;
+      transition: opacity .22s, transform .22s;
+      box-shadow: 0 12px 60px rgba(0,0,0,.75);
+    }
+    .life-settings-popup.open {
+      opacity: 1; pointer-events: all;
+      transform: translate(-50%, calc(-50% - 46px)) scale(1);
+    }
+    .life-settings-popup-title {
+      font-size: .58rem; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 1.4px; color: rgba(255,255,255,.28); margin-bottom: 14px;
+      text-align: center;
+    }
+    .life-settings-row {
+      display: flex; align-items: center; gap: 10px; margin-bottom: 10px;
+    }
+    .life-settings-label {
+      font-size: .72rem; color: rgba(255,255,255,.42); width: 58px; flex-shrink: 0;
+    }
+    .life-settings-chips { display: flex; gap: 5px; flex-wrap: wrap; }
+    .life-settings-chip {
+      background: rgba(255,255,255,.07); border: 1px solid rgba(255,255,255,.1);
+      color: rgba(255,255,255,.45); font-size: .72rem; font-weight: 700;
+      padding: 4px 12px; border-radius: 20px; cursor: pointer;
+      transition: background .12s, color .12s, border-color .12s;
+      font-family: inherit;
+    }
+    .life-settings-chip:hover { background: rgba(255,255,255,.13); color: rgba(255,255,255,.8); }
+    .life-settings-chip.active {
+      background: var(--accent); border-color: var(--accent); color: #fff;
+    }
+    .life-settings-divider {
+      height: 1px; background: rgba(255,255,255,.07); margin: 12px 0;
+    }
+    .life-settings-reset-btn {
+      width: 100%; padding: 9px;
+      background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.09);
+      border-radius: 11px; color: rgba(255,255,255,.48); font-size: .78rem; font-weight: 700;
+      cursor: pointer; font-family: inherit;
+      transition: background .12s, color .12s, border-color .12s;
+    }
+    .life-settings-reset-btn:hover { background: rgba(255,80,80,.14); color: #ff9090; border-color: rgba(255,80,80,.28); }
+    .life-settings-close-btn {
+      width: 100%; margin-top: 6px; padding: 8px;
+      background: none; border: 1px solid rgba(255,255,255,.08);
+      border-radius: 11px; color: rgba(255,255,255,.28); font-size: .74rem; font-weight: 600;
+      cursor: pointer; font-family: inherit;
+      transition: background .12s, color .12s;
+    }
+    .life-settings-close-btn:hover { background: rgba(255,255,255,.06); color: rgba(255,255,255,.6); }
 
     /* Color swatches in detail sheet */
     .life-swatches { display: flex; gap: 8px; flex-wrap: wrap; padding: 4px 0 10px; }
     .life-swatch {
-      width: 26px; height: 26px; border-radius: 50%;
-      cursor: pointer;
+      width: 26px; height: 26px; border-radius: 50%; cursor: pointer;
       border: 2px solid transparent;
       transition: transform .15s, border-color .15s, box-shadow .15s;
-      box-shadow: 0 0 0 0 currentColor;
     }
     .life-swatch:active { transform: scale(.88); }
     .life-swatch.active {
-      border-color: rgba(255,255,255,.75);
-      transform: scale(1.14);
+      border-color: rgba(255,255,255,.75); transform: scale(1.14);
       box-shadow: 0 0 8px 1px rgba(255,255,255,.2);
     }
 
-    /* ── LIFE TRACKER — EXTENDED COMPONENTS ────────────── */
-    .life-tap-wrap {
-      flex: 1; display: flex; flex-direction: column;
-      position: relative; min-height: 100px;
-    }
-    /* Single-player stats panel */
-    .life-stats {
-      flex-shrink: 0; overflow-y: auto;
-      border-top: 1px solid rgba(255,255,255,.06);
-      overscroll-behavior: contain; max-height: 52%;
-    }
-    .life-stats-section {
-      padding: 8px 12px 6px;
-      border-bottom: 1px solid rgba(255,255,255,.04);
-    }
-    .life-stats-section:last-child { border-bottom: none; }
-    .life-stats-title {
-      font-size: .57rem; font-weight: 700; text-transform: uppercase;
-      letter-spacing: 1px; color: #363650; margin-bottom: 5px;
-    }
-    /* Counter rows (full-size, single-player) */
+    /* ── LIFE TRACKER — DETAIL SHEET COMPONENTS ─────────── */
     .life-ctr-row { display: flex; align-items: center; gap: 5px; padding: 3px 0; }
     .life-ctr-icon { font-size: .88rem; flex-shrink: 0; width: 16px; text-align: center; line-height: 1; }
     .life-ctr-label { flex: 1; font-size: .72rem; color: rgba(255,255,255,.35); }
@@ -1575,7 +1631,6 @@
     }
     .life-ctr-btn:active { background: rgba(255,255,255,.16); }
     .life-ctr-val { min-width: 24px; text-align: center; font-size: .88rem; font-weight: 700; color: #e0e0f0; }
-    /* Status badges (full-size) */
     .life-status-row { display: flex; gap: 6px; flex-wrap: wrap; padding: 2px 0; }
     .life-status-badge {
       border-radius: 5px; padding: 4px 9px; font-size: .72rem; font-weight: 600;
@@ -1586,78 +1641,33 @@
     .life-status-badge:active { transform: scale(.95); }
     .life-status-monarch.active { background: rgba(255,180,0,.14); color: #ffc050; border-color: rgba(255,180,0,.3); }
     .life-status-citys.active   { background: rgba(100,180,255,.14); color: #78b8ff; border-color: rgba(100,180,255,.3); }
-    /* Multi-player compact footer */
-    .life-footer {
-      flex-shrink: 0; border-top: 1px solid rgba(255,255,255,.06);
-      padding: 5px 8px 6px; display: flex; gap: 4px; flex-direction: column;
-    }
-    .life-footer-top, .life-footer-bottom {
-      display: flex; align-items: center; gap: 4px;
-      overflow-x: auto; scrollbar-width: none;
-    }
-    .life-footer-top::-webkit-scrollbar,
-    .life-footer-bottom::-webkit-scrollbar { display: none; }
-    .life-footer-ctr {
-      display: flex; align-items: center; gap: 2px; flex-shrink: 0;
-      background: rgba(255,255,255,.05); border-radius: 20px; padding: 2px 5px;
-    }
-    .life-ctr-btn-sm {
-      background: none; border: none; color: rgba(255,255,255,.4);
-      cursor: pointer; font-size: .75rem; padding: 0 2px; line-height: 1;
-    }
-    .life-ctr-btn-sm:active { color: #fff; }
-    .life-ctr-val-sm { min-width: 12px; text-align: center; font-size: .7rem; font-weight: 700; color: #e0e0f0; }
-    .life-status-badge-sm {
-      border-radius: 4px; padding: 2px 5px; font-size: .68rem; font-weight: 600;
-      cursor: pointer; color: rgba(255,255,255,.2); transition: all .12s;
-      user-select: none; -webkit-user-select: none;
-      border: 1px solid rgba(255,255,255,.07); background: rgba(255,255,255,.03); flex-shrink: 0;
-    }
-    .life-status-badge-sm:active { transform: scale(.92); }
-    .life-status-badge-sm.monarch-active { color: #ffc050; border-color: rgba(255,180,0,.3); background: rgba(255,180,0,.1); }
-    .life-status-badge-sm.citys-active   { color: #78b8ff; border-color: rgba(100,180,255,.3); background: rgba(100,180,255,.1); }
-    .life-cmd-item {
-      display: flex; align-items: center; gap: 2px; flex-shrink: 0;
-      background: rgba(255,100,80,.06); border-radius: 20px; padding: 2px 5px;
-    }
+    .life-stats-section { padding: 8px 12px 6px; border-bottom: 1px solid rgba(255,255,255,.04); }
+    .life-stats-section:last-child { border-bottom: none; }
+    .life-stats-title { font-size: .57rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; color: #363650; margin-bottom: 5px; }
     .life-cmd-label { font-size: .6rem; color: rgba(255,128,100,.55); white-space: nowrap; margin-right: 1px; }
 
-    /* Per-player detail button */
-    .life-player-detail-btn {
-      position: absolute; bottom: 8px; right: 10px;
-      background: rgba(255,255,255,.07); border: 1px solid rgba(255,255,255,.1);
-      color: rgba(255,255,255,.32); border-radius: 6px;
-      width: 28px; height: 28px; font-size: 1.05rem;
-      cursor: pointer; display: flex; align-items: center; justify-content: center;
-      transition: all .15s; z-index: 2;
-      -webkit-user-select: none; user-select: none;
-    }
-    .life-player-detail-btn:hover { background: rgba(255,255,255,.14); color: rgba(255,255,255,.7); }
     /* Life detail sheet sits above the life panel overlay */
     #lifeDetailOverlay { z-index: 190; }
 
     /* Life-change floating number pop-in */
     .life-float {
-      position: fixed;
-      pointer-events: none;
-      font-size: 1.5rem;
-      font-weight: 800;
-      letter-spacing: -.5px;
-      text-shadow: 0 2px 6px rgba(0,0,0,.7);
-      z-index: 9999;
-      white-space: nowrap;
+      position: fixed; pointer-events: none;
+      font-family: 'Big Shoulders Display', sans-serif;
+      font-size: 1.8rem; font-weight: 900; letter-spacing: -.5px;
+      text-shadow: 0 2px 8px rgba(0,0,0,.7);
+      z-index: 9999; white-space: nowrap;
       animation: lifeFloatUp 2s ease-out forwards;
     }
-    .life-float.positive { color: #80dd80; }
-    .life-float.negative { color: #ff8080; }
+    .life-float.positive { color: #90eea0; }
+    .life-float.negative { color: #ff9090; }
     @keyframes lifeFloatUp {
-      0%   { opacity: 0;   transform: translateY(0)    scale(.6); }
-      12%  { opacity: 1;   transform: translateY(-8px) scale(1.15); }
-      70%  { opacity: 1;   transform: translateY(-48px) scale(1); }
-      100% { opacity: 0;   transform: translateY(-72px) scale(.9); }
+      0%   { opacity: 0;   transform: translateY(0) scale(.7); }
+      12%  { opacity: 1;   transform: translateY(-8px) scale(1.18); }
+      70%  { opacity: 1;   transform: translateY(-52px) scale(1); }
+      100% { opacity: 0;   transform: translateY(-76px) scale(.88); }
     }
 
-    /* Status indicators shown inside each player section */
+    /* Status indicators (legacy id, kept for JS compat) */
     .life-status-indicators {
       margin-top: 6px; font-size: .72rem; letter-spacing: 2px;
       opacity: .65; min-height: 14px; line-height: 1;
@@ -1901,16 +1911,66 @@
       background: #d8d8e0;
       border-bottom-color: #b8b8c8;
     }
-    /* Life panel has colored player BGs so just use a neutral shell */
-    [data-theme="light"] .life-panel { background: #c8c8d0; }
-    [data-theme="light"] .life-panel-header { background: #c8c8d0; border-bottom-color: #aaaabc; }
-    /* Life value in light mode: dark text for contrast */
-    [data-theme="light"] .life-value { color: #fff !important; text-shadow: 0 1px 6px rgba(0,0,0,.45); }
-    [data-theme="light"] .life-value.dead { color: #ffe0e0 !important; }
-    /* Player name: white with slight shadow for vibrant BGs */
-    [data-theme="light"] .life-name { color: rgba(255,255,255,.85) !important; }
+    /* Life tracker: full-screen zone colors remain vibrant in both themes */
+    [data-theme="light"] .life-zone-value { color: rgba(255,255,255,.96) !important; }
+    [data-theme="light"] .life-zone-value.dead { color: rgba(255,100,100,.9) !important; }
     [data-theme="light"] .life-tally.positive { color: #e8ffe8; }
     [data-theme="light"] .life-tally.negative { color: #ffe8e8; }
+
+    /* ── MOBILE BOTTOM NAVIGATION ──────────────────────────── */
+    .bottom-nav {
+      display: none; /* hidden by default (desktop) */
+    }
+    @media (max-width: 639px) {
+      .bottom-nav {
+        display: flex;
+        position: fixed; bottom: 0; left: 0; right: 0; z-index: 25;
+        background: var(--surface);
+        border-top: 1px solid var(--border);
+        height: 58px;
+        padding-bottom: env(safe-area-inset-bottom, 0px);
+        align-items: stretch;
+        backdrop-filter: blur(16px) saturate(1.4);
+        -webkit-backdrop-filter: blur(16px) saturate(1.4);
+      }
+      .bn-item {
+        flex: 1; display: flex; flex-direction: column;
+        align-items: center; justify-content: center;
+        gap: 3px; cursor: pointer;
+        color: var(--text-3);
+        background: none; border: none;
+        font-family: inherit; font-size: 7.5px;
+        font-weight: 700; letter-spacing: .4px;
+        text-transform: uppercase;
+        transition: color .15s;
+        -webkit-tap-highlight-color: transparent;
+        position: relative;
+      }
+      .bn-item.active { color: var(--accent); }
+      .bn-item:not(.active) { color: var(--text-3); }
+      @media (hover: hover) { .bn-item:hover { color: var(--text-2); } }
+      .bn-item svg { flex-shrink: 0; }
+      /* Generate token button: stands out in the center */
+      .bn-item.bn-generate {
+        color: #fff;
+      }
+      .bn-generate-pill {
+        background: var(--accent);
+        border-radius: var(--r-full);
+        width: 44px; height: 44px;
+        display: flex; align-items: center; justify-content: center;
+        box-shadow: 0 3px 14px var(--accent-glow);
+        transition: background .15s, transform .1s;
+      }
+      .bn-generate-pill:active { transform: scale(.92); }
+      .bn-item.bn-generate:active .bn-generate-pill { background: var(--accent-h); }
+      /* Push canvas up so content isn't hidden behind nav */
+      #canvas { padding-bottom: 76px; }
+      /* Hide header life/dice/saved/account buttons on mobile (shown in bottom nav) */
+      #lifeBtn, #diceBtn, #favBtn, #acctBtn { display: none; }
+      /* Hide FAB on mobile (replaced by bottom nav) */
+      .fab-hub { display: none; }
+    }
     /* Modal / surfaces in light mode */
     [data-theme="light"] .modal { background: #d8d8e0; }
     [data-theme="light"] .header-dropdown { background: #d8d8e0; }
@@ -2379,21 +2439,43 @@
   </div>
 
   <!-- Life Tracker Panel -->
-  <div class="life-panel-overlay" id="lifePanelOverlay" onclick="handleLifeOverlay(event)">
+  <div class="life-panel-overlay" id="lifePanelOverlay">
     <div class="life-panel" id="lifePanel">
-      <div class="life-panel-header">
-        <span class="life-panel-title">Life</span>
-        <div class="life-config">
-          <div class="life-chip-group" id="playerChips">
-            <button class="life-chip"        onclick="setLifePlayerCount(1)">1</button>
-            <button class="life-chip active" onclick="setLifePlayerCount(2)">2</button>
-            <button class="life-chip"        onclick="setLifePlayerCount(3)">3</button>
-            <button class="life-chip"        onclick="setLifePlayerCount(4)">4</button>
-          </div>
+      <!-- Player zones are injected here by renderLifePlayers() -->
+      <div class="life-players" id="lifePlayers" data-players="2"></div>
+    </div>
+
+    <!-- Hexagonal settings button centered over all zones -->
+    <button class="life-hex-btn" id="lifeHexBtn" onclick="toggleLifeSettings(event)" aria-label="Game settings">
+      <svg width="18" height="18" viewBox="0 0 16 16" fill="none">
+        <path d="M8 10.5a2.5 2.5 0 100-5 2.5 2.5 0 000 5z" fill="currentColor" opacity=".8"/>
+        <path d="M8 1.5v1.2M8 13.3v1.2M1.5 8h1.2M13.3 8h1.2M3.4 3.4l.85.85M11.75 11.75l.85.85M12.6 3.4l-.85.85M4.25 11.75l-.85.85" stroke="currentColor" stroke-width="1.35" stroke-linecap="round"/>
+      </svg>
+    </button>
+
+    <!-- Settings popup (floats above hex button) -->
+    <div class="life-settings-popup" id="lifeSettingsPopup">
+      <div class="life-settings-popup-title">Game Settings</div>
+      <div class="life-settings-row">
+        <span class="life-settings-label">Players</span>
+        <div class="life-settings-chips" id="settingsPlayerChips">
+          <button class="life-settings-chip" onclick="setLifePlayerCount(1);_syncLifeSettingsUI()">1</button>
+          <button class="life-settings-chip active" onclick="setLifePlayerCount(2);_syncLifeSettingsUI()">2</button>
+          <button class="life-settings-chip" onclick="setLifePlayerCount(3);_syncLifeSettingsUI()">3</button>
+          <button class="life-settings-chip" onclick="setLifePlayerCount(4);_syncLifeSettingsUI()">4</button>
         </div>
-        <button class="life-reset-btn" onclick="resetLifeTotals()" title="Reset">↺</button>
       </div>
-      <div class="life-players" id="lifePlayers"></div>
+      <div class="life-settings-row">
+        <span class="life-settings-label">Starting</span>
+        <div class="life-settings-chips" id="settingsLifeChips">
+          <button class="life-settings-chip active" onclick="settingsSetLife(20);_syncLifeSettingsUI()">20</button>
+          <button class="life-settings-chip" onclick="settingsSetLife(30);_syncLifeSettingsUI()">30</button>
+          <button class="life-settings-chip" onclick="settingsSetLife(40);_syncLifeSettingsUI()">40</button>
+        </div>
+      </div>
+      <div class="life-settings-divider"></div>
+      <button class="life-settings-reset-btn" onclick="resetLifeTotals()">↺ Reset Life Totals</button>
+      <button class="life-settings-close-btn" onclick="closeLifePanel()">Close Life Tracker</button>
     </div>
   </div>
 
@@ -2414,6 +2496,55 @@
     ✨ Update available
     <button class="update-banner-btn" onclick="applyUpdate()">Refresh</button>
   </div>
+
+  <!-- MOBILE BOTTOM NAVIGATION (shown below 640px) -->
+  <nav class="bottom-nav" id="bottomNav" aria-label="Main navigation">
+    <!-- Life -->
+    <button class="bn-item" id="bnLife" onclick="openLifePanel()" aria-label="Life totals">
+      <svg width="18" height="18" viewBox="0 0 16 16" fill="none">
+        <path d="M8 13.5C8 13.5 1.5 9.2 1.5 5.3C1.5 3.3 3.1 2 5 2C6.1 2 7.1 2.55 8 3.5C8.9 2.55 9.9 2 11 2C12.9 2 14.5 3.3 14.5 5.3C14.5 9.2 8 13.5 8 13.5Z" fill="currentColor"/>
+      </svg>
+      Life
+    </button>
+    <!-- Dice -->
+    <button class="bn-item" id="bnDice" onclick="toggleDiceRoller()" aria-label="Dice roller">
+      <svg width="18" height="18" viewBox="0 0 16 16" fill="none">
+        <rect x="1.5" y="1.5" width="13" height="13" rx="2.5" stroke="currentColor" stroke-width="1.4"/>
+        <circle cx="5" cy="5"   r="1.1" fill="currentColor"/>
+        <circle cx="11" cy="5"  r="1.1" fill="currentColor"/>
+        <circle cx="5" cy="11"  r="1.1" fill="currentColor"/>
+        <circle cx="11" cy="11" r="1.1" fill="currentColor"/>
+        <circle cx="8" cy="8"   r="1.1" fill="currentColor"/>
+      </svg>
+      Dice
+    </button>
+    <!-- Generate Token (center, prominent) -->
+    <button class="bn-item bn-generate" onclick="openModal()" aria-label="Generate token">
+      <div class="bn-generate-pill">
+        <svg width="18" height="18" viewBox="0 0 16 16" fill="none">
+          <path d="M8 1V15M1 8H15" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>
+        </svg>
+      </div>
+      Add
+    </button>
+    <!-- Saved -->
+    <button class="bn-item" id="bnSaved" onclick="openFavoritesModal()" aria-label="Saved tokens">
+      <svg width="18" height="18" viewBox="0 0 16 16" fill="none">
+        <path d="M8 2.5l1.6 3.2 3.5.5-2.5 2.5.6 3.5L8 10.5l-3.2 1.7.6-3.5L3 6.2l3.5-.5L8 2.5z"
+              stroke="currentColor" stroke-width="1.35" stroke-linejoin="round"/>
+      </svg>
+      Saved
+    </button>
+    <!-- More (account + settings) -->
+    <button class="bn-item" id="bnMore" onclick="toggleHeaderMenu()" aria-label="More options">
+      <svg width="18" height="18" viewBox="0 0 16 16" fill="none">
+        <circle cx="4"  cy="8" r="1.3" fill="currentColor"/>
+        <circle cx="8"  cy="8" r="1.3" fill="currentColor"/>
+        <circle cx="12" cy="8" r="1.3" fill="currentColor"/>
+      </svg>
+      More
+    </button>
+  </nav>
 
   <!-- FAB Hub -->
   <div class="fab-hub" id="fabHub">
@@ -4423,14 +4554,14 @@
 
     // Predefined color palettes — bg is the rich gradient start color, accent is the name/highlight color
     const LIFE_PALETTES = [
-      { name: 'Crimson',  bg: '#2a0808', accent: '#e85535', swatch: '#e85535' },
-      { name: 'Sapphire', bg: '#060a22', accent: '#4a92d4', swatch: '#4a92d4' },
-      { name: 'Forest',   bg: '#061a08', accent: '#45aa45', swatch: '#45aa45' },
-      { name: 'Amethyst', bg: '#130820', accent: '#9060dd', swatch: '#9060dd' },
-      { name: 'Ember',    bg: '#201006', accent: '#e08830', swatch: '#e08830' },
-      { name: 'Slate',    bg: '#0a0e1c', accent: '#7090c0', swatch: '#7090c0' },
-      { name: 'Rose',     bg: '#220810', accent: '#e05090', swatch: '#e05090' },
-      { name: 'Teal',     bg: '#061816', accent: '#30c0a8', swatch: '#30c0a8' },
+      { name: 'Crimson',  bg: '#a01818', accent: '#ffb0b0', swatch: '#c42020' },
+      { name: 'Sapphire', bg: '#1040a0', accent: '#b0d4ff', swatch: '#1858c8' },
+      { name: 'Forest',   bg: '#1a6828', accent: '#b0f0b8', swatch: '#1e8030' },
+      { name: 'Amethyst', bg: '#5820a0', accent: '#d8b0ff', swatch: '#7030c8' },
+      { name: 'Ember',    bg: '#b84010', accent: '#ffd0a0', swatch: '#d85018' },
+      { name: 'Slate',    bg: '#2040a0', accent: '#b0c8f0', swatch: '#2855b8' },
+      { name: 'Rose',     bg: '#a01858', accent: '#ffb8d8', swatch: '#c82070' },
+      { name: 'Teal',     bg: '#0a7868', accent: '#a0f0e0', swatch: '#0e9080' },
     ];
 
     let lifePlayerCount = 2;
@@ -4461,17 +4592,23 @@
     }
     function closeLifePanel() {
       document.getElementById('lifePanelOverlay').classList.remove('open');
+      closeLifeSettings();
     }
     function handleLifeOverlay(e) {
-      if (e.target === e.currentTarget) closeLifePanel();
+      // No-op — full-screen overlay; closed via settings popup "Close" button or Life header btn
     }
 
     function setLifePlayerCount(n) {
       lifePlayerCount = n;
+      // Sync any legacy chip groups
       document.querySelectorAll('#playerChips .life-chip').forEach((btn, i) => {
         btn.classList.toggle('active', i + 1 === n);
       });
-      // sync settings chips
+      // Sync new settings popup chips
+      document.querySelectorAll('#settingsPlayerChips .life-settings-chip').forEach((btn, i) => {
+        btn.classList.toggle('active', i + 1 === n);
+      });
+      // Sync header settings dropdown chips
       document.querySelectorAll('#settingsPlayerChips .settings-chip').forEach((btn, i) => {
         btn.classList.toggle('active', i + 1 === n);
       });
@@ -4484,10 +4621,40 @@
       document.querySelectorAll('#startLifeChips .life-chip').forEach((btn, i) => {
         btn.classList.toggle('active', lifeVals[i] === n);
       });
-      // sync settings chips
+      // Sync new settings popup chips
+      document.querySelectorAll('#settingsLifeChips .life-settings-chip').forEach((btn, i) => {
+        btn.classList.toggle('active', lifeVals[i] === n);
+      });
+      // Sync header settings dropdown chips
       document.querySelectorAll('#settingsLifeChips .settings-chip').forEach((btn, i) => {
         btn.classList.toggle('active', lifeVals[i] === n);
       });
+    }
+
+    // Keep the settings popup chip states in sync with current values
+    function _syncLifeSettingsUI() {
+      const lifeVals = [20, 30, 40];
+      document.querySelectorAll('#settingsPlayerChips .life-settings-chip').forEach((btn, i) => {
+        btn.classList.toggle('active', i + 1 === lifePlayerCount);
+      });
+      document.querySelectorAll('#settingsLifeChips .life-settings-chip').forEach((btn, i) => {
+        btn.classList.toggle('active', lifeVals[i] === lifeStarting);
+      });
+    }
+
+    // Toggle the life settings popup (hex button)
+    let _lifeSettingsOpen = false;
+    function toggleLifeSettings(e) {
+      e && e.stopPropagation();
+      _lifeSettingsOpen = !_lifeSettingsOpen;
+      const popup = document.getElementById('lifeSettingsPopup');
+      if (popup) popup.classList.toggle('open', _lifeSettingsOpen);
+      if (_lifeSettingsOpen) _syncLifeSettingsUI();
+    }
+    function closeLifeSettings() {
+      _lifeSettingsOpen = false;
+      const popup = document.getElementById('lifeSettingsPopup');
+      if (popup) popup.classList.remove('open');
     }
 
     // Settings shortcuts — called from the header settings dropdown
@@ -4642,7 +4809,9 @@
 
     function _refreshLifeIndicators(i) {
       const el = document.getElementById(`lsi-${i}`);
-      if (el) el.textContent = _lifeIndicators(i);
+      if (!el) return;
+      const s = _lifeIndicators(i);
+      el.innerHTML = s ? `<span class="life-zone-ind">${s}</span>` : '';
     }
 
     // Status effect SVG art — loaded from repo files at runtime,
@@ -4667,45 +4836,48 @@
     })();
 
     function _lifeTapWrapHTML(i) {
-      const d      = lifeData[i];
-      const pal    = LIFE_PALETTES[d.paletteIdx != null ? d.paletteIdx : i % LIFE_PALETTES.length];
-      const accent = pal.accent;
-      const indStr = _lifeIndicators(i);
+      const d        = lifeData[i];
       const tallyVal = _lifeDeltaTally[i] || 0;
       const tallyVisible = tallyVal !== 0;
-      const tallyClass = tallyVisible
+      const tallyClass   = tallyVisible
         ? 'life-tally visible ' + (tallyVal >= 0 ? 'positive' : 'negative')
         : 'life-tally';
-      const tallyTxt  = tallyVisible ? (tallyVal > 0 ? '+' : '') + tallyVal : '';
-      const mActive   = d.isMonarch        ? 'active' : '';
-      const cActive   = d.hasCitysBlessing ? 'active' : '';
+      const tallyTxt = tallyVisible ? (tallyVal > 0 ? '+' : '') + tallyVal : '';
+      const mActive  = d.isMonarch        ? 'active' : '';
+      const cActive  = d.hasCitysBlessing ? 'active' : '';
+      const indStr   = _lifeIndicators(i);
       return `
-        <div class="life-tap-wrap">
-          <!-- Status effect overlays (behind life center, pointer-events:none) -->
-          <div class="life-status-overlay overlay-monarch ${mActive}" id="lso-m-${i}">${_MONARCH_SVG}</div>
-          <div class="life-status-overlay overlay-citys   ${cActive}" id="lso-c-${i}">${_CITYS_SVG}</div>
+        <!-- Status effect SVG overlays (z-index 1) -->
+        <div class="life-status-overlay overlay-monarch ${mActive}" id="lso-m-${i}">${_MONARCH_SVG}</div>
+        <div class="life-status-overlay overlay-citys   ${cActive}" id="lso-c-${i}">${_CITYS_SVG}</div>
 
-          <div class="life-tap-area"
-               onpointerdown="onLifePointerDown(${i},1,event)"
-               onpointerup="onLifePointerUp(${i},1)"
-               onpointerleave="onLifePointerLeave()">
-            <span class="life-tap-hint">+</span>
-          </div>
-          <div class="life-center">
-            <div class="life-name" id="ln-${i}" style="color:${accent}99"
-                 ondblclick="startEditLifeName(${i})">${esc(d.name)}</div>
-            <div class="life-value${d.life<=0?' dead':''}" id="lv-${i}">${d.life}</div>
-            <div class="${tallyClass}" id="lt-${i}">${tallyTxt}</div>
-            <div class="life-status-indicators" id="lsi-${i}">${indStr}</div>
-          </div>
-          <div class="life-tap-area"
-               onpointerdown="onLifePointerDown(${i},-1,event)"
-               onpointerup="onLifePointerUp(${i},-1)"
-               onpointerleave="onLifePointerLeave()">
-            <span class="life-tap-hint">−</span>
-          </div>
-          <button class="life-player-detail-btn" onclick="openLifeDetail(${i})" title="Counters & effects">⋯</button>
-        </div>`;
+        <!-- Upper half — tap to increase -->
+        <div class="life-zone-inc"
+             onpointerdown="onLifePointerDown(${i},1,event)"
+             onpointerup="onLifePointerUp(${i},1)"
+             onpointerleave="onLifePointerLeave()">
+          <span class="life-zone-hint">+</span>
+        </div>
+
+        <!-- Centre info block (pointer-events none, name element allows pointer-events) -->
+        <div class="life-zone-center">
+          <div class="life-zone-name" id="ln-${i}"
+               ondblclick="startEditLifeName(${i})">${esc(d.name)}</div>
+          <div class="life-zone-value${d.life<=0?' dead':''}" id="lv-${i}">${d.life}</div>
+          <div class="${tallyClass}" id="lt-${i}">${tallyTxt}</div>
+          <div class="life-zone-indicators" id="lsi-${i}">${indStr ? `<span class="life-zone-ind">${indStr}</span>` : ''}</div>
+        </div>
+
+        <!-- Lower half — tap to decrease -->
+        <div class="life-zone-dec"
+             onpointerdown="onLifePointerDown(${i},-1,event)"
+             onpointerup="onLifePointerUp(${i},-1)"
+             onpointerleave="onLifePointerLeave()">
+          <span class="life-zone-hint">−</span>
+        </div>
+
+        <!-- Detail button -->
+        <button class="life-zone-detail-btn" onclick="openLifeDetail(${i})" title="Counters &amp; effects">⋯</button>`;
     }
 
     function _lifeCtrRowHTML(idx, type, icon, color) {
@@ -4740,25 +4912,29 @@
     }
 
     function _palGradient(pal) {
-      if (appTheme === 'light') {
-        // Vibrant solid-ish swatch colour so players really pop
-        return `linear-gradient(165deg, ${pal.swatch}ff 0%, ${pal.swatch}cc 100%)`;
-      }
-      // Dark mode: start with a richer swatch glow, fade to near-black
-      return `linear-gradient(165deg, ${pal.swatch}55 0%, ${pal.bg} 45%, #06060e 100%)`;
+      // Full-screen immersive: vibrant solid zone colour with subtle depth gradient
+      return `linear-gradient(180deg, ${pal.bg} 0%, ${pal.swatch} 60%)`;
     }
 
     function renderLifePlayers() {
       const container = document.getElementById('lifePlayers');
       if (!container) return;
+      container.setAttribute('data-players', lifePlayerCount);
       container.innerHTML = '';
+      const gridAreas = ['a', 'b', 'c', 'd'];
       for (let i = 0; i < lifePlayerCount; i++) {
         const pal = LIFE_PALETTES[lifeData[i].paletteIdx != null ? lifeData[i].paletteIdx : i % LIFE_PALETTES.length];
         const el  = document.createElement('div');
-        el.className = 'life-player';
+        el.className = 'life-zone';
+        el.id = `lzone-${i}`;
         el.style.background = _palGradient(pal);
-        // Set CSS variable so .life-value uses the player accent colour in dark mode
-        el.style.setProperty('--life-val-col', pal.accent);
+        el.style.gridArea   = gridAreas[i];
+        // Rotate top-zone players to face each other
+        const isTop =
+          (lifePlayerCount === 2 && i === 0) ||
+          (lifePlayerCount === 3 && i === 0) ||
+          (lifePlayerCount === 4 && i < 2);
+        if (isTop) el.setAttribute('data-rotate', '1');
         el.innerHTML = _lifeTapWrapHTML(i);
         container.appendChild(el);
       }
@@ -4766,15 +4942,11 @@
 
     function setLifePalette(idx, pIdx) {
       lifeData[idx].paletteIdx = pIdx;
-      const container = document.getElementById('lifePlayers');
-      if (container) {
-        const pal      = LIFE_PALETTES[pIdx];
-        const playerEl = container.children[idx];
-        if (playerEl) {
-          playerEl.style.background = _palGradient(pal);
-          playerEl.style.setProperty('--life-val-col', pal.accent);
-          playerEl.innerHTML = _lifeTapWrapHTML(idx);
-        }
+      const zoneEl = document.getElementById(`lzone-${idx}`);
+      if (zoneEl) {
+        const pal = LIFE_PALETTES[pIdx];
+        zoneEl.style.background = _palGradient(pal);
+        zoneEl.innerHTML = _lifeTapWrapHTML(idx);
       }
       // Sync swatch active states if detail sheet is open
       document.querySelectorAll(`#lpal-${idx} .life-swatch`).forEach((sw, i) => {
