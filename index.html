@@ -2857,7 +2857,278 @@
       60%       { transform: translateX(-4px); }
       80%       { transform: translateX(4px); }
     }
-    .wiz-shake { animation: wizShake .38s ease; border-color: var(--accent) !important; }
+
+    /* ══════════════════════════════════════════════════════
+       WCE — WIZARD CARD EDITOR (step 2)
+    ══════════════════════════════════════════════════════ */
+
+    .wce-wrapper { display: flex; flex-direction: column; }
+    .wce-card-outer {
+      display: flex; justify-content: center;
+      padding: 4px 0 10px;
+    }
+
+    /* MTG card frame */
+    .wce-card {
+      --wce-bg:      linear-gradient(160deg,#282424 0%,#1c1818 100%);
+      --wce-border:  #888480;
+      --wce-text:    #f0ece8;
+      --wce-namebar: #1e1a1a;
+      position: relative;
+      width: min(300px, calc(100vw - 52px));
+      aspect-ratio: 5/7;
+      border-radius: 14px;
+      background: var(--wce-bg);
+      border: 3px solid var(--wce-border);
+      box-shadow: 0 0 0 1px rgba(255,255,255,.05), 0 10px 48px rgba(0,0,0,.75), inset 0 1px 0 rgba(255,255,255,.08);
+      display: flex; flex-direction: column;
+      overflow: hidden;
+      color: var(--wce-text);
+      font-family: 'Barlow', sans-serif;
+      transition: border-color .35s, background .35s;
+    }
+
+    /* Zone: clickable hitbox */
+    .wce-zone { position: relative; cursor: pointer; transition: filter .15s; }
+    .wce-zone:hover { filter: brightness(1.14); }
+    .wce-zone::after {
+      content: ''; position: absolute; inset: 0;
+      border: 1.5px solid transparent; border-radius: inherit;
+      transition: border-color .15s; pointer-events: none; z-index: 3;
+    }
+    .wce-zone:hover::after  { border-color: rgba(255,255,255,.22); }
+    .wce-zone-active::after { border-color: var(--accent) !important; }
+    .wce-zone-active        { filter: brightness(1.1); }
+    .wce-zone-hint {
+      position: absolute; bottom: 4px; right: 7px;
+      font-size: .58rem; opacity: 0; transition: opacity .15s;
+      color: rgba(255,255,255,.6); pointer-events: none; z-index: 4;
+    }
+    .wce-zone:hover .wce-zone-hint { opacity: 1; }
+
+    /* Name bar */
+    .wce-name-bar {
+      background: var(--wce-namebar);
+      border-bottom: 2px solid var(--wce-border);
+      padding: 6px 10px 6px 13px;
+      display: flex; align-items: center; justify-content: space-between;
+      min-height: 32px; flex-shrink: 0;
+    }
+    .wce-card-name {
+      font-family: var(--font-display);
+      font-weight: 600; font-style: italic;
+      font-size: clamp(.8rem, 3.5vw, 1rem);
+      color: var(--wce-text);
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+      max-width: 88%; pointer-events: none;
+    }
+
+    /* Art zone */
+    .wce-art-zone {
+      flex: 1 1 0; min-height: 0;
+      background: #12100e;
+      border-bottom: 2px solid var(--wce-border);
+      overflow: hidden; position: relative;
+    }
+    .wce-art-img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .wce-art-placeholder {
+      width: 100%; height: 100%;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      gap: 10px; color: rgba(255,255,255,.28);
+      font-size: .78rem; letter-spacing: .4px;
+    }
+
+    /* Color pips (top-right of art) */
+    .wce-color-pip-row {
+      position: absolute; top: 7px; right: 8px;
+      display: flex; gap: 3px; cursor: pointer; z-index: 5;
+      padding: 3px; border-radius: 20px; background: rgba(0,0,0,.35);
+    }
+    .wce-color-pip {
+      width: 19px; height: 19px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: .57rem; font-weight: 800;
+      border: 1.5px solid rgba(255,255,255,.35);
+      box-shadow: 0 1px 4px rgba(0,0,0,.55);
+      background: #444; color: #fff; transition: transform .15s;
+    }
+    .wce-color-pip-row:hover .wce-color-pip { transform: scale(1.1); }
+    .pip-w { background:#f0d880; color:#1a0e04; }
+    .pip-u { background:#1a58a0; color:#fff; }
+    .pip-b { background:#241018; color:#d0c0d0; border-color:#5a3858; }
+    .pip-r { background:#981808; color:#fff; }
+    .pip-g { background:#185a28; color:#fff; }
+    .pip-c { background:#484440; color:#e8e4e0; }
+
+    /* Type line */
+    .wce-type-line {
+      background: rgba(0,0,0,.25);
+      border-top: 1px solid rgba(255,255,255,.06);
+      border-bottom: 1px solid var(--wce-border);
+      padding: 5px 10px 5px 12px;
+      display: flex; align-items: center; justify-content: space-between;
+      min-height: 26px; flex-shrink: 0;
+    }
+    .wce-type-text {
+      font-size: .66rem; font-family: 'Barlow', sans-serif;
+      font-weight: 600; letter-spacing: .25px; color: var(--wce-text);
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+      max-width: 92%; pointer-events: none;
+    }
+
+    /* Text box */
+    .wce-text-box {
+      flex: 0 0 30%; background: rgba(0,0,0,.28);
+      padding: 7px 11px; overflow: hidden;
+      display: flex; align-items: flex-start;
+    }
+    .wce-oracle-text {
+      font-family: var(--font-display); font-size: .66rem; font-style: italic;
+      color: var(--wce-text); line-height: 1.5;
+      pointer-events: none; width: 100%;
+    }
+    .wce-oracle-text p { margin: 1px 0; }
+    .wce-oracle-text em { opacity: .42; font-size: .62rem; }
+
+    /* Card footer */
+    .wce-card-footer {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 4px 8px 4px 11px; background: rgba(0,0,0,.22);
+      border-top: 2px solid var(--wce-border);
+      min-height: 28px; flex-shrink: 0;
+    }
+    .wce-collector {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: .44rem; letter-spacing: .5px; opacity: .4;
+      color: var(--wce-text); pointer-events: none;
+    }
+    .wce-pt-box {
+      background: rgba(0,0,0,.55); border: 1.5px solid var(--wce-border);
+      border-radius: 5px; padding: 2px 9px; min-width: 36px; text-align: center;
+    }
+    .wce-pt-text {
+      font-family: var(--font-display); font-size: .85rem; font-weight: 600;
+      color: var(--wce-text); pointer-events: none;
+    }
+
+    /* Attribute editor panel */
+    .wce-attr-panel {
+      max-height: 0; overflow: hidden;
+      transition: max-height .32s cubic-bezier(.4,0,.2,1), padding .32s;
+      background: var(--surface);
+      border: 1px solid var(--border); border-radius: 14px;
+      margin: 6px 0 4px;
+    }
+    .wce-attr-panel.open { max-height: 470px; }
+    .wce-panel-inner { padding: 14px 16px 16px; display: flex; flex-direction: column; gap: 10px; }
+    .wce-panel-label {
+      font-family: 'Barlow', sans-serif; font-size: .54rem; font-weight: 700;
+      letter-spacing: 2.2px; text-transform: uppercase; color: var(--accent);
+    }
+    .wce-panel-input {
+      background: var(--surface2); border: 1px solid var(--border-hi);
+      border-radius: 9px; padding: 11px 14px; font-size: .95rem;
+      color: var(--text); width: 100%; box-sizing: border-box;
+      font-family: 'Barlow', sans-serif;
+    }
+    .wce-panel-input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-dim); outline: none; }
+    .wce-panel-textarea {
+      background: var(--surface2); border: 1px solid var(--border-hi);
+      border-radius: 9px; padding: 11px 14px; font-size: .88rem;
+      color: var(--text); width: 100%; box-sizing: border-box;
+      resize: vertical; min-height: 88px;
+      font-family: var(--font-display); font-style: italic; line-height: 1.6;
+    }
+    .wce-panel-textarea:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-dim); outline: none; }
+    .wce-panel-done {
+      background: var(--accent); color: #fff; border: none;
+      border-radius: 9px; padding: 10px 18px;
+      font-family: 'Barlow', sans-serif; font-size: .77rem; font-weight: 700;
+      letter-spacing: 1.2px; text-transform: uppercase;
+      cursor: pointer; align-self: flex-end; transition: filter .15s;
+    }
+    .wce-panel-done:hover { filter: brightness(1.12); }
+
+    /* Art grid */
+    .wce-art-grid {
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(68px, 1fr));
+      gap: 6px; max-height: 210px; overflow-y: auto;
+    }
+    .wce-art-grid-item {
+      border-radius: 6px; overflow: hidden; cursor: pointer;
+      border: 2px solid transparent; transition: border-color .15s, transform .15s;
+      position: relative;
+    }
+    .wce-art-grid-item img { width: 100%; aspect-ratio: 5/7; object-fit: cover; display: block; }
+    .wce-art-grid-label {
+      position: absolute; bottom: 0; left: 0; right: 0;
+      background: rgba(0,0,0,.72); color: #fff;
+      font-size: .46rem; letter-spacing: .4px; text-align: center; padding: 2px 0;
+    }
+    .wce-art-grid-item:hover    { border-color: var(--border-hi); transform: scale(1.04); }
+    .wce-art-grid-item.selected { border-color: var(--accent); }
+
+    /* Color swatches */
+    .wce-color-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
+    .wce-color-swatch {
+      border-radius: 9px; border: 2px solid transparent;
+      padding: 10px 6px; display: flex; flex-direction: column;
+      align-items: center; gap: 3px; cursor: pointer; transition: all .15s;
+    }
+    .wce-color-swatch:hover { filter: brightness(1.16); }
+    .wce-color-swatch.active { border-color: rgba(255,255,255,.75) !important; box-shadow: 0 0 0 1px rgba(255,255,255,.25); }
+    .wce-swatch-letter { font-family: 'Barlow', sans-serif; font-size: .95rem; font-weight: 900; }
+    .wce-swatch-label  { font-size: .52rem; font-weight: 600; letter-spacing: .5px; text-transform: uppercase; opacity: .85; }
+
+    /* Type selector grid */
+    .wce-type-grid { display: flex; flex-wrap: wrap; gap: 6px; }
+    .wce-type-sel {
+      background: var(--surface2); border: 1px solid var(--border); border-radius: 8px;
+      padding: 7px 11px; font-family: 'Barlow', sans-serif; font-size: .73rem;
+      font-weight: 700; letter-spacing: .5px; text-transform: uppercase;
+      color: var(--text-2); cursor: pointer; transition: all .15s;
+    }
+    .wce-type-sel:hover { border-color: var(--border-hi); color: var(--text); }
+    .wce-type-sel.active { border-color: var(--accent); background: var(--accent-dim); color: var(--accent); }
+
+    /* P/T panel */
+    .wce-pt-inputs { display: flex; align-items: flex-end; gap: 8px; }
+    .wce-pt-inp-wrap { flex: 1; display: flex; flex-direction: column; gap: 5px; }
+    .wce-pt-inp-label { font-family: 'Barlow', sans-serif; font-size: .55rem; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: var(--muted); }
+    .wce-pt-inp  { text-align: center; font-size: 1.3rem !important; font-weight: 700 !important; }
+    .wce-pt-slash { font-size: 1.9rem; color: var(--muted); padding-bottom: 4px; }
+
+    /* Below-card controls */
+    .wce-controls { padding: 8px 2px 18px; }
+    .wce-ctrl-label {
+      font-family: 'Barlow', sans-serif; font-size: .53rem; font-weight: 700;
+      letter-spacing: 2.2px; text-transform: uppercase; color: var(--text-3);
+      margin-bottom: 8px; display: block;
+    }
+
+    /* Quantity row */
+    .wce-qty-row {
+      display: flex; align-items: center;
+      background: var(--surface); border: 1px solid var(--border-hi);
+      border-radius: 12px; overflow: hidden;
+    }
+    .wce-qty-btn {
+      background: none; border: none; color: var(--text);
+      font-family: var(--font-counter); font-size: 1.7rem;
+      width: 54px; height: 58px;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; transition: background .15s; flex-shrink: 0;
+    }
+    .wce-qty-btn:hover { background: var(--surface2); }
+    .wce-qty-input {
+      flex: 1; background: none; border: none; text-align: center;
+      font-family: var(--font-counter); font-size: 2.2rem; color: var(--text);
+      padding: 0; height: 58px; -moz-appearance: textfield;
+    }
+    .wce-qty-input::-webkit-inner-spin-button,
+    .wce-qty-input::-webkit-outer-spin-button { -webkit-appearance: none; }
+    .wce-qty-input:focus { outline: none; }
   </style>
 </head>
 <body>
@@ -3309,140 +3580,157 @@
             </div>
           </div>
 
-          <!-- ── 2. Options — appears after token selected ── -->
-          <div class="wiz-section" id="wizSec2" style="display:none">
-            <div class="wiz-sec-header">
-              <span class="wiz-sec-label">Options</span>
-              <span class="wiz-sec-value" id="wizSecVal2">1</span>
-            </div>
-            <div class="wiz-sec-body">
-              <div class="wiz-sec-inner">
-                <div class="wiz-sec-pad">
+          <!-- ── 2. WCE Card Editor ───────────────────────── -->
+          <div class="wce-wrapper" id="wizSec2" style="display:none">
 
-                  <!-- MANUAL ONLY: Type selector -->
-                  <div id="wizTypeRow" style="display:none;margin-bottom:14px">
-                    <label class="form-label" style="display:block;margin-bottom:7px">Type</label>
-                    <div class="wiz-type-row">
-                      <button class="wiz-type-btn" data-type="Creature"    onclick="wizSelectType('Creature')">Creature</button>
-                      <button class="wiz-type-btn" data-type="Artifact"    onclick="wizSelectType('Artifact')">Artifact</button>
-                      <button class="wiz-type-btn" data-type="Enchantment" onclick="wizSelectType('Enchantment')">Enchantment</button>
-                      <button class="wiz-type-btn" data-type="Copy"        onclick="wizSelectType('Copy')">Copy</button>
-                    </div>
-                  </div>
+            <!-- The big interactive MTG card render -->
+            <div class="wce-card-outer">
+              <div class="wce-card" id="wceCard">
 
-                  <!-- Quantity (always) -->
-                  <div class="form-group">
-                    <label class="form-label">Quantity</label>
-                    <div class="modal-qty-row">
-                      <button class="modal-qty-btn" onclick="wizAdjQty(-1)">−</button>
-                      <input type="number" id="wizQty" class="form-input modal-qty-input"
-                             value="1" min="1" max="99" inputmode="numeric" oninput="_wizUpdateQtyVal()">
-                      <button class="modal-qty-btn" onclick="wizAdjQty(1)">+</button>
-                    </div>
-                  </div>
-
-                  <!-- P/T — shown for creatures -->
-                  <div class="pt-row" id="wizPtRow" style="display:none">
-                    <div class="form-group">
-                      <label class="form-label">Power</label>
-                      <input type="text" id="wizPower" class="form-input" value="1" inputmode="decimal">
-                    </div>
-                    <div class="form-group">
-                      <label class="form-label">Toughness</label>
-                      <input type="text" id="wizToughness" class="form-input" value="1" inputmode="decimal">
-                    </div>
-                  </div>
-
-                  <!-- Keywords (always) -->
-                  <div id="wizKwRow" style="margin-top:12px">
-                    <label class="form-label" style="display:block;margin-bottom:7px">Keywords</label>
-                    <div class="modifier-chips">
-                      <div class="mod-chip" data-kw="Flying"         onclick="toggleModChip(this)">Flying</div>
-                      <div class="mod-chip" data-kw="Trample"        onclick="toggleModChip(this)">Trample</div>
-                      <div class="mod-chip" data-kw="Haste"          onclick="toggleModChip(this)">Haste</div>
-                      <div class="mod-chip" data-kw="Vigilance"      onclick="toggleModChip(this)">Vigilance</div>
-                      <div class="mod-chip" data-kw="Deathtouch"     onclick="toggleModChip(this)">Deathtouch</div>
-                      <div class="mod-chip" data-kw="Lifelink"       onclick="toggleModChip(this)">Lifelink</div>
-                      <div class="mod-chip" data-kw="Menace"         onclick="toggleModChip(this)">Menace</div>
-                      <div class="mod-chip" data-kw="Reach"          onclick="toggleModChip(this)">Reach</div>
-                      <div class="mod-chip" data-kw="First Strike"   onclick="toggleModChip(this)">First Strike</div>
-                      <div class="mod-chip" data-kw="Double Strike"  onclick="toggleModChip(this)">Double Strike</div>
-                      <div class="mod-chip" data-kw="Hexproof"       onclick="toggleModChip(this)">Hexproof</div>
-                      <div class="mod-chip" data-kw="Indestructible" onclick="toggleModChip(this)">Indestructible</div>
-                      <div class="mod-chip" data-kw="Ward"           onclick="toggleModChip(this)">Ward</div>
-                      <div class="mod-chip" data-kw="Flash"          onclick="toggleModChip(this)">Flash</div>
-                    </div>
-                  </div>
-
-                  <!-- MANUAL ONLY: Color -->
-                  <div id="wizColorRow" style="display:none;margin-top:12px">
-                    <label class="form-label" style="display:block;margin-bottom:7px">Color</label>
-                    <div class="color-chips" id="wizColorChips">
-                      <div class="color-chip chip-w" data-color="W" onclick="wizToggleColor(this)" title="White">W</div>
-                      <div class="color-chip chip-u" data-color="U" onclick="wizToggleColor(this)" title="Blue">U</div>
-                      <div class="color-chip chip-b" data-color="B" onclick="wizToggleColor(this)" title="Black">B</div>
-                      <div class="color-chip chip-r" data-color="R" onclick="wizToggleColor(this)" title="Red">R</div>
-                      <div class="color-chip chip-g" data-color="G" onclick="wizToggleColor(this)" title="Green">G</div>
-                      <div class="color-chip chip-c" data-color="C" onclick="wizToggleColor(this)" title="Colorless">∅</div>
-                    </div>
-                  </div>
-
-                  <!-- MANUAL ONLY: Subtypes -->
-                  <div id="wizSubtypeRow" style="display:none;margin-top:12px">
-                    <label class="form-label" style="display:block;margin-bottom:5px">Subtypes</label>
-                    <input type="text" id="wizSubtype" class="form-input"
-                           placeholder="Goblin Warrior, Treasure…">
-                  </div>
-
-                  <!-- MANUAL ONLY: Ability Text -->
-                  <div id="wizAbilitiesRow" style="display:none;margin-top:12px">
-                    <div class="form-group">
-                      <label class="form-label">Ability Text <span style="font-weight:400;text-transform:none;font-size:.75rem">(optional)</span></label>
-                      <textarea id="wizAbilities" class="form-textarea" rows="3"
-                                placeholder="Flying&#10;{T}: Add {G}&#10;When this enters…"></textarea>
-                    </div>
-                  </div>
-
-                  <!-- MANUAL ONLY: Counters -->
-                  <div id="wizCounterRow" style="display:none;margin-top:4px">
-                    <details id="wizCounterDetails" style="margin-bottom:10px">
-                      <summary style="list-style:none;cursor:pointer;display:flex;align-items:center;justify-content:space-between;padding:2px 0 8px">
-                        <span class="form-label" style="margin:0">Starting Counters</span>
-                        <span style="font-size:.75rem;color:var(--muted)">optional ▾</span>
-                      </summary>
-                      <div class="counter-row">
-                        <div class="counter-group">
-                          <span class="counter-label" style="color:#4aaa7a">+1/+1</span>
-                          <input type="number" class="counter-num" id="wizCtrPlus"  value="0" min="0" max="99" inputmode="numeric">
-                        </div>
-                        <div class="counter-group">
-                          <span class="counter-label" style="color:#aa4455">−1/−1</span>
-                          <input type="number" class="counter-num" id="wizCtrMinus" value="0" min="0" max="99" inputmode="numeric">
-                        </div>
-                        <div class="counter-group" style="gap:6px">
-                          <input type="text"   class="counter-num" id="wizCtrName"   placeholder="name" style="width:52px;font-size:.75rem">
-                          <input type="number" class="counter-num" id="wizCtrCustom" value="0" min="0" max="99" inputmode="numeric">
-                        </div>
-                      </div>
-                    </details>
-                  </div>
-
-                  <!-- Enters Tapped (always) -->
-                  <div class="toggle-row" style="padding:4px 0 6px;margin-top:6px">
-                    <div>
-                      <div class="toggle-label">Enters Tapped</div>
-                      <div class="toggle-sub">All tokens enter already tapped</div>
-                    </div>
-                    <label class="toggle-switch">
-                      <input type="checkbox" id="wizEntersTapped">
-                      <span class="toggle-knob"></span>
-                    </label>
-                  </div>
-
+                <!-- NAME BAR hitbox -->
+                <div class="wce-zone wce-name-bar" onclick="wceEditZone('name')" title="Edit name">
+                  <span class="wce-card-name" id="wceName">Token</span>
+                  <span class="wce-zone-hint">✎</span>
                 </div>
+
+                <!-- ART hitbox -->
+                <div class="wce-zone wce-art-zone" onclick="wceEditZone('art')" title="Change art">
+                  <img class="wce-art-img" id="wceArtImg" src="" alt="" style="display:none">
+                  <div class="wce-art-placeholder" id="wceArtPlaceholder">
+                    <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round">
+                      <rect x="3" y="3" width="18" height="18" rx="2"/>
+                      <circle cx="8.5" cy="8.5" r="1.5"/>
+                      <path d="M21 15l-5-5L5 21"/>
+                    </svg>
+                    <span>Tap to change art</span>
+                  </div>
+                  <!-- Color pips — tapping opens color editor -->
+                  <div class="wce-color-pip-row" id="wceColorPips"
+                       onclick="event.stopPropagation();wceEditZone('color')" title="Change color">
+                    <span class="wce-color-pip pip-c">∅</span>
+                  </div>
+                </div>
+
+                <!-- TYPE LINE hitbox -->
+                <div class="wce-zone wce-type-line" onclick="wceEditZone('type')" title="Edit type">
+                  <span class="wce-type-text" id="wceTypeLine">Token Creature</span>
+                  <span class="wce-zone-hint">✎</span>
+                </div>
+
+                <!-- TEXT BOX hitbox -->
+                <div class="wce-zone wce-text-box" onclick="wceEditZone('text')" title="Edit ability text">
+                  <div class="wce-oracle-text" id="wceOracleText"><em>Tap to add ability text…</em></div>
+                </div>
+
+                <!-- CARD FOOTER: collector line + P/T hitbox -->
+                <div class="wce-card-footer">
+                  <span class="wce-collector">✦ TOKEN</span>
+                  <div class="wce-zone wce-pt-box" id="wcePtZone" onclick="wceEditZone('pt')" title="Edit P/T">
+                    <span class="wce-pt-text" id="wcePT">1/1</span>
+                  </div>
+                </div>
+
+              </div><!-- /.wce-card -->
+            </div><!-- /.wce-card-outer -->
+
+            <!-- Attribute editor panel (slides in below card) -->
+            <div class="wce-attr-panel" id="wceAttrPanel"></div>
+
+            <!-- Below-card controls -->
+            <div class="wce-controls">
+
+              <!-- Keywords -->
+              <div class="wce-ctrl-label">Keywords</div>
+              <div class="modifier-chips" id="wizKwRow">
+                <div class="mod-chip" data-kw="Flying"         onclick="toggleModChip(this)">Flying</div>
+                <div class="mod-chip" data-kw="Trample"        onclick="toggleModChip(this)">Trample</div>
+                <div class="mod-chip" data-kw="Haste"          onclick="toggleModChip(this)">Haste</div>
+                <div class="mod-chip" data-kw="Vigilance"      onclick="toggleModChip(this)">Vigilance</div>
+                <div class="mod-chip" data-kw="Deathtouch"     onclick="toggleModChip(this)">Deathtouch</div>
+                <div class="mod-chip" data-kw="Lifelink"       onclick="toggleModChip(this)">Lifelink</div>
+                <div class="mod-chip" data-kw="Menace"         onclick="toggleModChip(this)">Menace</div>
+                <div class="mod-chip" data-kw="Reach"          onclick="toggleModChip(this)">Reach</div>
+                <div class="mod-chip" data-kw="First Strike"   onclick="toggleModChip(this)">First Strike</div>
+                <div class="mod-chip" data-kw="Double Strike"  onclick="toggleModChip(this)">Double Strike</div>
+                <div class="mod-chip" data-kw="Hexproof"       onclick="toggleModChip(this)">Hexproof</div>
+                <div class="mod-chip" data-kw="Indestructible" onclick="toggleModChip(this)">Indestructible</div>
+                <div class="mod-chip" data-kw="Ward"           onclick="toggleModChip(this)">Ward</div>
+                <div class="mod-chip" data-kw="Flash"          onclick="toggleModChip(this)">Flash</div>
               </div>
+
+              <!-- Quantity stepper (big Bebas Neue) -->
+              <div class="wce-ctrl-label" style="margin-top:18px">Quantity</div>
+              <div class="wce-qty-row">
+                <button class="wce-qty-btn" onclick="wizAdjQty(-1)">−</button>
+                <input  type="number" id="wizQty" class="wce-qty-input"
+                        value="1" min="1" max="99" inputmode="numeric" oninput="_wizUpdateQtyVal()">
+                <button class="wce-qty-btn" onclick="wizAdjQty(1)">+</button>
+              </div>
+
+              <!-- Enters tapped toggle -->
+              <div class="toggle-row" style="padding:14px 0 4px">
+                <div>
+                  <div class="toggle-label">Enters Tapped</div>
+                  <div class="toggle-sub">All tokens enter already tapped</div>
+                </div>
+                <label class="toggle-switch">
+                  <input type="checkbox" id="wizEntersTapped">
+                  <span class="toggle-knob"></span>
+                </label>
+              </div>
+
+              <!-- Starting counters (collapsible) -->
+              <details id="wizCounterDetails" style="margin-top:6px">
+                <summary style="list-style:none;cursor:pointer;display:flex;align-items:center;justify-content:space-between;padding:4px 0 10px">
+                  <span class="wce-ctrl-label" style="margin:0">Starting Counters</span>
+                  <span style="font-size:.75rem;color:var(--muted)">optional ▾</span>
+                </summary>
+                <div class="counter-row">
+                  <div class="counter-group">
+                    <span class="counter-label" style="color:#4aaa7a">+1/+1</span>
+                    <input type="number" class="counter-num" id="wizCtrPlus"  value="0" min="0" max="99" inputmode="numeric">
+                  </div>
+                  <div class="counter-group">
+                    <span class="counter-label" style="color:#aa4455">−1/−1</span>
+                    <input type="number" class="counter-num" id="wizCtrMinus" value="0" min="0" max="99" inputmode="numeric">
+                  </div>
+                  <div class="counter-group" style="gap:6px">
+                    <input type="text"   class="counter-num" id="wizCtrName"   placeholder="name" style="width:52px;font-size:.75rem">
+                    <input type="number" class="counter-num" id="wizCtrCustom" value="0" min="0" max="99" inputmode="numeric">
+                  </div>
+                </div>
+              </details>
+
+            </div><!-- /.wce-controls -->
+
+            <!-- Hidden compatibility inputs (wizGenerate reads these by ID) -->
+            <input type="hidden" id="wizAbilities" value="">
+            <input type="hidden" id="wizSubtype"   value="">
+            <div style="display:none" id="wizColorChips">
+              <div class="color-chip" data-color="W"></div>
+              <div class="color-chip" data-color="U"></div>
+              <div class="color-chip" data-color="B"></div>
+              <div class="color-chip" data-color="R"></div>
+              <div class="color-chip" data-color="G"></div>
+              <div class="color-chip" data-color="C"></div>
             </div>
-          </div>
+            <div style="display:none" id="wizTypeRow">
+              <button class="wiz-type-btn" data-type="Creature"    onclick="wizSelectType('Creature')">Creature</button>
+              <button class="wiz-type-btn" data-type="Artifact"    onclick="wizSelectType('Artifact')">Artifact</button>
+              <button class="wiz-type-btn" data-type="Enchantment" onclick="wizSelectType('Enchantment')">Enchantment</button>
+              <button class="wiz-type-btn" data-type="Copy"        onclick="wizSelectType('Copy')">Copy</button>
+            </div>
+            <div style="display:none" id="wizPtRow">
+              <input type="text" id="wizPower"     value="1">
+              <input type="text" id="wizToughness" value="1">
+            </div>
+            <div style="display:none" id="wizCounterRow"></div>
+            <div style="display:none" id="wizColorRow"></div>
+            <div style="display:none" id="wizSubtypeRow"></div>
+            <div style="display:none" id="wizAbilitiesRow"></div>
+            <span style="display:none" id="wizSecVal2">1</span>
+
+          </div><!-- /.wce-wrapper -->
 
         </div><!-- /.wiz-accordion -->
 
@@ -3726,10 +4014,15 @@
       if (n === 1) {
         sec1.style.display = '';
         sec2.style.display = 'none';
+        // Close any open WCE attribute panel
+        const attrPnl = document.getElementById('wceAttrPanel');
+        if (attrPnl) attrPnl.classList.remove('open');
+        _wceZone = null;
       } else {
         sec1.style.display = 'none';
         sec2.style.display = '';
-        sec2.classList.add('open');
+        // Render the card editor with current state
+        if (typeof wceRenderCard === 'function') wceRenderCard();
       }
       _wizUpdateStepUI();
       _wizUpdateNavUI();
@@ -3828,39 +4121,32 @@
       if (sec && !sec.classList.contains('open')) sec.classList.add('open');
     }
 
-    // Show/configure sec2 (Options) — isManual=true shows all rows
-    // NOTE: display/visibility is now controlled by wizGoToStep()
+    // Show/configure sec2 (WCE) — isManual=true means manual token creation
+    // NOTE: display/visibility is controlled by wizGoToStep()
     function _wizShowSec2(isManual) {
-      // Ensure sec2 is initialized (display set by wizGoToStep)
+      // sec2 visibility set by wizGoToStep; just prep state here
       const sec2 = document.getElementById('wizSec2');
-      sec2.classList.add('open');
+      if (sec2) sec2.classList.add('open');
 
-      // P/T: show if creature type or card has creature type
-      const isCreature = wizType === 'Creature'
-        || (wizCardData && (wizCardData.type_line || '').includes('Creature'));
-      document.getElementById('wizPtRow').style.display = isCreature ? 'flex' : 'none';
-
-      // Type row (manual only)
-      const typeRow = document.getElementById('wizTypeRow');
-      if (typeRow) typeRow.style.display = isManual ? '' : 'none';
-
-      // Other manual-only rows
-      ['wizColorRow','wizSubtypeRow','wizAbilitiesRow','wizCounterRow'].forEach(id => {
+      // Keep hidden compat rows hidden (editing via WCE card hitboxes now)
+      ['wizPtRow','wizTypeRow','wizColorRow','wizSubtypeRow','wizAbilitiesRow','wizCounterRow'].forEach(id => {
         const el = document.getElementById(id);
-        if (el) el.style.display = isManual ? '' : 'none';
+        if (el) el.style.display = 'none';
       });
       _wizUpdateQtyVal();
-      _wizUpdateNavUI();  // enable Continue now that token/mode is set
+      _wizUpdateNavUI();
+      // Render the WCE card (will be visible once wizGoToStep(2) is called)
+      if (typeof wceRenderCard === 'function') wceRenderCard();
     }
 
     // ── Section header value updater ──────────────────────
     function _wizUpdateQtyVal() {
-      const qty    = document.getElementById('wizQty').value || '1';
-      const ptRow  = document.getElementById('wizPtRow');
-      const showPT = ptRow && ptRow.style.display !== 'none';
-      const pow = showPT ? document.getElementById('wizPower').value : null;
-      const tou = showPT ? document.getElementById('wizToughness').value : null;
-      const label = (showPT && pow != null) ? `${qty} × ${pow}/${tou}` : `${qty}`;
+      const qty = (document.getElementById('wizQty') || {}).value || '1';
+      const isCreature = wizType === 'Creature'
+        || (wizCardData && (wizCardData.type_line || '').includes('Creature'));
+      const pow = isCreature ? ((document.getElementById('wizPower') || {}).value || '1') : null;
+      const tou = isCreature ? ((document.getElementById('wizToughness') || {}).value || '1') : null;
+      const label = (isCreature && pow != null) ? qty + ' × ' + pow + '/' + tou : qty;
       const el = document.getElementById('wizSecVal2');
       if (el) { el.textContent = label; el.classList.remove('unset'); }
     }
@@ -4016,6 +4302,8 @@
       wizCardData = wizArtOptions[0] || prints[0];
       _wizUpdateBanner();
       _wizRenderArtSection();
+      // Update WCE card if step 2 is currently showing
+      if (_wizCurrentStep === 2 && typeof wceRenderCard === 'function') wceRenderCard();
     }
 
     function _wizUpdateBanner() {
@@ -4108,6 +4396,326 @@
       });
       // Ability text (manual only, but pre-fill for reference)
       document.getElementById('wizAbilities').value = oracle;
+    }
+
+    // ══════════════════════════════════════════════════════
+    //  WCE — WIZARD CARD EDITOR
+    // ══════════════════════════════════════════════════════
+    const _WCE_THEMES = {
+      W:    { bg: 'linear-gradient(160deg,#f8f2da,#e4d080)', border: '#c8a040', text: '#1a0e04', namebar: '#d8b858' },
+      U:    { bg: 'linear-gradient(160deg,#1a3d72,#0d2248)', border: '#4a88c4', text: '#c8e8ff', namebar: '#1a3868' },
+      B:    { bg: 'linear-gradient(160deg,#140c10,#0c080e)', border: '#5a3858', text: '#d4c0d4', namebar: '#1a0c18' },
+      R:    { bg: 'linear-gradient(160deg,#5a1508,#380e08)', border: '#b03828', text: '#f8d8c0', namebar: '#5a1808' },
+      G:    { bg: 'linear-gradient(160deg,#0e3418,#0a200e)', border: '#347040', text: '#c8f0cc', namebar: '#0e3a18' },
+      GOLD: { bg: 'linear-gradient(160deg,#3a2408,#261808)', border: '#c89028', text: '#f8e8c0', namebar: '#3a2808' },
+      C:    { bg: 'linear-gradient(160deg,#282424,#1c1818)', border: '#888480', text: '#f0ece8', namebar: '#1e1a1a' },
+    };
+    let _wceZone = null;
+
+    function _wceColorKey() {
+      const c = [...wizColors];
+      if (c.length === 0) return 'C';
+      if (c.length >= 2) return 'GOLD';
+      return c[0];
+    }
+
+    function wceApplyFrameColor() {
+      const card = document.getElementById('wceCard');
+      if (!card) return;
+      const th = _WCE_THEMES[_wceColorKey()] || _WCE_THEMES.C;
+      card.style.setProperty('--wce-bg',      th.bg);
+      card.style.setProperty('--wce-border',  th.border);
+      card.style.setProperty('--wce-text',    th.text);
+      card.style.setProperty('--wce-namebar', th.namebar);
+      const pips = document.getElementById('wceColorPips');
+      if (pips) {
+        const c = [...wizColors];
+        pips.innerHTML = c.length === 0
+          ? '<span class="wce-color-pip pip-c">∅</span>'
+          : c.map(x => `<span class="wce-color-pip pip-${x.toLowerCase()}">${x}</span>`).join('');
+      }
+    }
+
+    function wceRenderCard() {
+      const isCreature = wizType === 'Creature'
+        || (wizCardData && (wizCardData.type_line || '').includes('Creature'));
+
+      // Name
+      const nameEl = document.getElementById('wceName');
+      if (nameEl) {
+        const n = wizIsManual
+          ? (wizManualName || 'Token')
+          : (wizCardData ? wizCardData.name : 'Token');
+        nameEl.textContent = n;
+      }
+
+      // Art
+      const artImg = document.getElementById('wceArtImg');
+      const artPh  = document.getElementById('wceArtPlaceholder');
+      if (artImg && artPh) {
+        const url = wizCardData ? getNormalImg(wizCardData) : '';
+        if (url) {
+          artImg.src = url; artImg.style.display = 'block'; artPh.style.display = 'none';
+        } else {
+          artImg.src = ''; artImg.style.display = 'none'; artPh.style.display = 'flex';
+        }
+      }
+
+      // Type line
+      const tlEl = document.getElementById('wceTypeLine');
+      if (tlEl) {
+        if (wizCardData) {
+          tlEl.textContent = wizCardData.type_line || 'Token';
+        } else {
+          const type = wizType || 'Creature';
+          const sub  = (document.getElementById('wizSubtype') || {}).value || '';
+          tlEl.textContent = 'Token ' + type + (sub ? ' — ' + sub : '');
+        }
+      }
+
+      // Oracle text
+      const otEl = document.getElementById('wceOracleText');
+      if (otEl) {
+        const abilEl = document.getElementById('wizAbilities');
+        const stored = abilEl ? abilEl.value.trim() : '';
+        const oracle = stored || (wizCardData ? (wizCardData.oracle_text || '') : '');
+        if (oracle) {
+          otEl.innerHTML = oracle.split('\n').map(l => '<p>' + esc(l) + '</p>').join('');
+        } else {
+          otEl.innerHTML = '<em>Tap to add ability text…</em>';
+        }
+      }
+
+      // P/T
+      const ptEl   = document.getElementById('wcePT');
+      const ptZone = document.getElementById('wcePtZone');
+      if (ptEl && ptZone) {
+        if (isCreature) {
+          ptZone.style.display = '';
+          const p = (document.getElementById('wizPower') || {}).value || '1';
+          const t = (document.getElementById('wizToughness') || {}).value || '1';
+          ptEl.textContent = p + '/' + t;
+        } else {
+          ptZone.style.display = 'none';
+        }
+      }
+
+      wceApplyFrameColor();
+    }
+
+    function wceEditZone(zone) {
+      _wceZone = zone;
+      const panel = document.getElementById('wceAttrPanel');
+      if (!panel) return;
+
+      // Highlight active zone
+      document.querySelectorAll('.wce-zone').forEach(z => z.classList.remove('wce-zone-active'));
+      document.querySelectorAll('.wce-zone').forEach(z => {
+        const oc = z.getAttribute('onclick') || '';
+        if (oc.includes("'" + zone + "'")) z.classList.add('wce-zone-active');
+      });
+
+      const panels = {
+        name:  _wcePanelName,
+        art:   _wcePanelArt,
+        color: _wcePanelColor,
+        type:  _wcePanelType,
+        text:  _wcePanelText,
+        pt:    _wcePanelPT,
+      };
+      panel.innerHTML = (panels[zone] || (() => ''))();
+      panel.classList.add('open');
+
+      setTimeout(() => {
+        const f = panel.querySelector('input:not([type=hidden]),textarea');
+        if (f) f.focus();
+      }, 60);
+    }
+
+    function wceClosePanel() {
+      _wceZone = null;
+      document.querySelectorAll('.wce-zone').forEach(z => z.classList.remove('wce-zone-active'));
+      const panel = document.getElementById('wceAttrPanel');
+      if (panel) panel.classList.remove('open');
+      wceRenderCard();
+    }
+
+    function _wcePanelName() {
+      const cur = wizIsManual ? (wizManualName || '') : (wizCardData ? wizCardData.name : '');
+      return '<div class="wce-panel-inner">'
+        + '<div class="wce-panel-label">Card Name</div>'
+        + '<input type="text" class="wce-panel-input" id="wcePanelNameInp"'
+        + ' value="' + esc(cur) + '" placeholder="Token name…" autocomplete="off"'
+        + ' oninput="wceUpdateName(this.value)">'
+        + '<button class="wce-panel-done" onclick="wceClosePanel()">Done ✓</button>'
+        + '</div>';
+    }
+
+    function wceUpdateName(v) {
+      if (wizIsManual) wizManualName = v;
+      else if (wizCardData) wizCardData = Object.assign({}, wizCardData, { name: v });
+      const nameEl = document.getElementById('wceName');
+      if (nameEl) nameEl.textContent = v || 'Token';
+      const val1 = document.getElementById('wizSecVal1');
+      if (val1) { val1.textContent = v || '—'; val1.classList.toggle('unset', !v); }
+    }
+
+    function _wcePanelArt() {
+      const withImg = wizArtOptions.filter(c => getNormalImg(c));
+      if (!withImg.length) {
+        return '<div class="wce-panel-inner">'
+          + '<div class="wce-panel-label">Art Version</div>'
+          + '<p style="color:var(--muted);font-size:.85rem;margin:0">No alternate art available.</p>'
+          + '<button class="wce-panel-done" onclick="wceClosePanel()">Done ✓</button>'
+          + '</div>';
+      }
+      const items = withImg.map(function(c, i) {
+        const thumb = getSmallImg(c) || getNormalImg(c);
+        const setNm = ((c.set_name || c.set || '')).toUpperCase();
+        return '<div class="wce-art-grid-item' + (i === wizArtIdx ? ' selected' : '') + '"'
+          + ' onclick="wceSelectArt(' + i + ')">'
+          + '<img src="' + esc(thumb) + '" alt="" loading="lazy">'
+          + '<span class="wce-art-grid-label">' + esc(setNm) + '</span>'
+          + '</div>';
+      }).join('');
+      return '<div class="wce-panel-inner">'
+        + '<div class="wce-panel-label">Art Version <span style="color:var(--muted);font-weight:400">' + withImg.length + ' available</span></div>'
+        + '<div class="wce-art-grid">' + items + '</div>'
+        + '<button class="wce-panel-done" onclick="wceClosePanel()">Done ✓</button>'
+        + '</div>';
+    }
+
+    function wceSelectArt(idx) {
+      const withImg = wizArtOptions.filter(c => getNormalImg(c));
+      wizArtIdx   = idx;
+      wizCardData = withImg[idx];
+      document.querySelectorAll('.wce-art-grid-item').forEach(function(el, i) {
+        el.classList.toggle('selected', i === idx);
+      });
+      _wizAutoFill(wizCardData);
+      wceRenderCard();
+    }
+
+    function _wcePanelColor() {
+      const sw = [
+        { c:'W', label:'White',     bg:'#f0dca0', fg:'#1a0e04', bd:'' },
+        { c:'U', label:'Blue',      bg:'#1a5a9a', fg:'#ffffff', bd:'' },
+        { c:'B', label:'Black',     bg:'#18100e', fg:'#d0c0d0', bd:'#5a3858' },
+        { c:'R', label:'Red',       bg:'#9a1a10', fg:'#ffffff', bd:'' },
+        { c:'G', label:'Green',     bg:'#1a6030', fg:'#ffffff', bd:'' },
+        { c:'C', label:'Colorless', bg:'#50504a', fg:'#f0ece4', bd:'' },
+      ];
+      const items = sw.map(function(s) {
+        const active = (s.c === 'C' && wizColors.size === 0) || wizColors.has(s.c);
+        return '<div class="wce-color-swatch' + (active ? ' active' : '') + '" data-color="' + s.c + '"'
+          + ' style="background:' + s.bg + ';color:' + s.fg + ';border-color:' + (s.bd || s.bg) + '"'
+          + ' onclick="wceToggleColor('' + s.c + '',this)">'
+          + '<span class="wce-swatch-letter">' + s.c + '</span>'
+          + '<span class="wce-swatch-label">' + s.label + '</span>'
+          + '</div>';
+      }).join('');
+      return '<div class="wce-panel-inner">'
+        + '<div class="wce-panel-label">Card Color</div>'
+        + '<div class="wce-color-grid">' + items + '</div>'
+        + '<button class="wce-panel-done" onclick="wceClosePanel()">Done ✓</button>'
+        + '</div>';
+    }
+
+    function wceToggleColor(c, el) {
+      if (c === 'C') {
+        wizColors.clear();
+        document.querySelectorAll('.wce-color-swatch').forEach(function(s) {
+          s.classList.toggle('active', s.dataset.color === 'C');
+        });
+      } else {
+        if (wizColors.has(c)) { wizColors.delete(c); el.classList.remove('active'); }
+        else                   { wizColors.add(c);    el.classList.add('active');    }
+        const cSwatch = document.querySelector('.wce-color-swatch[data-color="C"]');
+        if (cSwatch) cSwatch.classList.toggle('active', wizColors.size === 0);
+      }
+      // Sync hidden chips (wizGenerate reads these)
+      document.querySelectorAll('#wizColorChips .color-chip').forEach(function(chip) {
+        chip.classList.toggle('active', wizColors.has(chip.dataset.color));
+      });
+      wceApplyFrameColor();
+    }
+
+    function _wcePanelType() {
+      const types = ['Creature','Artifact','Enchantment','Instant','Sorcery','Land','Planeswalker'];
+      const curType = wizType || 'Creature';
+      const curSub  = (document.getElementById('wizSubtype') || {}).value || '';
+      const btns = types.map(function(t) {
+        return '<button class="wce-type-sel' + (t === curType ? ' active' : '') + '"'
+          + ' onclick="wceSetType('' + t + '',this)">' + t + '</button>';
+      }).join('');
+      return '<div class="wce-panel-inner">'
+        + '<div class="wce-panel-label">Card Type</div>'
+        + '<div class="wce-type-grid">' + btns + '</div>'
+        + '<div class="wce-panel-label" style="margin-top:10px">Subtypes <span style="font-weight:400;color:var(--muted)">(e.g. Goblin Warrior)</span></div>'
+        + '<input type="text" class="wce-panel-input" id="wcePanelSubInp"'
+        + ' value="' + esc(curSub) + '" placeholder="Elf Warrior, Dragon, Treasure…"'
+        + ' oninput="document.getElementById('wizSubtype').value=this.value;wceRenderCard()">'
+        + '<button class="wce-panel-done" onclick="wceClosePanel()">Done ✓</button>'
+        + '</div>';
+    }
+
+    function wceSetType(t, el) {
+      wizType = t;
+      wizSelectType(t);
+      document.querySelectorAll('.wce-type-sel').forEach(function(b) { b.classList.remove('active'); });
+      if (el) el.classList.add('active');
+      wceRenderCard();
+    }
+
+    function _wcePanelText() {
+      const abilEl = document.getElementById('wizAbilities');
+      const stored = abilEl ? abilEl.value : '';
+      const cur = stored || (wizCardData ? (wizCardData.oracle_text || '') : '');
+      return '<div class="wce-panel-inner">'
+        + '<div class="wce-panel-label">Ability Text</div>'
+        + '<textarea class="wce-panel-textarea" rows="5"'
+        + ' placeholder="Flying&#10;Trample&#10;When this creature enters…"'
+        + ' oninput="document.getElementById('wizAbilities').value=this.value;_wcePreviewOracle(this.value)"'
+        + '>' + esc(cur) + '</textarea>'
+        + '<button class="wce-panel-done" onclick="wceClosePanel()">Done ✓</button>'
+        + '</div>';
+    }
+
+    function _wcePreviewOracle(v) {
+      const el = document.getElementById('wceOracleText');
+      if (!el) return;
+      el.innerHTML = v.trim()
+        ? v.split('\n').map(l => '<p>' + esc(l) + '</p>').join('')
+        : '<em>Tap to add ability text…</em>';
+    }
+
+    function _wcePanelPT() {
+      const p = (document.getElementById('wizPower') || {}).value || '1';
+      const t = (document.getElementById('wizToughness') || {}).value || '1';
+      return '<div class="wce-panel-inner">'
+        + '<div class="wce-panel-label">Power / Toughness</div>'
+        + '<div class="wce-pt-inputs">'
+        + '<div class="wce-pt-inp-wrap"><label class="wce-pt-inp-label">Power</label>'
+        + '<input type="text" class="wce-panel-input wce-pt-inp" id="wcePanelPower"'
+        + ' value="' + esc(p) + '" inputmode="decimal" oninput="wceSyncPT()"></div>'
+        + '<span class="wce-pt-slash">/</span>'
+        + '<div class="wce-pt-inp-wrap"><label class="wce-pt-inp-label">Toughness</label>'
+        + '<input type="text" class="wce-panel-input wce-pt-inp" id="wcePanelToughness"'
+        + ' value="' + esc(t) + '" inputmode="decimal" oninput="wceSyncPT()"></div>'
+        + '</div>'
+        + '<button class="wce-panel-done" onclick="wceClosePanel()">Done ✓</button>'
+        + '</div>';
+    }
+
+    function wceSyncPT() {
+      const p = (document.getElementById('wcePanelPower')     || {}).value || '1';
+      const t = (document.getElementById('wcePanelToughness') || {}).value || '1';
+      const pEl = document.getElementById('wizPower');
+      const tEl = document.getElementById('wizToughness');
+      if (pEl) pEl.value = p;
+      if (tEl) tEl.value = t;
+      const ptEl = document.getElementById('wcePT');
+      if (ptEl) ptEl.textContent = p + '/' + t;
     }
 
     function wizGoManual() {
