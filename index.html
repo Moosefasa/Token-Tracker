@@ -4609,7 +4609,7 @@
         const active = (s.c === 'C' && wizColors.size === 0) || wizColors.has(s.c);
         return '<div class="wce-color-swatch' + (active ? ' active' : '') + '" data-color="' + s.c + '"'
           + ' style="background:' + s.bg + ';color:' + s.fg + ';border-color:' + (s.bd || s.bg) + '"'
-          + ' onclick="wceToggleColor('' + s.c + '',this)">'
+          + ' onclick="wceToggleColor(\'' + s.c + '\',this)">'
           + '<span class="wce-swatch-letter">' + s.c + '</span>'
           + '<span class="wce-swatch-label">' + s.label + '</span>'
           + '</div>';
@@ -4646,7 +4646,7 @@
       const curSub  = (document.getElementById('wizSubtype') || {}).value || '';
       const btns = types.map(function(t) {
         return '<button class="wce-type-sel' + (t === curType ? ' active' : '') + '"'
-          + ' onclick="wceSetType('' + t + '',this)">' + t + '</button>';
+          + ' onclick="wceSetType(\'' + t + '\',this)">' + t + '</button>';
       }).join('');
       return '<div class="wce-panel-inner">'
         + '<div class="wce-panel-label">Card Type</div>'
@@ -4654,7 +4654,7 @@
         + '<div class="wce-panel-label" style="margin-top:10px">Subtypes <span style="font-weight:400;color:var(--muted)">(e.g. Goblin Warrior)</span></div>'
         + '<input type="text" class="wce-panel-input" id="wcePanelSubInp"'
         + ' value="' + esc(curSub) + '" placeholder="Elf Warrior, Dragon, Treasure…"'
-        + ' oninput="document.getElementById('wizSubtype').value=this.value;wceRenderCard()">'
+        + ' oninput="document.getElementById(\'wizSubtype\').value=this.value;wceRenderCard()">'
         + '<button class="wce-panel-done" onclick="wceClosePanel()">Done ✓</button>'
         + '</div>';
     }
@@ -4675,7 +4675,7 @@
         + '<div class="wce-panel-label">Ability Text</div>'
         + '<textarea class="wce-panel-textarea" rows="5"'
         + ' placeholder="Flying&#10;Trample&#10;When this creature enters…"'
-        + ' oninput="document.getElementById('wizAbilities').value=this.value;_wcePreviewOracle(this.value)"'
+        + ' oninput="document.getElementById(\'wizAbilities\').value=this.value;_wcePreviewOracle(this.value)"'
         + '>' + esc(cur) + '</textarea>'
         + '<button class="wce-panel-done" onclick="wceClosePanel()">Done ✓</button>'
         + '</div>';
