@@ -12,7 +12,7 @@
   <meta name="apple-mobile-web-app-title" content="Token Tracker">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@300;400;500;600;700&family=Bebas+Neue&family=Big+Shoulders+Display:wght@700;800;900&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,400;1,9..144,500&family=Bebas+Neue&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -69,7 +69,7 @@
       --sp-6: 32px;
 
       /* ── Font stacks ── */
-      --font-display: 'Cormorant Garamond', Georgia, serif;
+      --font-display: 'Fraunces', Georgia, serif;
       --font-mono:    'JetBrains Mono', 'Courier New', monospace;
       --font-counter: 'Bebas Neue', sans-serif;
 
@@ -78,7 +78,7 @@
 
     html, body {
       height: 100%;
-      font-family: 'Barlow', -apple-system, sans-serif;
+      font-family: 'Plus Jakarta Sans', -apple-system, sans-serif;
       background: var(--bg);
       color: var(--text);
       overflow-x: hidden;
@@ -115,7 +115,7 @@
       display: flex; flex-direction: column; gap: 0;
     }
     .app-eyebrow {
-      font-family: 'Barlow', sans-serif;
+      font-family: 'Plus Jakarta Sans', sans-serif;
       font-size: .52rem; font-weight: 600;
       letter-spacing: 2.8px; text-transform: uppercase;
       color: var(--accent); line-height: 1; margin-bottom: 1px;
@@ -148,7 +148,7 @@
       font-size: var(--text-sm); font-weight: 700;
       cursor: pointer; display: flex; align-items: center; gap: 6px;
       white-space: nowrap; transition: background .15s, transform .1s;
-      font-family: 'Barlow', sans-serif; letter-spacing: .3px;
+      font-family: 'Plus Jakarta Sans', sans-serif; letter-spacing: .3px;
     }
     .btn-generate:hover { background: var(--accent-h); }
     .btn-generate:active { transform: scale(0.97); }
@@ -192,7 +192,7 @@
       margin-top: 6px; background: var(--accent); color: #fff;
       border: none; border-radius: var(--r-full); padding: 10px 24px;
       font-size: var(--text-sm); font-weight: 700; cursor: pointer;
-      font-family: 'Barlow', sans-serif; transition: background .15s;
+      font-family: 'Plus Jakarta Sans', sans-serif; transition: background .15s;
       letter-spacing: .3px;
     }
     .empty-cta:hover { background: var(--accent-h); }
@@ -340,7 +340,7 @@
       flex: 1; height: 40px; padding: 0;
       border-radius: var(--r-md); border: 1px solid var(--border-hi);
       background: rgba(17,17,24,.9);
-      cursor: pointer; font-family: 'Barlow', sans-serif;
+      cursor: pointer; font-family: 'Plus Jakarta Sans', sans-serif;
       display: flex; flex-direction: column;
       align-items: center; justify-content: center; gap: 0;
       transition: background .12s, transform .1s; color: var(--text);
@@ -375,7 +375,7 @@
       width: 100%; padding: 8px 12px;
       border-radius: var(--r-md); border: 1px solid var(--border-hi);
       background: rgba(17,17,24,.9);
-      font-family: 'Barlow', sans-serif;
+      font-family: 'Plus Jakarta Sans', sans-serif;
       font-size: .7rem; font-weight: 600;
       text-transform: uppercase; letter-spacing: .7px;
       cursor: pointer; color: var(--text-2);
@@ -1523,7 +1523,7 @@
       margin-bottom: 6px;
     }
     .life-zone-value {
-      font-family: 'Big Shoulders Display', sans-serif;
+      font-family: 'Fraunces', sans-serif;
       font-size: clamp(5.5rem, 18vw, 9.5rem);
       font-weight: 900; color: rgba(255,255,255,.95); line-height: .85;
       letter-spacing: -4px;
@@ -1705,7 +1705,7 @@
     /* Life-change floating number pop-in */
     .life-float {
       position: fixed; pointer-events: none;
-      font-family: 'Big Shoulders Display', sans-serif;
+      font-family: 'Fraunces', sans-serif;
       font-size: 1.8rem; font-weight: 900; letter-spacing: -.5px;
       text-shadow: 0 2px 8px rgba(0,0,0,.7);
       z-index: 9999; white-space: nowrap;
@@ -2314,7 +2314,7 @@
 
     /* Form labels: eyebrow style throughout */
     .form-label {
-      font-family: 'Barlow', sans-serif;
+      font-family: 'Plus Jakarta Sans', sans-serif;
       font-size: .6rem; font-weight: 700;
       letter-spacing: 1.8px; color: var(--muted);
       text-transform: uppercase; margin-bottom: 6px;
@@ -2327,9 +2327,9 @@
     }
     .form-input:focus, .form-textarea:focus { border-color: var(--accent); }
 
-    /* Submit button: pill shape, Barlow uppercase */
+    /* Submit button: pill shape, uppercase */
     .btn-submit, .btn-wiz-submit {
-      font-family: 'Barlow', sans-serif;
+      font-family: 'Plus Jakarta Sans', sans-serif;
       font-size: .82rem; font-weight: 700;
       letter-spacing: 1.6px; text-transform: uppercase;
       border-radius: var(--r-full);
@@ -2339,7 +2339,7 @@
 
     /* Wiz section header: refined label */
     .wiz-sec-label {
-      font-family: 'Barlow', sans-serif;
+      font-family: 'Plus Jakarta Sans', sans-serif;
       font-size: .58rem; letter-spacing: 1.6px;
       color: var(--text-3);
     }
@@ -2352,7 +2352,7 @@
       font-size: 3.2rem; font-weight: 400; letter-spacing: 2px;
     }
     .dice-result-breakdown { font-family: var(--font-mono); }
-    .dice-dd-header { font-family: 'Barlow', sans-serif; font-size: .58rem; letter-spacing: 1.6px; }
+    .dice-dd-header { font-family: 'Plus Jakarta Sans', sans-serif; font-size: .58rem; letter-spacing: 1.6px; }
 
     /* Panel title: serif */
     .panel-title {
@@ -2363,7 +2363,7 @@
     /* Bottom nav: refined active state */
     @media (max-width: 639px) {
       .bn-item {
-        font-family: 'Barlow', sans-serif;
+        font-family: 'Plus Jakarta Sans', sans-serif;
         font-size: 7px; letter-spacing: .8px;
         color: var(--text-3);
       }
@@ -2388,7 +2388,7 @@
       font-style: italic; letter-spacing: .1px;
     }
     .empty-cta {
-      font-family: 'Barlow', sans-serif;
+      font-family: 'Plus Jakarta Sans', sans-serif;
       font-size: .75rem; letter-spacing: 1.5px;
       text-transform: uppercase; padding: 11px 28px;
     }
@@ -2404,7 +2404,7 @@
       letter-spacing: .2px; margin-bottom: 8px;
     }
     .btn-splash-start {
-      font-family: 'Barlow', sans-serif;
+      font-family: 'Plus Jakarta Sans', sans-serif;
       font-size: .78rem; letter-spacing: 1.8px;
       text-transform: uppercase; border-radius: var(--r-full);
     }
@@ -2459,7 +2459,7 @@
 
     /* Step label: accent when open */
     .wiz-sec-label {
-      font-family: 'Barlow', sans-serif;
+      font-family: 'Plus Jakarta Sans', sans-serif;
       font-size: .57rem; letter-spacing: 2.2px;
       color: var(--text-3); min-width: 56px;
     }
@@ -2471,7 +2471,7 @@
       font-size: .95rem; font-weight: 500;
       color: var(--text); font-style: italic;
     }
-    .wiz-sec-value.unset { font-family: 'Barlow', sans-serif; font-style: normal; font-size: .8rem; color: var(--text-3); }
+    .wiz-sec-value.unset { font-family: 'Plus Jakarta Sans', sans-serif; font-style: normal; font-size: .8rem; color: var(--text-3); }
 
     /* Section body inner padding */
     .wiz-sec-inner > .wiz-sec-pad { padding: 8px 16px 18px; }
@@ -2488,7 +2488,7 @@
       background: none;
       border: 1px solid transparent;
       border-radius: 7px;
-      font-family: 'Barlow', sans-serif;
+      font-family: 'Plus Jakarta Sans', sans-serif;
       font-size: .78rem; font-weight: 700;
       letter-spacing: .4px;
       text-transform: uppercase;
@@ -2567,7 +2567,7 @@
     /* Type buttons: compact uppercase pill row */
     .wiz-type-row { gap: 5px; }
     .wiz-type-btn {
-      font-family: 'Barlow', sans-serif;
+      font-family: 'Plus Jakarta Sans', sans-serif;
       font-size: .7rem; font-weight: 700; letter-spacing: .8px;
       text-transform: uppercase;
       padding: 9px 6px;
@@ -2591,7 +2591,7 @@
       border: 1px solid var(--border);
       border-radius: 7px;
       padding: 6px 11px;
-      font-family: 'Barlow', sans-serif;
+      font-family: 'Plus Jakarta Sans', sans-serif;
       font-size: .68rem; font-weight: 700; letter-spacing: .8px;
       text-transform: uppercase;
       color: var(--text-2);
@@ -2677,7 +2677,7 @@
       border: none;
       border-radius: var(--r-full);
       padding: 16px 24px;
-      font-family: 'Barlow', sans-serif;
+      font-family: 'Plus Jakarta Sans', sans-serif;
       font-size: .78rem; font-weight: 700;
       letter-spacing: 2.5px; text-transform: uppercase;
       cursor: pointer;
@@ -2709,7 +2709,7 @@
     /* Manual toggle link */
     .wiz-manual-hint { margin-top: 10px; }
     .wiz-manual-hint button {
-      font-family: 'Barlow', sans-serif;
+      font-family: 'Plus Jakarta Sans', sans-serif;
       font-size: .72rem; letter-spacing: .3px;
       color: var(--text-3);
     }
@@ -2735,7 +2735,7 @@
       width: 28px; height: 28px;
       border-radius: 50%;
       display: flex; align-items: center; justify-content: center;
-      font-family: 'Barlow', sans-serif;
+      font-family: 'Plus Jakarta Sans', sans-serif;
       font-size: .72rem; font-weight: 700; letter-spacing: .5px;
       border: 1.5px solid var(--border);
       color: var(--text-3);
@@ -2743,7 +2743,7 @@
       transition: all .22s;
     }
     .wiz-step-label {
-      font-family: 'Barlow', sans-serif;
+      font-family: 'Plus Jakarta Sans', sans-serif;
       font-size: .57rem; font-weight: 700;
       letter-spacing: 1.4px; text-transform: uppercase;
       color: var(--text-3);
@@ -2795,7 +2795,7 @@
       border: 1px solid var(--border);
       border-radius: var(--r-full);
       color: var(--text-2);
-      font-family: 'Barlow', sans-serif;
+      font-family: 'Plus Jakarta Sans', sans-serif;
       font-size: .75rem; font-weight: 700; letter-spacing: .6px;
       text-transform: uppercase;
       padding: 11px 18px;
@@ -2816,7 +2816,7 @@
       border: none;
       border-radius: var(--r-full);
       color: #fff;
-      font-family: 'Barlow', sans-serif;
+      font-family: 'Plus Jakarta Sans', sans-serif;
       font-size: .78rem; font-weight: 700; letter-spacing: 1.8px;
       text-transform: uppercase;
       padding: 14px 20px;
@@ -2884,7 +2884,7 @@
       display: flex; flex-direction: column;
       overflow: hidden;
       color: var(--wce-text);
-      font-family: 'Barlow', sans-serif;
+      font-family: 'Plus Jakarta Sans', sans-serif;
       transition: border-color .35s, background .35s;
     }
 
@@ -2971,7 +2971,7 @@
       min-height: 26px; flex-shrink: 0;
     }
     .wce-type-text {
-      font-size: .66rem; font-family: 'Barlow', sans-serif;
+      font-size: .66rem; font-family: 'Plus Jakarta Sans', sans-serif;
       font-weight: 600; letter-spacing: .25px; color: var(--wce-text);
       white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
       max-width: 92%; pointer-events: none;
@@ -3023,14 +3023,14 @@
     .wce-attr-panel.open { max-height: 470px; }
     .wce-panel-inner { padding: 14px 16px 16px; display: flex; flex-direction: column; gap: 10px; }
     .wce-panel-label {
-      font-family: 'Barlow', sans-serif; font-size: .54rem; font-weight: 700;
+      font-family: 'Plus Jakarta Sans', sans-serif; font-size: .54rem; font-weight: 700;
       letter-spacing: 2.2px; text-transform: uppercase; color: var(--accent);
     }
     .wce-panel-input {
       background: var(--surface2); border: 1px solid var(--border-hi);
       border-radius: 9px; padding: 11px 14px; font-size: .95rem;
       color: var(--text); width: 100%; box-sizing: border-box;
-      font-family: 'Barlow', sans-serif;
+      font-family: 'Plus Jakarta Sans', sans-serif;
     }
     .wce-panel-input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-dim); outline: none; }
     .wce-panel-textarea {
@@ -3044,7 +3044,7 @@
     .wce-panel-done {
       background: var(--accent); color: #fff; border: none;
       border-radius: 9px; padding: 10px 18px;
-      font-family: 'Barlow', sans-serif; font-size: .77rem; font-weight: 700;
+      font-family: 'Plus Jakarta Sans', sans-serif; font-size: .77rem; font-weight: 700;
       letter-spacing: 1.2px; text-transform: uppercase;
       cursor: pointer; align-self: flex-end; transition: filter .15s;
     }
@@ -3078,14 +3078,14 @@
     }
     .wce-color-swatch:hover { filter: brightness(1.16); }
     .wce-color-swatch.active { border-color: rgba(255,255,255,.75) !important; box-shadow: 0 0 0 1px rgba(255,255,255,.25); }
-    .wce-swatch-letter { font-family: 'Barlow', sans-serif; font-size: .95rem; font-weight: 900; }
+    .wce-swatch-letter { font-family: 'Plus Jakarta Sans', sans-serif; font-size: .95rem; font-weight: 900; }
     .wce-swatch-label  { font-size: .52rem; font-weight: 600; letter-spacing: .5px; text-transform: uppercase; opacity: .85; }
 
     /* Type selector grid */
     .wce-type-grid { display: flex; flex-wrap: wrap; gap: 6px; }
     .wce-type-sel {
       background: var(--surface2); border: 1px solid var(--border); border-radius: 8px;
-      padding: 7px 11px; font-family: 'Barlow', sans-serif; font-size: .73rem;
+      padding: 7px 11px; font-family: 'Plus Jakarta Sans', sans-serif; font-size: .73rem;
       font-weight: 700; letter-spacing: .5px; text-transform: uppercase;
       color: var(--text-2); cursor: pointer; transition: all .15s;
     }
@@ -3095,14 +3095,14 @@
     /* P/T panel */
     .wce-pt-inputs { display: flex; align-items: flex-end; gap: 8px; }
     .wce-pt-inp-wrap { flex: 1; display: flex; flex-direction: column; gap: 5px; }
-    .wce-pt-inp-label { font-family: 'Barlow', sans-serif; font-size: .55rem; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: var(--muted); }
+    .wce-pt-inp-label { font-family: 'Plus Jakarta Sans', sans-serif; font-size: .55rem; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: var(--muted); }
     .wce-pt-inp  { text-align: center; font-size: 1.3rem !important; font-weight: 700 !important; }
     .wce-pt-slash { font-size: 1.9rem; color: var(--muted); padding-bottom: 4px; }
 
     /* Below-card controls */
     .wce-controls { padding: 8px 2px 18px; }
     .wce-ctrl-label {
-      font-family: 'Barlow', sans-serif; font-size: .53rem; font-weight: 700;
+      font-family: 'Plus Jakarta Sans', sans-serif; font-size: .53rem; font-weight: 700;
       letter-spacing: 2.2px; text-transform: uppercase; color: var(--text-3);
       margin-bottom: 8px; display: block;
     }

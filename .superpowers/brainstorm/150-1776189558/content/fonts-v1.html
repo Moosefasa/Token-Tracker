@@ -1,0 +1,559 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Font Systems</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;0,9..40,800;1,9..40,400&family=DM+Serif+Display:ital@0;1&family=Outfit:wght@300;400;500;600;700;800;900&family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,600;1,9..144,300;1,9..144,400&family=Bebas+Neue&family=JetBrains+Mono:wght@400;500&family=Inter:wght@300;400;500;600;700;800&family=Oswald:wght@400;500;600;700&family=Barlow:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: #111;
+    color: #f0ece8;
+    padding: 0;
+    min-height: 100vh;
+  }
+
+  .page-header {
+    background: #1a1616;
+    border-bottom: 1px solid #2a2424;
+    padding: 20px 24px 16px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .page-header h1 {
+    font-family: 'Inter', sans-serif;
+    font-size: .7rem;
+    font-weight: 700;
+    letter-spacing: 2.5px;
+    text-transform: uppercase;
+    color: #888;
+    margin-bottom: 4px;
+  }
+  .page-header p {
+    font-family: 'Inter', sans-serif;
+    font-size: .85rem;
+    color: #aaa;
+    font-weight: 400;
+  }
+
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0;
+    min-height: calc(100vh - 80px);
+  }
+
+  .col {
+    border-right: 1px solid #222;
+    padding: 28px 20px 40px;
+    cursor: pointer;
+    transition: background .2s;
+    position: relative;
+  }
+  .col:last-child { border-right: none; }
+  .col:hover { background: rgba(255,255,255,.025); }
+  .col.selected { background: rgba(184,50,54,.06); }
+  .col.selected::after {
+    content: '✓ Selected';
+    position: absolute;
+    top: 12px; right: 14px;
+    font-family: 'Inter', sans-serif;
+    font-size: .62rem;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: #b83236;
+  }
+
+  .option-label {
+    font-family: 'Inter', sans-serif;
+    font-size: .55rem;
+    font-weight: 700;
+    letter-spacing: 2.5px;
+    text-transform: uppercase;
+    color: #555;
+    margin-bottom: 4px;
+    display: block;
+  }
+  .option-name {
+    font-family: 'Inter', sans-serif;
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: #f0ece8;
+    margin-bottom: 2px;
+  }
+  .option-desc {
+    font-family: 'Inter', sans-serif;
+    font-size: .72rem;
+    color: #666;
+    margin-bottom: 24px;
+    line-height: 1.5;
+  }
+
+  .divider {
+    height: 1px;
+    background: #222;
+    margin: 18px 0;
+  }
+
+  .spec-row {
+    margin-bottom: 22px;
+  }
+  .spec-label {
+    font-family: 'Inter', sans-serif;
+    font-size: .55rem;
+    font-weight: 600;
+    letter-spacing: 1.8px;
+    text-transform: uppercase;
+    color: #444;
+    margin-bottom: 6px;
+  }
+
+
+  /* ══ OPTION A: DM Sans + DM Serif Display ══ */
+  .col-a .wordmark {
+    font-family: 'DM Serif Display', Georgia, serif;
+    font-size: 1.45rem;
+    font-weight: 400;
+    color: #f0ece8;
+    line-height: 1.1;
+    letter-spacing: -.3px;
+  }
+  .col-a .eyebrow {
+    font-family: 'DM Sans', sans-serif;
+    font-size: .52rem;
+    font-weight: 700;
+    letter-spacing: 2.5px;
+    text-transform: uppercase;
+    color: #b83236;
+    margin-bottom: 1px;
+  }
+  .col-a .card-name {
+    font-family: 'DM Serif Display', serif;
+    font-style: italic;
+    font-size: 1.05rem;
+    color: #f0ece8;
+  }
+  .col-a .counter {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 3.8rem;
+    line-height: 1;
+    color: #f0ece8;
+    letter-spacing: 1px;
+  }
+  .col-a .body-text {
+    font-family: 'DM Sans', sans-serif;
+    font-size: .82rem;
+    color: #aaa;
+    line-height: 1.6;
+    font-weight: 400;
+  }
+  .col-a .ui-label {
+    font-family: 'DM Sans', sans-serif;
+    font-size: .6rem;
+    font-weight: 700;
+    letter-spacing: 1.8px;
+    text-transform: uppercase;
+    color: #666;
+  }
+  .col-a .btn {
+    font-family: 'DM Sans', sans-serif;
+    font-size: .78rem;
+    font-weight: 700;
+    letter-spacing: .4px;
+    background: #b83236;
+    color: #fff;
+    border: none;
+    border-radius: 10px;
+    padding: 10px 18px;
+    cursor: pointer;
+  }
+  .col-a .chip {
+    font-family: 'DM Sans', sans-serif;
+    font-size: .65rem;
+    font-weight: 700;
+    letter-spacing: .5px;
+    background: #1e1a1a;
+    border: 1px solid #2a2424;
+    border-radius: 7px;
+    padding: 5px 10px;
+    display: inline-block;
+  }
+  .col-a .oracle {
+    font-family: 'DM Serif Display', serif;
+    font-style: italic;
+    font-size: .8rem;
+    color: #bbb;
+    line-height: 1.65;
+  }
+  .col-a .mono {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: .62rem;
+    color: #555;
+    letter-spacing: .3px;
+  }
+
+  /* ══ OPTION B: Outfit (single family) ══ */
+  .col-b .wordmark {
+    font-family: 'Outfit', sans-serif;
+    font-size: 1.45rem;
+    font-weight: 700;
+    color: #f0ece8;
+    line-height: 1.1;
+    letter-spacing: -.5px;
+  }
+  .col-b .eyebrow {
+    font-family: 'Outfit', sans-serif;
+    font-size: .52rem;
+    font-weight: 600;
+    letter-spacing: 2.5px;
+    text-transform: uppercase;
+    color: #b83236;
+    margin-bottom: 1px;
+  }
+  .col-b .card-name {
+    font-family: 'Outfit', sans-serif;
+    font-weight: 600;
+    font-size: 1.05rem;
+    color: #f0ece8;
+    letter-spacing: -.2px;
+  }
+  .col-b .counter {
+    font-family: 'Outfit', sans-serif;
+    font-size: 3.8rem;
+    font-weight: 800;
+    line-height: 1;
+    color: #f0ece8;
+    letter-spacing: -2px;
+  }
+  .col-b .body-text {
+    font-family: 'Outfit', sans-serif;
+    font-size: .82rem;
+    color: #aaa;
+    line-height: 1.6;
+    font-weight: 400;
+  }
+  .col-b .ui-label {
+    font-family: 'Outfit', sans-serif;
+    font-size: .6rem;
+    font-weight: 600;
+    letter-spacing: 1.6px;
+    text-transform: uppercase;
+    color: #666;
+  }
+  .col-b .btn {
+    font-family: 'Outfit', sans-serif;
+    font-size: .78rem;
+    font-weight: 700;
+    letter-spacing: .2px;
+    background: #b83236;
+    color: #fff;
+    border: none;
+    border-radius: 10px;
+    padding: 10px 18px;
+    cursor: pointer;
+  }
+  .col-b .chip {
+    font-family: 'Outfit', sans-serif;
+    font-size: .65rem;
+    font-weight: 600;
+    background: #1e1a1a;
+    border: 1px solid #2a2424;
+    border-radius: 7px;
+    padding: 5px 10px;
+    display: inline-block;
+  }
+  .col-b .oracle {
+    font-family: 'Outfit', sans-serif;
+    font-style: italic;
+    font-size: .8rem;
+    color: #bbb;
+    line-height: 1.65;
+    font-weight: 300;
+  }
+  .col-b .mono {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: .62rem;
+    color: #555;
+    letter-spacing: .3px;
+  }
+
+  /* ══ OPTION C: Plus Jakarta Sans + Fraunces ══ */
+  .col-c .wordmark {
+    font-family: 'Fraunces', serif;
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: #f0ece8;
+    line-height: 1.1;
+    letter-spacing: -.3px;
+  }
+  .col-c .eyebrow {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: .52rem;
+    font-weight: 700;
+    letter-spacing: 2.5px;
+    text-transform: uppercase;
+    color: #b83236;
+    margin-bottom: 1px;
+  }
+  .col-c .card-name {
+    font-family: 'Fraunces', serif;
+    font-style: italic;
+    font-size: 1.1rem;
+    font-weight: 400;
+    color: #f0ece8;
+    letter-spacing: -.1px;
+  }
+  .col-c .counter {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 3.8rem;
+    line-height: 1;
+    color: #f0ece8;
+    letter-spacing: 1px;
+  }
+  .col-c .body-text {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: .82rem;
+    color: #aaa;
+    line-height: 1.6;
+    font-weight: 400;
+  }
+  .col-c .ui-label {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: .6rem;
+    font-weight: 700;
+    letter-spacing: 1.8px;
+    text-transform: uppercase;
+    color: #666;
+  }
+  .col-c .btn {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: .78rem;
+    font-weight: 700;
+    letter-spacing: .2px;
+    background: #b83236;
+    color: #fff;
+    border: none;
+    border-radius: 10px;
+    padding: 10px 18px;
+    cursor: pointer;
+  }
+  .col-c .chip {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: .65rem;
+    font-weight: 700;
+    background: #1e1a1a;
+    border: 1px solid #2a2424;
+    border-radius: 7px;
+    padding: 5px 10px;
+    display: inline-block;
+  }
+  .col-c .oracle {
+    font-family: 'Fraunces', serif;
+    font-style: italic;
+    font-size: .8rem;
+    color: #bbb;
+    line-height: 1.65;
+    font-weight: 300;
+  }
+  .col-c .mono {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: .62rem;
+    color: #555;
+    letter-spacing: .3px;
+  }
+
+  .chip-row { display: flex; gap: 6px; flex-wrap: wrap; }
+</style>
+</head>
+<body>
+
+<div class="page-header">
+  <h1>Font System</h1>
+  <p>Three options — rendered with real Token Tracker UI elements. Click a column to select.</p>
+</div>
+
+<div class="grid">
+
+  <!-- ── OPTION A ── -->
+  <div class="col col-a" data-choice="a" onclick="toggleCol(this)">
+    <span class="option-label">Option A</span>
+    <div class="option-name">DM Sans + DM Serif</div>
+    <div class="option-desc">Refined pairing. DM Serif for display, DM Sans for everything else. Legible, modern, still has character.</div>
+    <div class="divider"></div>
+
+    <div class="spec-row">
+      <div class="spec-label">App Wordmark</div>
+      <div class="eyebrow">MTG</div>
+      <div class="wordmark">Token Tracker</div>
+    </div>
+
+    <div class="spec-row">
+      <div class="spec-label">Card Name</div>
+      <div class="card-name">Saproling</div>
+    </div>
+
+    <div class="spec-row">
+      <div class="spec-label">Life Counter</div>
+      <div class="counter">20</div>
+    </div>
+
+    <div class="spec-row">
+      <div class="spec-label">Oracle Text</div>
+      <div class="oracle">Flying<br>When this creature enters the battlefield, create a 1/1 green Saproling token.</div>
+    </div>
+
+    <div class="spec-row">
+      <div class="spec-label">Labels &amp; UI</div>
+      <div class="ui-label" style="margin-bottom:8px">Quantity</div>
+      <div class="body-text">All tokens enter already tapped</div>
+    </div>
+
+    <div class="spec-row">
+      <div class="spec-label">Keyword Chips</div>
+      <div class="chip-row">
+        <span class="chip">Flying</span>
+        <span class="chip">Trample</span>
+        <span class="chip">Haste</span>
+      </div>
+    </div>
+
+    <div class="spec-row">
+      <div class="spec-label">Button</div>
+      <button class="btn">Add to Battlefield</button>
+    </div>
+
+    <div class="spec-row">
+      <div class="spec-label">Collector Line</div>
+      <div class="mono">✦ TOKEN · 003/018</div>
+    </div>
+  </div>
+
+
+  <!-- ── OPTION B ── -->
+  <div class="col col-b" data-choice="b" onclick="toggleCol(this)">
+    <span class="option-label">Option B</span>
+    <div class="option-name">Outfit — Single Family</div>
+    <div class="option-desc">One font does everything. Geometric, contemporary, great screen legibility at all sizes. Numbers look excellent heavy.</div>
+    <div class="divider"></div>
+
+    <div class="spec-row">
+      <div class="spec-label">App Wordmark</div>
+      <div class="eyebrow">MTG</div>
+      <div class="wordmark">Token Tracker</div>
+    </div>
+
+    <div class="spec-row">
+      <div class="spec-label">Card Name</div>
+      <div class="card-name">Saproling</div>
+    </div>
+
+    <div class="spec-row">
+      <div class="spec-label">Life Counter</div>
+      <div class="counter">20</div>
+    </div>
+
+    <div class="spec-row">
+      <div class="spec-label">Oracle Text</div>
+      <div class="oracle">Flying<br>When this creature enters the battlefield, create a 1/1 green Saproling token.</div>
+    </div>
+
+    <div class="spec-row">
+      <div class="spec-label">Labels &amp; UI</div>
+      <div class="ui-label" style="margin-bottom:8px">Quantity</div>
+      <div class="body-text">All tokens enter already tapped</div>
+    </div>
+
+    <div class="spec-row">
+      <div class="spec-label">Keyword Chips</div>
+      <div class="chip-row">
+        <span class="chip">Flying</span>
+        <span class="chip">Trample</span>
+        <span class="chip">Haste</span>
+      </div>
+    </div>
+
+    <div class="spec-row">
+      <div class="spec-label">Button</div>
+      <button class="btn">Add to Battlefield</button>
+    </div>
+
+    <div class="spec-row">
+      <div class="spec-label">Collector Line</div>
+      <div class="mono">✦ TOKEN · 003/018</div>
+    </div>
+  </div>
+
+
+  <!-- ── OPTION C ── -->
+  <div class="col col-c" data-choice="c" onclick="toggleCol(this)">
+    <span class="option-label">Option C</span>
+    <div class="option-name">Plus Jakarta + Fraunces</div>
+    <div class="option-desc">The most characterful pairing. Fraunces is a soft optical-size serif — beautiful for card names. Jakarta for all UI. Still very clean.</div>
+    <div class="divider"></div>
+
+    <div class="spec-row">
+      <div class="spec-label">App Wordmark</div>
+      <div class="eyebrow">MTG</div>
+      <div class="wordmark">Token Tracker</div>
+    </div>
+
+    <div class="spec-row">
+      <div class="spec-label">Card Name</div>
+      <div class="card-name">Saproling</div>
+    </div>
+
+    <div class="spec-row">
+      <div class="spec-label">Life Counter</div>
+      <div class="counter">20</div>
+    </div>
+
+    <div class="spec-row">
+      <div class="spec-label">Oracle Text</div>
+      <div class="oracle">Flying<br>When this creature enters the battlefield, create a 1/1 green Saproling token.</div>
+    </div>
+
+    <div class="spec-row">
+      <div class="spec-label">Labels &amp; UI</div>
+      <div class="ui-label" style="margin-bottom:8px">Quantity</div>
+      <div class="body-text">All tokens enter already tapped</div>
+    </div>
+
+    <div class="spec-row">
+      <div class="spec-label">Keyword Chips</div>
+      <div class="chip-row">
+        <span class="chip">Flying</span>
+        <span class="chip">Trample</span>
+        <span class="chip">Haste</span>
+      </div>
+    </div>
+
+    <div class="spec-row">
+      <div class="spec-label">Button</div>
+      <button class="btn">Add to Battlefield</button>
+    </div>
+
+    <div class="spec-row">
+      <div class="spec-label">Collector Line</div>
+      <div class="mono">✦ TOKEN · 003/018</div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  function toggleCol(el) {
+    document.querySelectorAll('.col').forEach(c => c.classList.remove('selected'));
+    el.classList.add('selected');
+    const choice = el.dataset.choice;
+    const text = el.querySelector('.option-name').textContent;
+    if (window.recordChoice) window.recordChoice(choice, text);
+  }
+</script>
+</body>
+</html>
